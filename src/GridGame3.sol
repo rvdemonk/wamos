@@ -12,18 +12,6 @@ Changes:
 
 pragma solidity ^0.8.17;
 
-// struct GameData {
-//     uint256 id;
-//     uint256 startTimestamp;
-//     uint256 lastTurnTimestamp;
-//     GameStatus state;
-//     uint256 turnCount;
-//     address p1;
-//     address p2;
-//     int8[2] p1_position;
-//     int8[2] p2_position;
-// }
-
 struct GameData {
     uint256 id;
     uint256 startTimestamp;
