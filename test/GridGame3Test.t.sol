@@ -68,4 +68,6 @@ contract GridGame3Test is Test {
     function testInitGameStatus() public {}
 
     function testStart() public {}
+
+    function testDataStruct() public {}
 }
