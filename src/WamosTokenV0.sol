@@ -51,6 +51,9 @@ NOT FOR PRODUCTION USE!!
 */
 
 contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
+    event RequestSent(uint256 requestId, uint32 numWords);
+    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
+
     //// META CONSTANTS
     string public NAME = "ProtoWAMOS";
     string public SYMBOL = "pWAMOs";
@@ -80,6 +83,7 @@ contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
     uint32 numWords = 2;
 
     // GAS LANES (governs max gas price)
+    // TODO extract these hardcodings into script file; take in constructor
     // goerli 150 gwei (only available)
     bytes32 GOERLI_KEYHASH =
         0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
@@ -91,6 +95,7 @@ contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
         0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61;
 
     //// COORDINATERS
+    // TODO extract these hardcodings into script file; take in constructor
     // eth goerli testnet
     address GOERLI_COORDINATOR_ADDR =
         0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
@@ -125,17 +130,16 @@ contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
         return (request.fulfilled, request.randomWords);
     }
 
-    // TODO
     /**
      * @dev Assumes subscription is sufficiently funded
      * Using mumbai test net key hash
-     *
      */
     function requestRandomWords()
         external
         onlyOwner
         returns (uint256 requestId)
     {
+        // generate request id from coordinator
         requestId = COORDINATOR.requestRandomWords(
             MUMBAI_KEYHASH,
             s_subscriptionId,
@@ -143,12 +147,18 @@ contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
             callbackGasLimit,
             numWords
         );
+        // store request struct
         s_requests[requestId] = RequestStatus({
             randomWords: new uint256[](0),
             exists: true,
             fulfilled: false
         });
+        // store request id
         requestIds.push(requestId);
+        // update last request id storage
+        lastRequestId = requestId;
+        emit RequestSent(requestId, numWords);
+        return requestId;
     }
 
     // TODO
@@ -158,5 +168,10 @@ contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
-    ) internal override {}
+    ) internal override {
+        require(s_requests[_requestId].exists, "Request not found");
+        s_requests[_requestId].fulfilled = true;
+        s_requests[_requestId].randomWords = _randomWords;
+        emit RequestFulfilled(_requestId, _randomWords);
+    }
 }
