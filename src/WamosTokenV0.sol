@@ -7,16 +7,20 @@ import "chainlink/interfaces/VRFCoordinatorV2Interface.sol";
 import "chainlink/VRFConsumerBaseV2.sol";
 import "chainlink/ConfirmedOwner.sol";
 
-/*
-WAMO ATTRIBUTES \in [0, 2^8 - 1]
-Vigor ->(attack)
-Guard -> (defence)
-Agility -> effects movement speed and distance
-Wisdom -> effects magic
-Luck 
-Movement pattern (special attribute, from smaller set)
-Type
-*/
+/**
+ * @notice PROTOTYPE CONTRACT
+ * @notice CONTAINS HARDCODED VALUES
+ * @notice NOT FOR PRODUCTION USE!!
+ * @dev WAMO ATTRIBUTES, x \in [0, 2^8 - 1]
+ * Vigor ->(attack)
+ * Guard -> (defence)
+ * Agility -> effects movement speed and distance
+ * Wisdom -> effects magic
+ * Luck
+ * SPECIAL ATTRIBUTES
+ * Type
+ * Movement pattern (special attribute, from smaller set)
+ */
 
 enum Types {
     ZEUS,
@@ -46,7 +50,7 @@ CONTAINS HARDCODED VALUES
 NOT FOR PRODUCTION USE!!
 */
 
-contract ProtoWamos is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
+contract WamosTokenV0 is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
     //// META CONSTANTS
     string public NAME = "ProtoWAMOS";
     string public SYMBOL = "pWAMOs";
@@ -58,6 +62,7 @@ contract ProtoWamos is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
         uint256[] randomWords;
     }
 
+    // requestId => RequestStatus
     mapping(uint256 => RequestStatus) public s_requests;
 
     VRFCoordinatorV2Interface COORDINATOR;
@@ -110,14 +115,46 @@ contract ProtoWamos is ERC721, VRFConsumerBaseV2, ConfirmedOwner {
         s_subscriptionId = subscriptionId;
     }
 
-    function mint() public returns (uint256) {}
+    function getRequestStatus(uint256 _requestId)
+        external
+        view
+        returns (bool fulfilled, uint256[] memory randomWords)
+    {
+        require(s_requests[_requestId].exists, "Request not found");
+        RequestStatus memory request = s_requests[_requestId];
+        return (request.fulfilled, request.randomWords);
+    }
 
+    // TODO
+    /**
+     * @dev Assumes subscription is sufficiently funded
+     * Using mumbai test net key hash
+     *
+     */
     function requestRandomWords()
         external
         onlyOwner
         returns (uint256 requestId)
-    {}
+    {
+        requestId = COORDINATOR.requestRandomWords(
+            MUMBAI_KEYHASH,
+            s_subscriptionId,
+            requestConfirmations,
+            callbackGasLimit,
+            numWords
+        );
+        s_requests[requestId] = RequestStatus({
+            randomWords: new uint256[](0),
+            exists: true,
+            fulfilled: false
+        });
+        requestIds.push(requestId);
+    }
 
+    // TODO
+    function mint() public returns (uint256) {}
+
+    // TODO
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
