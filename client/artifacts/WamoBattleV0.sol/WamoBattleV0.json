@@ -1,0 +1,33 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "src/WamoBattleV0.sol",
+    "id": 2888,
+    "exportedSymbols": {},
+    "nodeType": "SourceUnit",
+    "src": "33:251:15",
+    "nodes": [
+      {
+        "id": 2887,
+        "nodeType": "PragmaDirective",
+        "src": "33:24:15",
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".17"
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 15
+}
