@@ -5,6 +5,7 @@ const fs = require("fs");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
+// facilitates interoperability between hh and forge lib
 function getRemappings() {
   return fs
     .readFileSync("remappings.txt", "utf8")
