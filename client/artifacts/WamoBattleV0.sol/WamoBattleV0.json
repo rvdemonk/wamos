@@ -10,15 +10,15 @@
   },
   "ast": {
     "absolutePath": "src/WamoBattleV0.sol",
-    "id": 2888,
+    "id": 26626,
     "exportedSymbols": {},
     "nodeType": "SourceUnit",
-    "src": "33:251:15",
+    "src": "33:251:25",
     "nodes": [
       {
-        "id": 2887,
+        "id": 26625,
         "nodeType": "PragmaDirective",
-        "src": "33:24:15",
+        "src": "33:24:25",
         "literals": [
           "solidity",
           "^",
@@ -29,5 +29,5 @@
     ],
     "license": "MIT"
   },
-  "id": 15
+  "id": 25
 }

@@ -3,9 +3,9 @@
 pragma solidity ^0.8.17;
 
 import "openzeppelin/token/ERC721/ERC721.sol";
-import "chainlink/interfaces/VRFCoordinatorV2Interface.sol";
-import "chainlink/VRFConsumerBaseV2.sol";
-import "chainlink/ConfirmedOwner.sol";
+import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "chainlink-v0.8/VRFConsumerBaseV2.sol";
+import "chainlink-v0.8/ConfirmedOwner.sol";
 
 /**
  * @notice PROTOTYPE CONTRACT
