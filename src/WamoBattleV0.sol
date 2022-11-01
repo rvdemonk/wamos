@@ -11,6 +11,8 @@ pragma solidity ^0.8.17;
 
 import "openzeppelin/token/ERC721/IERC721Receiver.sol";
 import "openzeppelin/token/ERC721/IERC721.sol";
+import "./WamosRandomnessV0.sol";
+import "./WamosTokenV0.sol";
 
 enum GameStatus {
     PREGAME,
@@ -18,24 +20,31 @@ enum GameStatus {
     FINISHED
 }
 
+// TODO pack struct when all values known
 struct GameData {
     uint256 id;
+    GameStatus status;
     uint256 startTimestamp;
     uint256 lastTurnTimestamp;
     uint256 turnCount;
     address[2] players;
+    mapping(address => uint256) playerId; // needed?
     uint256[2] wamoIds;
-    GameStatus status;
-    mapping(address => int8[2]) positions;
+    mapping(address => WamoStatus) playerWamoStatus; // value array for multiwamo battles
 }
 
+// TODO stack with mutable in-game transient stats
 struct WamoStatus {
+    int8 x;
+    int8 y;
     uint256 health;
-    // TODO stack with mutable in-game transient stats
 }
 
-// TODO custom errors
-error CustomErrorr(uint256 id);
+error NotPlayerOfGame(uint256 gameId, address addr);
+error GameNotOnfoot(uint256 gameId);
+
+// error GameNotStarted(uint256 gameId);
+// error GameFinished(uint256 gameId);
 
 contract WamosBattleV0 is IERC721Receiver {
     //// GAME CONSTANTS
@@ -46,20 +55,31 @@ contract WamosBattleV0 is IERC721Receiver {
     //// WAMOS TOKEN CONTRACT
     IERC721 public wamosNFT;
 
+    //// WAMOS VRF CONSUMER
+    WamosRandomnessV0 private wamosRandomness;
+
     //// GAME STATE STORAGE
     GameData[] public games;
     // retrieves ID of the most recent game involving key address
     mapping(address => uint256) mostRecentGameId;
 
-    // TODO events
+    /////////////////
+    // TODO events //
+    /////////////////
 
     // TODO
     modifier onlyPlayer(uint256 gameId) {
+        if (games[gameId].playerId[msg.sender] == 0) {
+            revert NotPlayerOfGame(gameId, msg.sender);
+        }
         _;
     }
 
     // TODO
-    modifier onlyPlayerOfOnfootGame(uint256 gameId) {
+    modifier onlyOnfootGame(uint256 gameId) {
+        if (games[gameId].status != GameStatus.ONFOOT) {
+            revert GameNotOnfoot(gameId);
+        }
         _;
     }
 
@@ -82,6 +102,8 @@ contract WamosBattleV0 is IERC721Receiver {
 
     function startGame(uint256 gameId) external {}
 
+    function endGame(uint256 gameId) external {}
+
     function move() external returns (int8 newX, int8 newY) {}
 
     function useAbility() external {}
@@ -91,4 +113,22 @@ contract WamosBattleV0 is IERC721Receiver {
         view
         returns (address[2] memory players)
     {}
+
+    function getGameStatus(uint256 gameId) public view returns (GameStatus) {
+        return games[gameId].status;
+    }
+
+    function getGameCount() public view returns (uint256) {
+        return games.length;
+    }
+
+    function getWamoPosition() public view returns (int8 x, int8 y) {}
+
+    function getWamoStatus() public {}
+
+    function getStakedWamos() public {}
+
+    function abs(int8 z) public pure returns (int8) {
+        return z >= 0 ? z : -z;
+    }
 }

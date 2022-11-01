@@ -15,7 +15,7 @@ import "chainlink-v0.8/ConfirmedOwner.sol";
  * Intended to generate randomness for wamo genesis, battles, breeding, gear
  */
 
-contract WamosVRFConsumerV0 is VRFConsumerBaseV2, ConfirmedOwner {
+contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
     event RequestSent(uint256 requestId, uint32 numWords);
     event RequestFulfilled(uint256 requestId, uint256[] randomWords);
 
