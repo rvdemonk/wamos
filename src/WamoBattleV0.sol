@@ -149,13 +149,14 @@ contract WamosBattleV0 is IERC721Receiver {
      */
     function connectWamo(uint256 gameId, uint256 wamoId)
         external
+        onlyPlayer(gameId)
         returns (bool isSuccesful)
     {
         // require player owns wamo and wamo exists
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert SenderDoesntOwnWamo(gameId, msg.sender, wamoId);
         }
-        // require sufficient number of wamos have not already been staked
+        // require sufficient number of wamos have not already been staked by sender
         if (games[gameId].stakedWamoCount[msg.sender] >= MAX_WAMO_STAKE) {
             revert MaximumWamosStaked(gameId, msg.sender);
         }
@@ -163,7 +164,6 @@ contract WamosBattleV0 is IERC721Receiver {
         wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
         // check if WamoBattle owns the wamo now
         isWamoStaked[wamoId] = (wamos.ownerOf(wamoId) == address(this));
-        // TODO if stake successful, initialise game data
         if (isWamoStaked[wamoId]) {
             WamoData storage wamoData = games[gameId]
                 .wamoPartyOf[msg.sender]

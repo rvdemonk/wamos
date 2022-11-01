@@ -1,10 +1,10 @@
 const hre = require("hardhat");
 
 async function main() {
-  const VRFConsumerV0 = await hre.ethers.getContractFactory(
-    "WamosVRFConsumerV0"
+  const Randomness= await hre.ethers.getContractFactory(
+    "WamosRandomnessV0"
   );
-  const consumerV0 = await VRFConsumerV0.deploy();
+  const randomness = await VRFConsumerV0.deploy();
 }
 
 main().catch((error) => {
