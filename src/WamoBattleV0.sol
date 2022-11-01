@@ -86,7 +86,7 @@ contract WamosBattleV0 is IERC721Receiver {
         wamosNFT = _nft;
     }
 
-    // override for erc721 receiver
+    // Override for erc721 receiver
     function onERC721Received(
         address operator,
         address from,
@@ -97,16 +97,37 @@ contract WamosBattleV0 is IERC721Receiver {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    function createGame(address player1, address invitee)
+    /**
+     * @dev kept minimal for modularity and gas minimization in game creation
+     */
+    function createGame(address challenger, address invitee)
         external
         returns (uint256 gameId)
-    {}
+    {
+        uint256 id = games.length;
+        GameData storage newgame = games.push();
+        newgame.id = id;
+        newgame.players = [challenger, invitee];
+        newgame.startTimestamp = block.timestamp;
+        // newgame.status defaults to 0 PREGAME
+        // leave party struct packing for other function
+        return id;
+    }
 
-    function startGame(uint256 gameId) external {}
+    // Stake Wamo token for battle
+    function connectWamo() external {}
+
+    function startGame(uint256 gameId) external {
+        // ensure two players have connected
+        // ensure players have both staked sufficient wamo nfts
+    }
 
     function endGame(uint256 gameId) external {}
 
-    function move() external returns (int8 newX, int8 newY) {}
+    function move() external returns (int8 newX, int8 newY) {
+        // ensure it is players turn
+        // update last turn timestamp
+    }
 
     function useAbility() external {}
 
