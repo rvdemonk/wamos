@@ -7,6 +7,7 @@ pragma solidity ^0.8.17;
  * For complex input validations use if statements + revert + custom errors;
  * use require statements only for simple checks
  *    - (reverts save gas apparently, plus more precise error messages)
+ *
  */
 
 import "openzeppelin/token/ERC721/IERC721Receiver.sol";
@@ -29,12 +30,11 @@ struct GameData {
     uint256 turnCount;
     address[2] players;
     mapping(address => uint256) playerId; // needed?
-    uint256[2] wamoIds;
-    mapping(address => WamoStatus) playerWamoStatus; // value array for multiwamo battles
+    mapping(address => WamoData[]) playerParty;
 }
 
 // TODO stack with mutable in-game transient stats
-struct WamoStatus {
+struct WamoData {
     int8 x;
     int8 y;
     uint256 health;
@@ -60,14 +60,13 @@ contract WamosBattleV0 is IERC721Receiver {
 
     //// GAME STATE STORAGE
     GameData[] public games;
-    // retrieves ID of the most recent game involving key address
     mapping(address => uint256) mostRecentGameId;
 
     /////////////////
-    // TODO events //
+    // TODO EVENTS //
     /////////////////
 
-    // TODO
+    // Reverts function if msg.sender is not a player of gameId
     modifier onlyPlayer(uint256 gameId) {
         if (games[gameId].playerId[msg.sender] == 0) {
             revert NotPlayerOfGame(gameId, msg.sender);
@@ -75,7 +74,7 @@ contract WamosBattleV0 is IERC721Receiver {
         _;
     }
 
-    // TODO
+    // Reverts function if gameId has not started or has finished
     modifier onlyOnfootGame(uint256 gameId) {
         if (games[gameId].status != GameStatus.ONFOOT) {
             revert GameNotOnfoot(gameId);
@@ -98,7 +97,10 @@ contract WamosBattleV0 is IERC721Receiver {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    function createGame() external returns (uint256 gameId) {}
+    function createGame(address player1, address invitee)
+        external
+        returns (uint256 gameId)
+    {}
 
     function startGame(uint256 gameId) external {}
 
@@ -124,9 +126,9 @@ contract WamosBattleV0 is IERC721Receiver {
 
     function getWamoPosition() public view returns (int8 x, int8 y) {}
 
-    function getWamoStatus() public {}
+    function getWamo() public {}
 
-    function getStakedWamos() public {}
+    function getStakedWamoId() public {}
 
     function abs(int8 z) public pure returns (int8) {
         return z >= 0 ? z : -z;
