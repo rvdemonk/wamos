@@ -21,6 +21,10 @@ enum GameStatus {
     FINISHED
 }
 
+////////////////////////////////////////////////////////////
+/////////////////        STRUCTS       /////////////////////
+////////////////////////////////////////////////////////////
+
 // TODO pack struct when all values known
 struct GameData {
     uint256 id;
@@ -39,12 +43,13 @@ struct WamoData {
     int8 y;
     uint256 health;
 }
+////////////////////////////////////////////////////////////
+/////////////////        ERRORS        /////////////////////
+////////////////////////////////////////////////////////////
 
 error NotPlayerOfGame(uint256 gameId, address addr);
 error GameNotOnfoot(uint256 gameId);
-
-// error GameNotStarted(uint256 gameId);
-// error GameFinished(uint256 gameId);
+error SenderDoesntOwnWamo(address sender, uint256 wamoId, uint256 gameId);
 
 contract WamosBattleV0 is IERC721Receiver {
     //// GAME CONSTANTS
@@ -53,14 +58,19 @@ contract WamosBattleV0 is IERC721Receiver {
     int8 public MAX_PLAYERS = 2;
 
     //// WAMOS TOKEN CONTRACT
-    IERC721 public wamosNFT;
+    IERC721 public wamosTokens;
 
     //// WAMOS VRF CONSUMER
-    WamosRandomnessV0 private wamosRandomness;
+    WamosRandomnessV0 private theGods;
 
     //// GAME STATE STORAGE
     GameData[] public games;
-    mapping(address => uint256) mostRecentGameId;
+    // player -> gameId of games which player has been challenged to
+    // this mapping is mechanism which allows invitation visibility and acceptances
+    mapping(address => uint256[]) challengesReceivedBy;
+    mapping(address => uint256[]) challengesSentBy;
+    // mapping(address => uint256) lastGame;
+    mapping(uint256 => uint256[]) wamosStakedInGame;
 
     /////////////////
     // TODO EVENTS //
@@ -83,18 +93,7 @@ contract WamosBattleV0 is IERC721Receiver {
     }
 
     constructor(IERC721 _nft) {
-        wamosNFT = _nft;
-    }
-
-    // Override for erc721 receiver
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external view override returns (bytes4) {
-        require(msg.sender == address(wamosNFT));
-        return IERC721Receiver.onERC721Received.selector;
+        wamosTokens = _nft;
     }
 
     /**
@@ -109,13 +108,47 @@ contract WamosBattleV0 is IERC721Receiver {
         newgame.id = id;
         newgame.players = [challenger, invitee];
         newgame.startTimestamp = block.timestamp;
+        challengesReceivedBy[invitee].push(gameId);
+        challengesSentBy[challenger].push(gameId);
         // newgame.status defaults to 0 PREGAME
         // leave party struct packing for other function
         return id;
     }
 
     // Stake Wamo token for battle
-    function connectWamo() external {}
+    /**
+     * @dev TODO upgrade to take multiple wamo ids as input to fill entire party
+     *      - maybe function overloading for this
+     * Wamo not added to struct here; GameData mutated in onERC721Received instead,
+     * to avoid reentrancy, or receiving wamo in this functon call but gas running out
+     * before data is added, or noxious outcome if transfer fails for unforseen reason.
+     */
+    function connectWamo(uint256 gameId, uint256 wamoId)
+        external
+        returns (bool ifSuccesful)
+    {
+        // require player owns wamo and wamo exists
+        if (wamosTokens.ownerOf(wamoId) != msg.sender) {
+            revert SenderDoesntOwnWamo(msg.sender, wamoId, gameId);
+        }
+        wamosTokens.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
+        wamosStakedInGame[gameId].push(wamoId);
+        return true;
+    }
+
+    /**
+     * @dev TODO Frontend must include uint256 gameId in calldata
+     *
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external view override returns (bytes4) {
+        // amend game data
+        return IERC721Receiver.onERC721Received.selector;
+    }
 
     function startGame(uint256 gameId) external {
         // ensure two players have connected
