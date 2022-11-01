@@ -58,7 +58,8 @@ error NotPlayerOfGame(uint256 gameId, address addr);
 error GameNotOnfoot(uint256 gameId);
 error SenderDoesntOwnWamo(uint256 gameId, address sender, uint256 wamoId);
 error WamoStakingFailed(uint256 gameId, address player, uint256 wamoId);
-error MaximumWamosStaked(uint256 gameId, msg.sender);
+error MaximumWamosStaked(uint256 gameId, address Sender);
+error InsufficientWamosStaked(uint256 gameId);
 
 ////////////////////////////////////////////////////////////
 /////////////////   WAMOS BATTLE V0    /////////////////////
@@ -69,7 +70,7 @@ contract WamosBattleV0 is IERC721Receiver {
     int8 public GRID_SIZE = 16;
     int8 public MAX_MOVE = 3;
     int8 public MAX_PLAYERS = 2;
-    int8 public MAX_WAMO_STAKE = 2;
+    uint256 public MAX_WAMO_STAKE = 2;
 
     //// WAMOS TOKEN CONTRACT
     IERC721 public wamos;
@@ -85,7 +86,7 @@ contract WamosBattleV0 is IERC721Receiver {
     mapping(address => uint256[]) challengesSentBy;
     // mapping(address => uint256) lastGame;
 
-    mapping(uint256 => uint256[]) wamosStakedInGame;
+    // mapping(uint256 => uint256[]) wamosStakedInGame;
     // or
     mapping(uint256 => bool) isWamoStaked;
 
@@ -112,6 +113,10 @@ contract WamosBattleV0 is IERC721Receiver {
         }
         _;
     }
+
+    ////////////////////////////////////////////////////////////
+    /////////////////      GAME SETUP      /////////////////////
+    ////////////////////////////////////////////////////////////
 
     /**
      * @dev kept minimal for modularity and gas minimization in game creation
@@ -188,10 +193,20 @@ contract WamosBattleV0 is IERC721Receiver {
             "Game cannot start without two players"
         );
         // ensure players have both staked sufficient wamo nfts
-        // games[gameId].stakedWamoCount[
-        //     games[gameId].players[0]
+        if (
+            games[gameId].stakedWamoCount[games[gameId].players[0]] +
+                games[gameId].stakedWamoCount[games[gameId].players[1]] <
+            2 * MAX_WAMO_STAKE
+        ) {
+            revert InsufficientWamosStaked(gameId);
+        }
         // change game status to onfoot when requires passed
+        games[gameId].status = GameStatus.ONFOOT;
     }
+
+    ////////////////////////////////////////////////////////////
+    /////////////////    PLAYER ACTIONS    /////////////////////
+    ////////////////////////////////////////////////////////////
 
     function move() external returns (int8 newX, int8 newY) {
         // ensure it is players turn
@@ -199,6 +214,10 @@ contract WamosBattleV0 is IERC721Receiver {
     }
 
     function useAbility() external {}
+
+    ////////////////////////////////////////////////////////////
+    /////////////////    VIEW FUNCTIONS    /////////////////////
+    ////////////////////////////////////////////////////////////
 
     function getPlayers(uint256 gameId)
         public
