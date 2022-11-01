@@ -39,11 +39,13 @@ struct GameData {
     uint256 turnCount;
     address[2] players;
     mapping(address => uint256) playerId; // \in[0,1]  (necessary?)
-    mapping(address => WamoData[]) wamoPartyOf;
+    mapping(address => WamoData[]) wamoPartyOf; // array for multiple wamos
+    mapping(address => uint256) stakedWamoCount;
 }
 
-// TODO stack with mutable in-game transient stats
+// TODO stack with all mutable in-game transient stats
 struct WamoData {
+    uint256 wamoId;
     int8 x;
     int8 y;
     uint256 health;
@@ -56,12 +58,18 @@ error NotPlayerOfGame(uint256 gameId, address addr);
 error GameNotOnfoot(uint256 gameId);
 error SenderDoesntOwnWamo(uint256 gameId, address sender, uint256 wamoId);
 error WamoStakingFailed(uint256 gameId, address player, uint256 wamoId);
+error MaximumWamosStaked(uint256 gameId, msg.sender);
+
+////////////////////////////////////////////////////////////
+/////////////////   WAMOS BATTLE V0    /////////////////////
+////////////////////////////////////////////////////////////
 
 contract WamosBattleV0 is IERC721Receiver {
     //// GAME CONSTANTS
     int8 public GRID_SIZE = 16;
     int8 public MAX_MOVE = 3;
     int8 public MAX_PLAYERS = 2;
+    int8 public MAX_WAMO_STAKE = 2;
 
     //// WAMOS TOKEN CONTRACT
     IERC721 public wamos;
@@ -76,11 +84,18 @@ contract WamosBattleV0 is IERC721Receiver {
     mapping(address => uint256[]) challengesReceivedBy;
     mapping(address => uint256[]) challengesSentBy;
     // mapping(address => uint256) lastGame;
+
     mapping(uint256 => uint256[]) wamosStakedInGame;
+    // or
+    mapping(uint256 => bool) isWamoStaked;
 
     ////////////////////////////////////////////////////////////
     /////////////////      TODO EVENTS     /////////////////////
     ////////////////////////////////////////////////////////////
+
+    constructor(IERC721 _nft) {
+        wamos = _nft;
+    }
 
     // Reverts function if msg.sender is not a player of gameId
     modifier onlyPlayer(uint256 gameId) {
@@ -96,10 +111,6 @@ contract WamosBattleV0 is IERC721Receiver {
             revert GameNotOnfoot(gameId);
         }
         _;
-    }
-
-    constructor(IERC721 _nft) {
-        wamos = _nft;
     }
 
     /**
@@ -121,11 +132,11 @@ contract WamosBattleV0 is IERC721Receiver {
         return id;
     }
 
-    // Stake Wamo token for battle
     /**
      * @dev TODO upgrade to take multiple wamo ids as input to fill entire party
      *      - maybe function overloading for this
-     * @dev
+     * @dev Stakes wamo for battle
+     * @dev Can function be tricked by sending token id to it that is already staked?
      *
      * Wamo not added to struct here; GameData mutated in onERC721Received instead,
      * to avoid reentrancy, or receiving wamo in this functon call but gas running out
@@ -139,34 +150,46 @@ contract WamosBattleV0 is IERC721Receiver {
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert SenderDoesntOwnWamo(gameId, msg.sender, wamoId);
         }
+        // require sufficient number of wamos have not already been staked
+        if (games[gameId].stakedWamoCount[msg.sender] >= MAX_WAMO_STAKE) {
+            revert MaximumWamosStaked(gameId, msg.sender);
+        }
         // prompt receipt of wamo token
         wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
-        if (wamos.ownerOf(wamoId) == address(this)) {
-            wamosStakedInGame[gameId].push(wamoId);
-            return true;
-        } else {
-            revert WamoStakingFailed(gameId, msg.sender, wamoId);
+        // check if WamoBattle owns the wamo now
+        isWamoStaked[wamoId] = (wamos.ownerOf(wamoId) == address(this));
+        // TODO if stake successful, initialise game data
+        if (isWamoStaked[wamoId]) {
+            WamoData storage wamoData = games[gameId]
+                .wamoPartyOf[msg.sender]
+                .push();
+            wamoData.wamoId = wamoId;
+            // TODO init position (separate function probably)
         }
+        return isWamoStaked[wamoId];
     }
 
+    /**
+     * @dev Must account for security considerations of receiving foreign erc721 tokens
+     */
     function onERC721Received(
-        address operator, // should be wamos contract 
+        address operator, // should be wamos contract
         address from,
         uint256 tokenId,
         bytes calldata data
     ) external view override returns (bytes4) {
-        // check if token received was a wamo
-        if (operator != )
-        // check that wamo received corresponds to owner in a pregame lobby
-        // convert data bytes into uint256 -> gameId
-        // TODO amend game data to
-
         return IERC721Receiver.onERC721Received.selector;
     }
 
     function startGame(uint256 gameId) external {
         // ensure two players have connected
+        require(
+            games[gameId].players[1] != address(0),
+            "Game cannot start without two players"
+        );
         // ensure players have both staked sufficient wamo nfts
+        // games[gameId].stakedWamoCount[
+        //     games[gameId].players[0]
         // change game status to onfoot when requires passed
     }
 
