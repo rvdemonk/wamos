@@ -16,8 +16,6 @@ import "chainlink-v0.8/ConfirmedOwner.sol";
  */
 
 contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
-    event RequestSent(uint256 requestId, uint32 numWords);
-    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
 
     //// VRF CONSUMER DATA STORAGE
     struct RequestStatus {
@@ -65,6 +63,9 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
         0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed;
     // avalanche fuji testnet
     address FUJI_COORDINATOR_ADDR = 0x2eD832Ba664535e5886b75D64C46EB9a228C2610;
+    
+    event RequestSent(uint256 requestId, uint32 numWords);
+    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
 
     constructor(uint64 subscriptionId)
         VRFConsumerBaseV2(MUMBAI_COORDINATOR_ADDR)
