@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.17;
+pragma solidity <0.9.0;
 
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -45,26 +45,21 @@ struct Ability {
     uint8 Cooldown;
 }
 
-struct WamoStats {
-    Type wamoType;
-    uint8 Health;
-    uint8 Attack;
-    uint8 Defence;
-    // uint8
-}
+// struct WamoStats {
+
+// }
 
 contract WamosTokenV0 is ERC721, ConfirmedOwner {
     //// META CONSTANTS
     string public NAME = "WamosTokenV0";
     string public SYMBOL = "WAMOSV0";
 
-    //// RANDOMNESS
+    //// RANDOMNESS INSTANCE
     WamosRandomnessV0 randomness;
 
-    /* ////////////////////////////////////////////////////////
-                WAMO DATA STORAGE: WamoID => (value)
-    ////////////////////////////////////////////////////////*/
+    // Mapping from wamo ID to array of wamo attributes
     mapping(uint256 => uint8[]) attributes;
+    // Mappping from wamo ID to array of the wamos abilities
     mapping(uint256 => Ability[]) abilities;
 
     event RequestSent(uint256 requestId, uint32 numWords);

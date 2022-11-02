@@ -17,7 +17,7 @@ function getRemappings() {
 }
 
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "mumbai",
   networks: {
     hardhat: {
       chainId: 31337,
@@ -29,20 +29,31 @@ module.exports = {
     },
     goerli: {
       chainId: 5,
+      accounts: [process.env.PRIVATE_KEY],
       linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
       url: "https://eth-goerli.g.alchemy.com/v2/kWeTCth5hJ-QGN09UW8XRLduAsGpSFA1",
-      accounts: [process.env.PRIVATE_KEY],
+      vrfCoordinator: "0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D",
+      gasLane:
+        "0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15",
     },
     polygon: {
       chainId: 137,
       linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
       url: "https://polygon-mainnet.g.alchemy.com/v2/NAD4cA_1X57AN5ad43yLzSaVOamH2LSt",
+      vrfCoordinator: "",
+      gasLane: "",
     },
     mumbai: {
       chainId: 80001,
+      accounts: [process.env.PRIVATE_KEY],
       linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
       url: "https://polygon-mumbai.g.alchemy.com/v2/eYgXsBSOPz9oR2j30eumjxLssbFSvo6i",
-      accounts: [process.env.PRIVATE_KEY],
+      gas: 2100000,
+      gasPrice: 8000000000,
+      subscriptionId: 2391,
+      vrfCoordinator: "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
+      gasLane:
+        "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f",
     },
   },
   devChains: ["hardhat", "anvil"],

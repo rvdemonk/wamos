@@ -137,6 +137,7 @@ contract GridGame3 {
             "Movement would leave the Battlegrid...trying to escape?"
         );
         games[id].positions[msg.sender] = newPos;
+        games[id].turnCount++;
         return (newPos[0], newPos[1]);
     }
 
