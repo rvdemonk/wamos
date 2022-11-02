@@ -6,6 +6,7 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/ConfirmedOwner.sol";
+import "./WamosRandomnessV0.sol";
 
 /**
  * @notice PROTOTYPE CONTRACT
@@ -22,7 +23,7 @@ import "chainlink-v0.8/ConfirmedOwner.sol";
  * Movement pattern (special attribute, from smaller set)
  */
 
-enum Types {
+enum Type {
     ZEUS,
     POSEIDON,
     HADES,
@@ -44,13 +45,21 @@ struct Ability {
     uint8 Cooldown;
 }
 
-contract WamosTokenV0 is ERC721, ConfirmedOwner {
-    event RequestSent(uint256 requestId, uint32 numWords);
-    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
+struct WamoStats {
+    Type wamoType;
+    uint8 Health;
+    uint8 Attack;
+    uint8 Defence;
+    // uint8
+}
 
+contract WamosTokenV0 is ERC721, ConfirmedOwner {
     //// META CONSTANTS
-    string public NAME = "ProtoWAMOS";
-    string public SYMBOL = "pWAMOs";
+    string public NAME = "WamosTokenV0";
+    string public SYMBOL = "WAMOSV0";
+
+    //// RANDOMNESS
+    WamosRandomnessV0 randomness;
 
     /* ////////////////////////////////////////////////////////
                 WAMO DATA STORAGE: WamoID => (value)
@@ -58,11 +67,20 @@ contract WamosTokenV0 is ERC721, ConfirmedOwner {
     mapping(uint256 => uint8[]) attributes;
     mapping(uint256 => Ability[]) abilities;
 
+    event RequestSent(uint256 requestId, uint32 numWords);
+    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
+
     constructor(uint64 subscriptionId)
         ERC721(NAME, SYMBOL)
         ConfirmedOwner(msg.sender)
     {}
 
     // TODO
-    function mint() public returns (uint256) {}
+    function mint() public returns (uint256) {
+        // call randomness
+        // init new wamo
+        // generate attributes
+        // pack struct
+        // push wamo to
+    }
 }
