@@ -90,9 +90,9 @@ contract WamosBattleV0 is IERC721Receiver {
     // or
     mapping(uint256 => bool) isWamoStaked;
 
-    ////////////////////////////////////////////////////////////
-    /////////////////      TODO EVENTS     /////////////////////
-    ////////////////////////////////////////////////////////////
+    // TODO
+    event GameInitialised();
+    event WamoStaked();
 
     constructor(IERC721 _nft) {
         wamos = _nft;
@@ -215,8 +215,10 @@ contract WamosBattleV0 is IERC721Receiver {
 
     function useAbility() external {}
 
+    function resign() external {}
+
     ////////////////////////////////////////////////////////////
-    /////////////////    VIEW FUNCTIONS    /////////////////////
+    ///////////////////    VIEW FUNCTIONS    ///////////////////
     ////////////////////////////////////////////////////////////
 
     function getPlayers(uint256 gameId)
@@ -238,6 +240,10 @@ contract WamosBattleV0 is IERC721Receiver {
     function getWamo() public {}
 
     function getStakedWamoId() public {}
+
+    ////////////////////////////////////////////////////////////
+    ///////////////////      UTILITIES      ///////////////////
+    ////////////////////////////////////////////////////////////
 
     function abs(int8 z) public pure returns (int8) {
         return z >= 0 ? z : -z;
