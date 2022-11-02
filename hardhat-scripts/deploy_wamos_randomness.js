@@ -1,7 +1,8 @@
 const { network } = require("hardhat");
 const hre = require("hardhat");
 
-GAS_LIMIT = 1000000;
+const GAS_LIMIT = 1000000;
+const CONFIRMATIONS = 3;
 
 async function main() {
   const deployer = hre.ethers.getSigners();

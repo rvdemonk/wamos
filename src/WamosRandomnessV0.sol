@@ -7,36 +7,26 @@ import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/ConfirmedOwner.sol";
 
-/**
- * @notice PROTOTYPE CONTRACT
- * @notice CONTAINS HARDCODED VALUES
- * @notice NOT FOR PRODUCTION USE!!
- * @dev VRF consumer delegate for wamos system
- * Intended to generate randomness for wamo genesis, battles, breeding, gear
- */
+struct RequestStatus {
+    bool fulfilled;
+    bool exists;
+    uint256[] randomWords;
+}
 
 contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
-    //// VRF CONSUMER DATA STORAGE
-    struct RequestStatus {
-        bool fulfilled;
-        bool exists;
-        uint256[] randomWords;
-    }
+    /// VRF HARDCODED VARIABLES
+    uint16 public requestConfirmations = 3;
+    uint32 public callbackGasLimit = 400000;
 
-    bytes32 public keyHash;
+    VRFCoordinatorV2Interface Coordinator;
 
     // requestId => RequestStatus
     mapping(uint256 => RequestStatus) public s_requests;
 
-    VRFCoordinatorV2Interface COORDINATOR;
-
-    uint64 s_subscriptionId;
+    bytes32 public keyHash;
+    uint64 public s_subscriptionId;
     uint256[] public requestIds;
     uint256 public lastRequestId;
-
-    /// VRF HARDCODED VARIABLES
-    // blocks to confirm; default is 3
-    uint16 requestConfirmations = 1;
 
     event RequestSent(uint256 requestId, uint32 numWords);
     event RequestFulfilled(uint256 requestId, uint256[] randomWords);
@@ -47,7 +37,7 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
         address vrfCoordinator,
         bytes32 vrfKeyHash
     ) VRFConsumerBaseV2(vrfCoordinator) ConfirmedOwner(msg.sender) {
-        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
+        Coordinator = VRFCoordinatorV2Interface(vrfCoordinator);
         keyHash = vrfKeyHash;
         s_subscriptionId = subscriptionId;
     }
@@ -65,13 +55,13 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
     /**
      * @dev Assumes subscription is sufficiently funded
      */
-    function requestRandomWords(uint32 numWords, uint32 callbackGasLimit)
+    function requestRandomWords(uint32 numWords)
         external
         onlyOwner
         returns (uint256 requestId)
     {
         // generate request id from coordinator
-        requestId = COORDINATOR.requestRandomWords(
+        requestId = Coordinator.requestRandomWords(
             keyHash,
             s_subscriptionId,
             requestConfirmations,
@@ -88,6 +78,14 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);
         return requestId;
+    }
+
+    function setRequestConfirmations(uint16 _confirmations) public onlyOwner {
+        requestConfirmations = _confirmations;
+    }
+
+    function setCallbackGasLimit(uint32 gasLimit) public onlyOwner {
+        callbackGasLimit = gasLimit;
     }
 
     function getRequestCount() public view returns (uint256) {
