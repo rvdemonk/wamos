@@ -7,13 +7,12 @@ import "../src/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosRandomnessV0Test is Test {
     // Coordinator init args
-    uint96 BASE_FEE = 500000000000000; // polygon premium
-    uint96 GAS_PRICE_LINK = 1000000000; // 1e9
-
+    uint96 BASE_FEE = 100000;
+    uint96 GAS_PRICE_LINK = 100000;
     uint64 MOCK_VRF_SUB_ID = 1;
     uint96 SUB_FUNDING = 100000000000000000;
     bytes32 vrfKeyHash =
-        0x8af398995b04c28e9951adb9721ef74c74f93e6a478f39e7e0777be13527e7ef;
+        0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc;
 
     VRFCoordinatorV2Mock Coordinator;
     WamosRandomnessV0 VRFConsumer;
@@ -31,7 +30,7 @@ contract WamosRandomnessV0Test is Test {
         // create coordinator subscription
         subId = Coordinator.createSubscription();
         // fund subscription
-        Coordinator.fundSubscription(subId, SUB_FUNDING);
+        // Coordinator.fundSubscription(subId, SUB_FUNDING);
         Coordinator.addConsumer(subId, address(VRFConsumer));
     }
 
@@ -43,7 +42,7 @@ contract WamosRandomnessV0Test is Test {
         assertTrue(isConsumerAdded);
     }
 
-    function testSubscriptionIsFunded() public {
+    function testSubscriptionIsSetup() public {
         (
             uint96 balance,
             uint64 reqCount,
@@ -52,6 +51,8 @@ contract WamosRandomnessV0Test is Test {
         ) = Coordinator.getSubscription(subId);
         assertTrue(balance > 0);
         assertTrue(balance == SUB_FUNDING);
+        assertTrue(owner == address(this));
+        assertTrue(consumers[0] == address(VRFConsumer));
         console.log("sub balance: %s", balance);
         console.log("Subscription owner: %s", owner);
         console.log("this address %s:", address(this));
@@ -62,25 +63,26 @@ contract WamosRandomnessV0Test is Test {
 
     function testRandomnessRequest() public {
         uint32 wordsRequested = 1;
-        uint256 reqId = VRFConsumer.requestRandomWords(wordsRequested, 500000);
-        (bool status, uint256[] memory words) = VRFConsumer.getRequestStatus(
-            reqId
-        );
-        uint256 reqCount = VRFConsumer.getRequestCount();
-        assertTrue(reqCount == 1);
+
+        // first request
+        uint256 reqId0 = VRFConsumer.requestRandomWords(wordsRequested);
+        uint256 reqCount0 = VRFConsumer.getRequestCount();
+        assertTrue(reqCount0 == 1);
+
+        // second request
+        uint256 reqId1 = VRFConsumer.requestRandomWords(wordsRequested);
+        uint256 reqCount1 = VRFConsumer.getRequestCount();
+        assertTrue(reqCount1 == 2);
     }
 
     function testRandomnessFulfilled() public {
-        uint32 wordsRequested = 3;
-        uint256 reqId = VRFConsumer.requestRandomWords(wordsRequested, 2000000);
-
+        uint32 wordsRequested = 1;
+        // make request
+        uint256 reqId = VRFConsumer.requestRandomWords(wordsRequested);
+        // retrieve status of request for test
         (bool status, uint256[] memory words) = VRFConsumer.getRequestStatus(
             reqId
         );
-
         assertTrue(status);
-
-        console.log("status: %s", status);
-        // assertTrue(words.length == wordsRequested);
     }
 }

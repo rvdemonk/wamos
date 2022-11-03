@@ -5,7 +5,6 @@ pragma solidity ^0.8.17;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
-import "chainlink-v0.8/ConfirmedOwner.sol";
 
 struct RequestStatus {
     bool fulfilled;
@@ -13,20 +12,21 @@ struct RequestStatus {
     uint256[] randomWords;
 }
 
-contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
+contract WamosRandomnessV0 is VRFConsumerBaseV2 {
     /// VRF HARDCODED VARIABLES
     uint16 public requestConfirmations = 3;
     uint32 public callbackGasLimit = 400000;
 
     VRFCoordinatorV2Interface Coordinator;
 
-    // requestId => RequestStatus
-    mapping(uint256 => RequestStatus) public s_requests;
-
+    address public owner;
     bytes32 public keyHash;
     uint64 public s_subscriptionId;
     uint256[] public requestIds;
     uint256 public lastRequestId;
+
+    // requestId => RequestStatus
+    mapping(uint256 => RequestStatus) public s_requests;
 
     event RequestSent(uint256 requestId, uint32 numWords);
     event RequestFulfilled(uint256 requestId, uint256[] randomWords);
@@ -36,10 +36,16 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
         uint64 subscriptionId,
         address vrfCoordinator,
         bytes32 vrfKeyHash
-    ) VRFConsumerBaseV2(vrfCoordinator) ConfirmedOwner(msg.sender) {
+    ) VRFConsumerBaseV2(vrfCoordinator) {
+        owner = msg.sender;
         Coordinator = VRFCoordinatorV2Interface(vrfCoordinator);
         keyHash = vrfKeyHash;
         s_subscriptionId = subscriptionId;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Must be contract owner");
+        _;
     }
 
     function getRequestStatus(uint256 _requestId)
@@ -68,7 +74,7 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
             callbackGasLimit,
             numWords
         );
-        // store request struct
+        // store request
         s_requests[requestId] = RequestStatus({
             randomWords: new uint256[](0),
             exists: true,
@@ -96,7 +102,6 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2, ConfirmedOwner {
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {
-        emit RequestFulfillmentATTEMPT();
         require(s_requests[_requestId].exists, "request not found");
         s_requests[_requestId].fulfilled = true;
         s_requests[_requestId].randomWords = _randomWords;
