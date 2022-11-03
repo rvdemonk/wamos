@@ -10,7 +10,7 @@ Changes:
  - games storage type changed from mapping to array of GameData structs
 */
 
-pragma solidity ^0.8.17;
+pragma solidity <0.9.0;
 
 struct GameData {
     uint256 id;

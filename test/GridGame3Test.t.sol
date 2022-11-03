@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
 import "../src/GridGame3.sol";

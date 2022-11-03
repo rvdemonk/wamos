@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.17;
+pragma solidity <0.9.0;
 
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -15,7 +15,8 @@ struct RequestStatus {
 contract WamosRandomnessV0 is VRFConsumerBaseV2 {
     /// VRF HARDCODED VARIABLES
     uint16 public requestConfirmations = 3;
-    uint32 public callbackGasLimit = 400000;
+    uint32 public callbackGasLimit = 500000;
+    uint32 public numWords = 1;
 
     VRFCoordinatorV2Interface Coordinator;
 
@@ -33,14 +34,14 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2 {
     event RequestFulfillmentATTEMPT();
 
     constructor(
-        uint64 subscriptionId,
-        address vrfCoordinator,
-        bytes32 vrfKeyHash
-    ) VRFConsumerBaseV2(vrfCoordinator) {
+        uint64 _subscriptionId,
+        address _coordinatorAddr,
+        bytes32 _keyHash
+    ) VRFConsumerBaseV2(_coordinatorAddr) {
         owner = msg.sender;
-        Coordinator = VRFCoordinatorV2Interface(vrfCoordinator);
-        keyHash = vrfKeyHash;
-        s_subscriptionId = subscriptionId;
+        Coordinator = VRFCoordinatorV2Interface(_coordinatorAddr);
+        keyHash = _keyHash;
+        s_subscriptionId = _subscriptionId;
     }
 
     modifier onlyOwner() {
@@ -58,10 +59,11 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2 {
         return (request.fulfilled, request.randomWords);
     }
 
-    /**
-     * @dev Assumes subscription is sufficiently funded
-     */
-    function requestRandomWords(uint32 numWords)
+    function doesRequestExist(uint256 _requestId) external view returns (bool doesExist) {
+        return s_requests[_requestId].exists;
+    }
+
+    function requestRandomWords()
         external
         onlyOwner
         returns (uint256 requestId)
