@@ -68,6 +68,8 @@ contract WamosV0 is ERC721 {
     string public SYMBOL = "WAMOSV0";
     uint256 public tokenCount;
 
+    address public owner;
+
     //// RANDOMNESS INSTANCE
     WamosRandomnessV0Interface Randomness;
 
@@ -78,12 +80,22 @@ contract WamosV0 is ERC721 {
     // Mappping from wamo ID to array of the wamos abilities
     mapping(uint256 => Ability[]) abilities;
 
-    constructor(address randomnessAddress) ERC721(NAME, SYMBOL) {
-        Randomness = WamosRandomnessV0Interface(randomnessAddress);
+    constructor() ERC721(NAME, SYMBOL) {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call.");
+        _;
+    }
+
+    function setRandomness(address randomnessAddr) external onlyOwner {
+        Randomness = WamosRandomnessV0Interface(randomnessAddr);
     }
 
     // TODO
     function spawn() external payable returns (uint256 newWamoId) {
+        require(address(Randomness) != address(0));
         uint256 newWamoId = tokenCount;
         tokenCount++;
         // call randomness
