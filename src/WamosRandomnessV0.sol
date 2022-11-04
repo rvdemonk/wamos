@@ -2,7 +2,6 @@
 
 pragma solidity <0.9.0;
 
-import "openzeppelin/token/ERC721/ERC721.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 
@@ -59,7 +58,11 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2 {
         return (request.fulfilled, request.randomWords);
     }
 
-    function doesRequestExist(uint256 _requestId) external view returns (bool doesExist) {
+    function doesRequestExist(uint256 _requestId)
+        external
+        view
+        returns (bool doesExist)
+    {
         return s_requests[_requestId].exists;
     }
 

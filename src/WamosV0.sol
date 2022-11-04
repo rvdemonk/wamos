@@ -2,11 +2,12 @@
 
 pragma solidity <0.9.0;
 
-import "openzeppelin/token/ERC721/ERC721.sol";
+// import "openzeppelin/token/ERC721/ERC721.sol";
+import "solmate/tokens/ERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
-// import "chainlink-v0.8/ConfirmedOwner.sol";
 import "./WamosRandomnessV0.sol";
 import "./interfaces/WamosRandomnessV0Interface.sol";
+import "openzeppelin/utils/Strings.sol";
 
 /**
  * @notice PROTOTYPE CONTRACT
@@ -82,21 +83,38 @@ contract WamosV0 is ERC721 {
     }
 
     // TODO
-    function mint() public returns (uint256 newWamoId) {
+    function spawn() external payable returns (uint256 newWamoId) {
+        uint256 newWamoId = tokenCount;
+        tokenCount++;
         // call randomness
         uint256 randWord = getRandomness();
-        randomWords.push(randWord);
+        // randomWords.push(randWord);
         // init new wamo
-        WamoData storage wamo = attributes.push();
-        wamo.id = tokenCount;
-        tokenCount++;
+        // WamoData storage wamo = attributes.push();
+        // wamo.id = tokenCount;
+        // erc721 mint
+        // _safeMint(msg.sender, tokenCount);
         // generate attributes
         // pack struct
         // push wamo to
-        return wamo.id;
+        return newWamoId;
     }
 
-    function getRandomness() internal returns (uint256 randomWord) {
+    function testFunction() public payable returns (bool success) {
+        return true;
+    }
+
+    function tokenURI(uint256 id)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        return Strings.toString(id);
+    }
+
+    function getRandomness() private view returns (uint256 randomWord) {
         uint256 requestId = Randomness.requestRandomWords();
         (bool isFulfilled, uint256[] memory _randomWords) = Randomness
             .getRequestStatus(requestId);

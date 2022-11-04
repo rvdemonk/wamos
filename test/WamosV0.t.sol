@@ -7,6 +7,8 @@ import "../src/WamosRandomnessV0.sol";
 import "../src/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosV0Test is Test {
+    address wamosOwner = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
+
     uint96 BASE_FEE = 1;
     uint96 GAS_PRICE_LINK = 1;
     uint64 MOCK_VRF_SUB_ID = 1;
@@ -37,6 +39,7 @@ contract WamosV0Test is Test {
         // add wamos randomness as vrf consumer to subscription
         vrfCoordinator.addConsumer(subscriptionId, address(vrfCoordinator));
         // deploy wamos nft
+        // vm.prank(wamosOwner`);
         wamos = new WamosV0(address(randomness));
     }
 
@@ -49,9 +52,20 @@ contract WamosV0Test is Test {
     }
 
     function testMintTokenCountIncrement() public {
+        /**
+        [FAIL. Reason: Must be contract owner]
+        Test contract owns Wamos and WamosRandomness.
+        Wamos is calling WamosRandomness, but is not owner.
+         */
         uint256 startingCount = wamos.tokenCount();
-        uint256 newWamoId = wamos.mint();
+        // vm.prank(wamosOwner);
+        uint256 newWamoId = wamos.spawn();
         uint256 newCount = wamos.tokenCount();
         assertTrue(newCount == startingCount + 1);
+    }
+
+    function testTestFunction() public {
+        bool isSuccessful = wamos.testFunction();
+        assertTrue(isSuccessful);
     }
 }
