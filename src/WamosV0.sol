@@ -3,10 +3,10 @@
 pragma solidity <0.9.0;
 
 import "openzeppelin/token/ERC721/ERC721.sol";
-import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
-import "chainlink-v0.8/ConfirmedOwner.sol";
+// import "chainlink-v0.8/ConfirmedOwner.sol";
 import "./WamosRandomnessV0.sol";
+import "./interfaces/WamosRandomnessV0Interface.sol";
 
 /**
  * @notice PROTOTYPE CONTRACT
@@ -47,7 +47,8 @@ struct Ability {
     uint8 Cooldown;
 }
 
-struct WamoAttributes {
+struct WamoData {
+    uint256 id;
     uint8 Health;
     uint8 Attack;
     uint8 Defence;
@@ -55,38 +56,57 @@ struct WamoAttributes {
     uint8 MagicDefence;
     uint8 Stamina;
     uint8 Mana;
-    uint8 Luck
+    uint8 Luck;
 }
 
+error RandomnessRequestFailed(uint256 requestId);
 
-contract WamosTokenV0 is ERC721, ConfirmedOwner {
+contract WamosV0 is ERC721 {
     //// META CONSTANTS
     string public NAME = "WamosTokenV0";
     string public SYMBOL = "WAMOSV0";
+    uint256 public tokenCount;
 
     //// RANDOMNESS INSTANCE
-    WamosRandomnessV0 Randomness;
+    WamosRandomnessV0Interface Randomness;
 
     //// Mapping from wamo ID to array of wamo attributes
     // mapping(uint256 => uint8[]) attributes;
-    mapping(uint256 => WamoAttributes[])
+    WamoData[] public attributes;
+    uint256[] public randomWords;
     // Mappping from wamo ID to array of the wamos abilities
     mapping(uint256 => Ability[]) abilities;
 
-    event RequestSent(uint256 requestId, uint32 numWords);
-    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
-
-    constructor(uint64 subscriptionId)
-        ERC721(NAME, SYMBOL)
-        ConfirmedOwner(msg.sender)
-    {}
+    constructor(address randomnessAddress) ERC721(NAME, SYMBOL) {
+        Randomness = WamosRandomnessV0Interface(randomnessAddress);
+    }
 
     // TODO
-    function mint() public returns (uint256) {
+    function mint() public returns (uint256 newWamoId) {
         // call randomness
+        uint256 randWord = getRandomness();
+        randomWords.push(randWord);
         // init new wamo
+        WamoData storage wamo = attributes.push();
+        wamo.id = tokenCount;
+        tokenCount++;
         // generate attributes
         // pack struct
         // push wamo to
+        return wamo.id;
     }
+
+    function getRandomness() internal returns (uint256 randomWord) {
+        uint256 requestId = Randomness.requestRandomWords();
+        (bool isFulfilled, uint256[] memory _randomWords) = Randomness
+            .getRequestStatus(requestId);
+        if (!isFulfilled) {
+            revert RandomnessRequestFailed(requestId);
+        }
+        return _randomWords[0];
+    }
+
+    // function generateWamoData() internal returns (WamoData memory wamoData) {
+    //     uint256 randWord = getRandomness();
+    // }
 }

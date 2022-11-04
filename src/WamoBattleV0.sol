@@ -39,12 +39,12 @@ struct GameData {
     uint256 turnCount;
     address[2] players;
     mapping(address => uint256) playerId; // \in[0,1]  (necessary?)
-    mapping(address => WamoData[]) wamoPartyOf; // array for multiple wamos
+    mapping(address => WamoBattleData[]) wamoPartyOf; // array for multiple wamos
     mapping(address => uint256) stakedWamoCount;
 }
 
 // TODO stack with all mutable in-game transient stats
-struct WamoData {
+struct WamoBattleData {
     uint256 wamoId;
     int8 x;
     int8 y;
@@ -165,10 +165,10 @@ contract WamosBattleV0 is IERC721Receiver {
         // check if WamoBattle owns the wamo now
         isWamoStaked[wamoId] = (wamos.ownerOf(wamoId) == address(this));
         if (isWamoStaked[wamoId]) {
-            WamoData storage wamoData = games[gameId]
+            WamoBattleData storage wamoBattleData = games[gameId]
                 .wamoPartyOf[msg.sender]
                 .push();
-            wamoData.wamoId = wamoId;
+            wamoBattleData.wamoId = wamoId;
             // TODO init position (separate function probably)
         }
         return isWamoStaked[wamoId];
