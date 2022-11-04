@@ -15,7 +15,7 @@ struct RequestStatus {
 contract WamosRandomnessV0 is VRFConsumerBaseV2 {
     /// VRF HARDCODED VARIABLES
     uint16 public requestConfirmations = 3;
-    uint32 public callbackGasLimit = 500000;
+    uint32 public callbackGasLimit = 100000;
     uint32 public numWords = 1;
 
     VRFCoordinatorV2Interface Coordinator;

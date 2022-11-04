@@ -16,7 +16,9 @@ contract WamosRandomnessV0Test is Test {
 
     VRFCoordinatorV2Mock Coordinator;
     WamosRandomnessV0 VRFConsumer;
+
     uint64 subId;
+    uint256 testWord;
 
     function setUp() public {
         // deploy mocks
@@ -73,10 +75,30 @@ contract WamosRandomnessV0Test is Test {
         // make request
         uint256 reqId = VRFConsumer.requestRandomWords();
         bool reExists = VRFConsumer.doesRequestExist(reqId);
+        // fufill random words as coordinator
+        Coordinator.fulfillRandomWords(reqId, address(VRFConsumer));
         // retrieve status of request for test
         (bool status, uint256[] memory words) = VRFConsumer.getRequestStatus(
             reqId
         );
         assertTrue(status);
+        testWord = words[0];
+    }
+
+    function testRandomWords() public {
+        uint256 reqId;
+        for (uint i = 0; i < 20; i++) {
+            reqId = VRFConsumer.requestRandomWords();
+            Coordinator.fulfillRandomWords(reqId, address(VRFConsumer));
+            (, uint256[] memory words) = VRFConsumer.getRequestStatus(
+            reqId
+        );  
+        console.log("word #%s : %s", i, words[0]);
+        }
+    }
+
+    function testTestWordStored() public {
+        assertTrue(testWord != 0);
+        console.log("test word: %s", testWord);
     }
 }

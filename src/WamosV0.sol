@@ -21,6 +21,8 @@ import "./WamosRandomnessV0.sol";
  * SPECIAL ATTRIBUTES
  * Type
  * Movement pattern (special attribute, from smaller set)
+
+ Wamo attributes = [ health, attack, defence, magic attack, magic defence, mana, stamina, luck ]
  */
 
 enum Type {
@@ -45,9 +47,17 @@ struct Ability {
     uint8 Cooldown;
 }
 
-// struct WamoStats {
+struct WamoAttributes {
+    uint8 Health;
+    uint8 Attack;
+    uint8 Defence;
+    uint8 MagicAttack;
+    uint8 MagicDefence;
+    uint8 Stamina;
+    uint8 Mana;
+    uint8 Luck
+}
 
-// }
 
 contract WamosTokenV0 is ERC721, ConfirmedOwner {
     //// META CONSTANTS
@@ -55,10 +65,11 @@ contract WamosTokenV0 is ERC721, ConfirmedOwner {
     string public SYMBOL = "WAMOSV0";
 
     //// RANDOMNESS INSTANCE
-    WamosRandomnessV0 randomness;
+    WamosRandomnessV0 Randomness;
 
-    // Mapping from wamo ID to array of wamo attributes
-    mapping(uint256 => uint8[]) attributes;
+    //// Mapping from wamo ID to array of wamo attributes
+    // mapping(uint256 => uint8[]) attributes;
+    mapping(uint256 => WamoAttributes[])
     // Mappping from wamo ID to array of the wamos abilities
     mapping(uint256 => Ability[]) abilities;
 
