@@ -25,6 +25,13 @@ import "openzeppelin/utils/Strings.sol";
 
  Wamo attributes = [ health, attack, defence, magic attack, magic defence, mana, stamina, luck ]
  */
+ /**
+    @dev Wamos must itself be a child of VRfConsumer, rather than simply instantiating
+    an implemented vrf consumer to use, primarily for the purposes of testing,
+    since the mock coordinator must be called to fulfill the request for
+    randomness manually.
+
+  */
 
 enum Type {
     ZEUS,
@@ -80,8 +87,9 @@ contract WamosV0 is ERC721 {
     // Mappping from wamo ID to array of the wamos abilities
     mapping(uint256 => Ability[]) abilities;
 
-    constructor() ERC721(NAME, SYMBOL) {
+    constructor(address randomnessAddr) ERC721(NAME, SYMBOL) {
         owner = msg.sender;
+        Randomness = WamosRandomnessV0Interface(randomnessAddr);
     }
 
     modifier onlyOwner() {
@@ -95,12 +103,11 @@ contract WamosV0 is ERC721 {
 
     // TODO
     function spawn() external payable returns (uint256 newWamoId) {
-        require(address(Randomness) != address(0));
         uint256 newWamoId = tokenCount;
         tokenCount++;
         // call randomness
         uint256 randWord = getRandomness();
-        // randomWords.push(randWord);
+        randomWords.push(randWord);
         // init new wamo
         // WamoData storage wamo = attributes.push();
         // wamo.id = tokenCount;
@@ -135,8 +142,4 @@ contract WamosV0 is ERC721 {
         }
         return _randomWords[0];
     }
-
-    // function generateWamoData() internal returns (WamoData memory wamoData) {
-    //     uint256 randWord = getRandomness();
-    // }
 }

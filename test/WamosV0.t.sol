@@ -21,27 +21,23 @@ contract WamosV0Test is Test {
     uint64 subscriptionId;
 
     function setUp() public {
-        // deploy wamos nft
-        wamos = new WamosV0();
         // SET UP MOCKS
         // deploy mock coordinator
         vrfCoordinator = new VRFCoordinatorV2Mock(BASE_FEE, GAS_PRICE_LINK);
         // deploy vrf consumer
-        vm.prank(address(wamos));
         randomness = new WamosRandomnessV0(
             MOCK_VRF_SUB_ID,
             address(vrfCoordinator),
             VRF_MOCK_KEYHASH
         );
-        // set vrf consumer address in wamos
-        vm.prank(address(wamos));
-        randomness.setRandomness(address(vrfCoordinator));
         // set up vrf subscription with coordinator
         subscriptionId = vrfCoordinator.createSubscription();
         // fund subscription
         vrfCoordinator.fundSubscription(subscriptionId, SUB_FUNDING);
         // add wamos randomness as vrf consumer to subscription
-        vrfCoordinator.addConsumer(subscriptionId, address(vrfCoordinator));
+        vrfCoordinator.addConsumer(subscriptionId, address(randomness));
+        // deploy wamos nft
+        wamos = new WamosV0(address(randomness));
     }
 
     function testIsDeployed() public {

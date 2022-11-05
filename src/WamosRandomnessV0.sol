@@ -68,7 +68,6 @@ contract WamosRandomnessV0 is VRFConsumerBaseV2 {
 
     function requestRandomWords()
         external
-        onlyOwner
         returns (uint256 requestId)
     {
         // generate request id from coordinator
