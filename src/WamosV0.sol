@@ -109,7 +109,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         address _vrfCoordinatorAddr,
         bytes32 _vrfKeyHash,
         uint64 _vrfSubscriptionId
-    ) ERC721(NAME, SYMBOL) {
+    ) ERC721(NAME, SYMBOL) VRFConsumerBaseV2(_vrfCoordinatorAddr) {
         owner = msg.sender;
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorAddr);
         vrfKeyHash = _vrfKeyHash;
@@ -153,6 +153,18 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         // emit event
         // TODO
         return requestId;
+    }
+
+    function getVRFRequestStatus(uint256 _requestId)
+        public
+        view
+        returns (bool fulfilled, uint256 randomWord)
+    {
+        if (!vrfRequests[_requestId].exists) {
+            revert VRFRequestNotFound(_requestId);
+        }
+        VRFRequest memory request = vrfRequests[_requestId];
+        return (request.fulfilled, request.randomWord);
     }
 
     function tokenURI(uint256 id) public view override returns (string memory) {
