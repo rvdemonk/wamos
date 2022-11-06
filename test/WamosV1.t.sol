@@ -56,4 +56,17 @@ contract WamosV1Test is Test {
     function testInitialTokenCount() public {
         assert(wamos.tokenCount() == 0);
     }
+
+    /**
+    TODO TESTS
+    request spawn wamo
+        request exists
+        request fulfilled
+        request stored
+        last request stored
+    complete spawn
+        token minted
+        trait generated and stored (health)
+
+     */
 }
