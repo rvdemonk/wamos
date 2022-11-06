@@ -45,10 +45,10 @@ error SpawnRequestNotFound(uint256 requestId);
 error SpawnRequestNotFulfilled(uint256 requestId);
 error WamoAlreadySpawned(uint256 tokenId);
 
-contract WamosV0 is ERC721, VRFConsumerBaseV2 {
+contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     //// META CONSTANTS
-    string public NAME = "WamosTokenV0";
-    string public SYMBOL = "WAMOSV0";
+    string public NAME = "WamosTokenV1";
+    string public SYMBOL = "WAMOSV1";
 
     address public contractOwner;
     uint256 public tokenCount;
@@ -57,7 +57,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
     // VRF COORDINATOR
     VRFCoordinatorV2Interface vrfCoordinator;
 
-    // VRF SETTINGS
+    // VRF CONFIGURATION
     bytes32 public vrfKeyHash;
     uint16 public vrfRequestConfirmations;
     uint32 public vrfNumWords;
@@ -76,8 +76,16 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => Ability[]) wamoIdToAbilities;
 
     // EVENTS
-    event SpawnRequested(uint256 requestId, uint256 indexed tokenId, address sender);
-    event SpawnCompleted(uint256 requestId, uint256 indexed tokenId, address sender);
+    event SpawnRequested(
+        uint256 requestId,
+        uint256 indexed tokenId,
+        address sender
+    );
+    event SpawnCompleted(
+        uint256 requestId,
+        uint256 indexed tokenId,
+        address owner
+    );
     event RandomnessFulfilled(uint256 requestId, uint256 tokenId);
 
     constructor(
@@ -86,12 +94,14 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         uint64 _vrfSubscriptionId,
         uint256 _mintPrice
     ) ERC721(NAME, SYMBOL) VRFConsumerBaseV2(_vrfCoordinatorAddr) {
+        // configure contract
         contractOwner = msg.sender;
+        mintPrice = _mintPrice;
+        // instantiate vrf coordinator
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorAddr);
+        // configure coordinator variables
         vrfKeyHash = _vrfKeyHash;
         vrfSubscriptionId = _vrfSubscriptionId;
-        mintPrice = _mintPrice;
-
         vrfNumWords = 1;
         vrfCallbackGasLimit = 100000;
         vrfRequestConfirmations = 2;
@@ -132,7 +142,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         tokenIdToSpawnRequest[tokenId] = requestId;
         requestIds.push(requestId);
         lastRequestId = requestId;
-        // TODO 
+        // TODO
         emit SpawnRequested(requestId, tokenId, msg.sender);
         return tokenId;
     }
@@ -143,7 +153,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
      */
     function completeSpawnWamo(uint256 tokenId) public payable {
         require(tokenId > tokenCount, "This token id has not been minted yet!");
-        uint256 requestId = tokenIdToSpawnRequest[tokenId]; 
+        uint256 requestId = tokenIdToSpawnRequest[tokenId];
         // check request has not already been fulfilled
         if (spawnRequests[requestId].completed) {
             revert WamoAlreadySpawned(tokenId);
@@ -156,12 +166,18 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         wamoIdToTraits[tokenId] = generateWamoTraits(randomWord);
         address owner = spawnRequests[requestId].sender;
         _safeMint(owner, tokenId);
+        emit SpawnCompleted(requestId, tokenId, owner);
     }
 
     /**
      * @dev public visibility for testing and experimenting
+     * TODO trait generation algorithm
      */
-    function generateWamoTraits(uint256 randomWord) public pure returns (WamoTraits memory traits) {
+    function generateWamoTraits(uint256 randomWord)
+        public
+        pure
+        returns (WamoTraits memory traits)
+    {
         traits.Health = (randomWord % 100) + 1;
         return traits;
     }
@@ -172,7 +188,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
 
     function withdrawFunds() public payable onlyOwner {
         payable(contractOwner).transfer(address(this).balance);
-    } 
+    }
 
     function tokenURI(uint256 id) public pure override returns (string memory) {
         return Strings.toString(id);
