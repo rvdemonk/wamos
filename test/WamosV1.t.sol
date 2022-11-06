@@ -28,9 +28,32 @@ contract WamosV1Test is Test {
             subscriptionId,
             MINT_PRICE
         );
+        // add wamos as consumer
+        vrfCoordinator.addConsumer(subscriptionId, address(wamos));
         // fund subscription
         vrfCoordinator.fundSubscription(subscriptionId, SUB_FUNDING);
     }
 
-    function testIncrement() public {}
+    function testWamosIsDeployed() public {
+        assertTrue(address(wamos) != address(0));
+    }
+
+    function testWamosAddedAsConsumer() public {
+        bool consumerIsAdded = vrfCoordinator.consumerIsAdded(
+            subscriptionId,
+            address(wamos)
+        );
+        assertTrue(consumerIsAdded);
+    }
+
+    function testSubscriptionIsFunded() public {
+        (uint96 balance, , , address[] memory consumers) = vrfCoordinator
+            .getSubscription(subscriptionId);
+        assertTrue(balance == SUB_FUNDING);
+        assertTrue(consumers[0] == address(wamos));
+    }
+
+    function testInitialTokenCount() public {
+        assert(wamos.tokenCount() == 0);
+    }
 }

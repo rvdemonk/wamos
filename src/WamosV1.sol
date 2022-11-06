@@ -182,6 +182,16 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return traits;
     }
 
+    function getSpawnRequestStatus(uint256 tokenId)
+        public
+        view
+        returns (bool isFulfilled, uint256 randomWord)
+    {
+        uint256 requestId = tokenIdToSpawnRequest[tokenId];
+        SpawnRequest memory request = spawnRequests[requestId];
+        return (request.randomnessFulfilled, request.randomWord);
+    }
+
     function setMintPrice(uint256 _mintPrice) public onlyOwner {
         mintPrice = _mintPrice;
     }
