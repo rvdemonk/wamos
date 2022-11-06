@@ -3,11 +3,12 @@
 pragma solidity <0.9.0;
 
 // import "openzeppelin/token/ERC721/ERC721.sol";
+import "openzeppelin/utils/Strings.sol";
 import "solmate/tokens/ERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
+import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+// import "./interfaces/WamosRandomnessV0Interface.sol";
 import "./WamosRandomnessV0.sol";
-import "./interfaces/WamosRandomnessV0Interface.sol";
-import "openzeppelin/utils/Strings.sol";
 
 /**
  * @notice PROTOTYPE CONTRACT
@@ -25,7 +26,7 @@ import "openzeppelin/utils/Strings.sol";
 
  Wamo attributes = [ health, attack, defence, magic attack, magic defence, mana, stamina, luck ]
  */
- /**
+/**
     @dev Wamos must itself be a child of VRfConsumer, rather than simply instantiating
     an implemented vrf consumer to use, primarily for the purposes of testing,
     since the mock coordinator must be called to fulfill the request for
@@ -67,29 +68,56 @@ struct WamoData {
     uint8 Luck;
 }
 
+struct VRFRequest {
+    bool exists;
+    bool fulfilled;
+    uint256 randomWord;
+}
+
 error RandomnessRequestFailed(uint256 requestId);
 
-contract WamosV0 is ERC721 {
+contract WamosV0 is ERC721, VRFConsumerBaseV2 {
     //// META CONSTANTS
     string public NAME = "WamosTokenV0";
     string public SYMBOL = "WAMOSV0";
-    uint256 public tokenCount;
 
     address public owner;
+    uint256 public tokenCount;
 
-    //// RANDOMNESS INSTANCE
-    WamosRandomnessV0Interface Randomness;
-
-    //// Mapping from wamo ID to array of wamo attributes
-    // mapping(uint256 => uint8[]) attributes;
-    WamoData[] public attributes;
-    uint256[] public randomWords;
-    // Mappping from wamo ID to array of the wamos abilities
+    // WAMO CHARACTERISTICS
+    mapping(uint256 => WamoData[]) attributes;
     mapping(uint256 => Ability[]) abilities;
 
-    constructor(address randomnessAddr) ERC721(NAME, SYMBOL) {
+    // VRF CONSUMPTION
+    mapping(uint256 => VRFRequest) vrfRequests;
+
+    VRFCoordinatorV2Interface vrfCoordinator;
+
+    uint256[] public vrfRequestIds;
+    uint256 public lastVrfRequestId;
+    bytes32 public vrfKeyHash;
+    uint16 public vrfRequestConfirmations;
+    uint32 public vrfNumWords;
+    uint32 public vrfCallbackGasLimit;
+    uint64 public vrfSubscriptionId;
+
+    // EVENTS
+    event RequestSent(uint256 indexed requestId);
+    event RequestFulfilled(uint256 indexed requestId, uint256 randomWord);
+
+    constructor(
+        address _vrfCoordinatorAddr,
+        bytes32 _vrfKeyHash,
+        uint64 _vrfSubscriptionId
+    ) ERC721(NAME, SYMBOL) {
         owner = msg.sender;
-        Randomness = WamosRandomnessV0Interface(randomnessAddr);
+        vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorAddr);
+        vrfKeyHash = _vrfKeyHash;
+        vrfSubscriptionId = _vrfSubscriptionId;
+
+        vrfNumWords = 1;
+        vrfCallbackGasLimit = 100000;
+        vrfRequestConfirmations = 2;
     }
 
     modifier onlyOwner() {
@@ -97,30 +125,28 @@ contract WamosV0 is ERC721 {
         _;
     }
 
-    function setRandomness(address randomnessAddr) external onlyOwner {
-        Randomness = WamosRandomnessV0Interface(randomnessAddr);
-    }
-
     // TODO
     function spawn() external payable returns (uint256 newWamoId) {
-        uint256 newWamoId = tokenCount;
+        newWamoId = tokenCount;
         tokenCount++;
-        // call randomness
-        uint256 randWord = getRandomness();
-        randomWords.push(randWord);
-        // init new wamo
-        // WamoData storage wamo = attributes.push();
-        // wamo.id = tokenCount;
-        // erc721 mint
-        // _safeMint(msg.sender, tokenCount);
-        // generate attributes
-        // pack struct
-        // push wamo to
         return newWamoId;
     }
 
-    function testFunction() public payable returns (bool success) {
-        return true;
+    function requestRandomWord() external returns (uint256 requestId) {
+        // make request
+        requestId = vrfCoordinator.requestRandomWords(
+            vrfKeyHash,
+            vrfSubscriptionId,
+            vrfRequestConfirmations,
+            vrfCallbackGasLimit,
+            vrfNumWords
+        );
+        // store request
+        vrfRequests[requestId] = VRFRequest({
+            exists: true,
+            fulfilled: false,
+            randomWord: 0
+        });
     }
 
     function tokenURI(uint256 id)
@@ -133,13 +159,8 @@ contract WamosV0 is ERC721 {
         return Strings.toString(id);
     }
 
-    function getRandomness() private view returns (uint256 randomWord) {
-        uint256 requestId = Randomness.requestRandomWords();
-        (bool isFulfilled, uint256[] memory _randomWords) = Randomness
-            .getRequestStatus(requestId);
-        if (!isFulfilled) {
-            revert RandomnessRequestFailed(requestId);
-        }
-        return _randomWords[0];
-    }
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] memory _randomWords
+    ) internal override {}
 }
