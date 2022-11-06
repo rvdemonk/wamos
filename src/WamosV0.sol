@@ -71,6 +71,7 @@ struct WamoData {
 struct VRFRequest {
     bool exists;
     bool fulfilled;
+    address sender;
     uint256 randomWord;
 }
 
@@ -133,7 +134,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
     }
 
     function requestRandomWord() external returns (uint256 requestId) {
-        // make request
+        // make vrf request
         requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
             vrfSubscriptionId,
@@ -145,6 +146,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         vrfRequests[requestId] = VRFRequest({
             exists: true,
             fulfilled: false,
+            sender: msg.sender, // TODO always internal atm
             randomWord: 0
         });
         // store request id
