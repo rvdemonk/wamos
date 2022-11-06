@@ -65,7 +65,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     uint64 public vrfSubscriptionId;
 
     // WAMO SPAWN REQUEST STORAGE
-    mapping(uint256 => SpawnRequest) spawnRequests;
+    mapping(uint256 => SpawnRequest) requestIdToSpawnRequest;
+    mapping(uint256 => uint256) requestIdToTokenId;
     mapping(uint256 => uint256) tokenIdToRandomnWord;
     mapping(uint256 => uint256) tokenIdToSpawnRequest;
     uint256[] requestIds;
@@ -117,13 +118,13 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      * Wamo request is made, VRF request sent, request stored, event emitted
      * @custom:decision return request id or token id? does this matter with two-way mapping?
      */
-    function requestSpawnWamo() public payable returns (uint256 tokenId) {
-        require(msg.value >= mintPrice, "Insufficient payment.");
+    function requestSpawnWamo() public payable returns (uint256 requestId) {
+        require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
         // assign token id for new wamo
-        tokenId = tokenCount;
+        uint256 tokenId = tokenCount;
         tokenCount++;
         // request randomness (from the gods)
-        uint256 requestId = vrfCoordinator.requestRandomWords(
+        requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
             vrfSubscriptionId,
             vrfRequestConfirmations,
@@ -131,7 +132,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             vrfNumWords
         );
         // store request, including token id of requested wamo
-        spawnRequests[requestId] = SpawnRequest({
+        requestIdToSpawnRequest[requestId] = SpawnRequest({
             exists: true,
             randomnessFulfilled: false,
             completed: false,
@@ -142,9 +143,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         tokenIdToSpawnRequest[tokenId] = requestId;
         requestIds.push(requestId);
         lastRequestId = requestId;
-        // TODO
         emit SpawnRequested(requestId, tokenId, msg.sender);
-        return tokenId;
+        return requestId;
     }
 
     /**
@@ -155,16 +155,16 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         require(tokenId > tokenCount, "This token id has not been minted yet!");
         uint256 requestId = tokenIdToSpawnRequest[tokenId];
         // check request has not already been fulfilled
-        if (spawnRequests[requestId].completed) {
+        if (requestIdToSpawnRequest[requestId].completed) {
             revert WamoAlreadySpawned(tokenId);
         }
         // check vrf request fulfilled
-        if (!spawnRequests[requestId].randomnessFulfilled) {
+        if (!requestIdToSpawnRequest[requestId].randomnessFulfilled) {
             revert SpawnRequestNotFulfilled(requestId);
         }
-        uint256 randomWord = spawnRequests[requestId].randomWord;
+        uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
         wamoIdToTraits[tokenId] = generateWamoTraits(randomWord);
-        address owner = spawnRequests[requestId].sender;
+        address owner = requestIdToSpawnRequest[requestId].sender;
         _safeMint(owner, tokenId);
         emit SpawnCompleted(requestId, tokenId, owner);
     }
@@ -182,14 +182,24 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return traits;
     }
 
-    function getSpawnRequestStatus(uint256 tokenId)
+    function getSpawnRequest(uint256 requestId)
         public
         view
-        returns (bool isFulfilled, uint256 randomWord)
+        returns (SpawnRequest memory request)
     {
-        uint256 requestId = tokenIdToSpawnRequest[tokenId];
-        SpawnRequest memory request = spawnRequests[requestId];
-        return (request.randomnessFulfilled, request.randomWord);
+        request = requestIdToSpawnRequest[requestId];
+        return request;
+    }
+
+    // Has the randomness request for requestId been fulfilled?
+    function getSpawnRequestStatus(uint256 requestId)
+        public
+        view
+        returns (bool requestIsFulfilled)
+    {
+        SpawnRequest memory request = requestIdToSpawnRequest[requestId];
+        requestIsFulfilled = request.randomnessFulfilled;
+        return requestIsFulfilled;
     }
 
     function setMintPrice(uint256 _mintPrice) public onlyOwner {
@@ -209,12 +219,12 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         uint256[] memory _randomWords
     ) internal override {
         // check request exists
-        if (!spawnRequests[_requestId].exists) {
+        if (!requestIdToSpawnRequest[_requestId].exists) {
             revert SpawnRequestNotFound(_requestId);
         }
-        spawnRequests[_requestId].randomnessFulfilled = true;
-        spawnRequests[_requestId].randomWord = _randomWords[0];
-        uint256 tokenId = spawnRequests[_requestId].tokenId;
+        requestIdToSpawnRequest[_requestId].randomnessFulfilled = true;
+        requestIdToSpawnRequest[_requestId].randomWord = _randomWords[0];
+        uint256 tokenId = requestIdToSpawnRequest[_requestId].tokenId;
         emit RandomnessFulfilled(_requestId, tokenId);
     }
 }

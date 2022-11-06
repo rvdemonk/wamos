@@ -13,6 +13,9 @@ contract WamosV1Test is Test {
         0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc;
     uint256 MINT_PRICE = 0.01 ether;
 
+    address actor = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
+    uint256 ACTOR_STARTING_BAL = 1 ether;
+
     VRFCoordinatorV2Mock vrfCoordinator;
     WamosV1 wamos;
     uint64 subscriptionId;
@@ -32,6 +35,9 @@ contract WamosV1Test is Test {
         vrfCoordinator.addConsumer(subscriptionId, address(wamos));
         // fund subscription
         vrfCoordinator.fundSubscription(subscriptionId, SUB_FUNDING);
+        // fund wallet
+        vm.deal(actor, ACTOR_STARTING_BAL);
+        console.log("Rvdemonk setup balance: %s", actor.balance);
     }
 
     function testWamosIsDeployed() public {
@@ -69,4 +75,25 @@ contract WamosV1Test is Test {
         trait generated and stored (health)
 
      */
+
+    function testSpawnRequestDoesntExist() public {
+        uint256 requestId = 0;
+        // (bool exists, bool randomnessFulfilled, bool completed, , , ) = wamos
+        //     .getSpawnRequest(tokenId);
+        SpawnRequest memory request = wamos.getSpawnRequest(requestId);
+        assertFalse(request.exists);
+        assertFalse(request.randomnessFulfilled);
+        assertFalse(request.completed);
+        // alternate method
+        bool requestIsFulfilled = wamos.getSpawnRequestStatus(requestId);
+        assertFalse(requestIsFulfilled);
+    }
+
+    function testSpawnRequestExists() public {
+        uint256 mintPrice = wamos.mintPrice();
+        vm.prank(actor);
+        uint256 requestId = wamos.requestSpawnWamo{value: mintPrice}();
+        SpawnRequest memory request = wamos.getSpawnRequest(requestId);
+        assertTrue(request.exists);
+    }
 }
