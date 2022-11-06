@@ -13,7 +13,8 @@ contract WamosV1Test is Test {
         0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc;
     uint256 MINT_PRICE = 0.01 ether;
 
-    address actor = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
+    address player1 = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
+    address player2 = 0x417622F534d5F30321CF78cB7355773f8BAC7621;
     uint256 ACTOR_STARTING_BAL = 1 ether;
 
     VRFCoordinatorV2Mock vrfCoordinator;
@@ -36,8 +37,8 @@ contract WamosV1Test is Test {
         // fund subscription
         vrfCoordinator.fundSubscription(subscriptionId, SUB_FUNDING);
         // fund wallet
-        vm.deal(actor, ACTOR_STARTING_BAL);
-        console.log("Rvdemonk setup balance: %s", actor.balance);
+        vm.deal(player1, ACTOR_STARTING_BAL);
+        // console.log("Rvdemonk setup balance: %s", actor.balance);
     }
 
     function testWamosIsDeployed() public {
@@ -78,8 +79,6 @@ contract WamosV1Test is Test {
 
     function testSpawnRequestDoesntExist() public {
         uint256 requestId = 0;
-        // (bool exists, bool randomnessFulfilled, bool completed, , , ) = wamos
-        //     .getSpawnRequest(tokenId);
         SpawnRequest memory request = wamos.getSpawnRequest(requestId);
         assertFalse(request.exists);
         assertFalse(request.randomnessFulfilled);
@@ -91,9 +90,96 @@ contract WamosV1Test is Test {
 
     function testSpawnRequestExists() public {
         uint256 mintPrice = wamos.mintPrice();
-        vm.prank(actor);
+        vm.prank(player1);
         uint256 requestId = wamos.requestSpawnWamo{value: mintPrice}();
         SpawnRequest memory request = wamos.getSpawnRequest(requestId);
+
         assertTrue(request.exists);
+        assertTrue(wamos.lastRequestId() == requestId);
+        assertTrue(wamos.requestIds(0) == requestId);
+    }
+
+    function testCountIncrementsAfterSpawn() public {
+        uint256 beforeCount = wamos.tokenCount();
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        uint256 afterCount = wamos.tokenCount();
+        assertTrue(beforeCount == afterCount - 1);
+    }
+
+    function testRequestRandomnessFulfills() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        SpawnRequest memory request = wamos.getSpawnRequest(requestId);
+        assertTrue(request.randomnessFulfilled);
+        assertTrue(request.randomWord != 0);
+        console.log("Random word: %s", request.randomWord);
+    }
+
+    function testRequestStoredTokenId() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        SpawnRequest memory request = wamos.getSpawnRequest(requestId);
+
+        uint256 predictedTokenId = wamos.getTokenIdFromRequestId(requestId);
+        assertTrue(predictedTokenId == request.tokenId);
+    }
+
+    function testActorOwnsCompletedSpawn() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        console.log("request id: %s", requestId);
+        console.log("token id: %s", tokenId);
+        console.log("token count: %s", wamos.tokenCount());
+        // complete mint
+        wamos.completeSpawnWamo(tokenId);
+        // check ownership
+        assertTrue(wamos.ownerOf(tokenId) == player1);
+    }
+
+    function testCompletedSpawnHasTraits() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        // complete mint
+        wamos.completeSpawnWamo(tokenId);
+        // check traits
+        WamoTraits memory traits = wamos.getWamoTraits(tokenId);
+        assertTrue(traits.Health != 0);
+    }
+
+    function testBuyerCanTransfer() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        // complete mint
+        wamos.completeSpawnWamo(tokenId);
+        vm.prank(player1);
+        wamos.safeTransferFrom(player1, player2, tokenId);
+        assertTrue(wamos.ownerOf(tokenId) == player2);
+    }
+
+    function testCannotSpawnForFree() public {
+        assert(player2.balance == 0);
+        vm.prank(player2);
+        vm.expectRevert();
+        uint256 requestId = wamos.requestSpawnWamo{value: 0}();
+    }
+
+    function testBuyerDoesntOwnIncompleteSpawn() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        // wamos.completeSpawnWamo(tokenId);
+        vm.expectRevert();
+        // should revert due to openzep erc721 design
+        assertTrue(wamos.ownerOf(tokenId) == address(0));
     }
 }

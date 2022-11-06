@@ -2,9 +2,9 @@
 
 pragma solidity <0.9.0;
 
-// import "openzeppelin/token/ERC721/ERC721.sol";
+import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/utils/Strings.sol";
-import "solmate/tokens/ERC721.sol";
+// import "solmate/tokens/ERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "./WamosRandomnessV0.sol";
@@ -69,8 +69,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => uint256) requestIdToTokenId;
     mapping(uint256 => uint256) tokenIdToRandomnWord;
     mapping(uint256 => uint256) tokenIdToSpawnRequest;
-    uint256[] requestIds;
-    uint256 lastRequestId;
+    uint256[] public requestIds;
+    uint256 public lastRequestId;
 
     // WAMO DATA
     mapping(uint256 => WamoTraits) wamoIdToTraits;
@@ -152,7 +152,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      * @param tokenId the id of the token requested for which to generate traits and mint to request sender
      */
     function completeSpawnWamo(uint256 tokenId) public payable {
-        require(tokenId > tokenCount, "This token id has not been minted yet!");
+        require(tokenCount > tokenId, "This token id has not been minted yet!");
         uint256 requestId = tokenIdToSpawnRequest[tokenId];
         // check request has not already been fulfilled
         if (requestIdToSpawnRequest[requestId].completed) {
@@ -202,6 +202,24 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return requestIsFulfilled;
     }
 
+    function getTokenIdFromRequestId(uint256 requestId)
+        public
+        view
+        returns (uint256 tokenId)
+    {
+        tokenId = requestIdToTokenId[requestId];
+        return tokenId;
+    }
+
+    function getWamoTraits(uint256 tokenId)
+        public
+        view
+        returns (WamoTraits memory traits)
+    {
+        traits = wamoIdToTraits[tokenId];
+        return traits;
+    }
+
     function setMintPrice(uint256 _mintPrice) public onlyOwner {
         mintPrice = _mintPrice;
     }
@@ -210,9 +228,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         payable(contractOwner).transfer(address(this).balance);
     }
 
-    function tokenURI(uint256 id) public pure override returns (string memory) {
-        return Strings.toString(id);
-    }
+    /** @dev only for solmate erc721 */
+    // function tokenURI(uint256 id) public pure override returns (string memory) {
+    //     return Strings.toString(id);
+    // }
 
     function fulfillRandomWords(
         uint256 _requestId,
