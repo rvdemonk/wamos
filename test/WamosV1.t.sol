@@ -13,8 +13,10 @@ contract WamosV1Test is Test {
         0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc;
     uint256 MINT_PRICE = 0.01 ether;
 
+    address deployer = 0xA5cd5af52b504895c8525B5A5677859Fb04F8907;
     address player1 = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
     address player2 = 0x417622F534d5F30321CF78cB7355773f8BAC7621;
+
     uint256 ACTOR_STARTING_BAL = 1 ether;
 
     VRFCoordinatorV2Mock vrfCoordinator;
@@ -26,6 +28,7 @@ contract WamosV1Test is Test {
         vrfCoordinator = new VRFCoordinatorV2Mock(BASE_FEE, GAS_PRICE_LINK);
         subscriptionId = vrfCoordinator.createSubscription();
         // deploy WamosV1
+        vm.prank(deployer);
         wamos = new WamosV1(
             address(vrfCoordinator),
             VRF_MOCK_KEYHASH,
@@ -63,19 +66,6 @@ contract WamosV1Test is Test {
     function testInitialTokenCount() public {
         assert(wamos.tokenCount() == 0);
     }
-
-    /**
-    TODO TESTS
-    request spawn wamo
-        request exists
-        request fulfilled
-        request stored
-        last request stored
-    complete spawn
-        token minted
-        trait generated and stored (health)
-
-     */
 
     function testSpawnRequestDoesntExist() public {
         uint256 requestId = 0;
@@ -172,14 +162,52 @@ contract WamosV1Test is Test {
         uint256 requestId = wamos.requestSpawnWamo{value: 0}();
     }
 
-    function testBuyerDoesntOwnIncompleteSpawn() public {
+    function testBuyerDoesntOwnUnfulfilledSpawn() public {
         vm.prank(player1);
         uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
-        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
         uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
-        // wamos.completeSpawnWamo(tokenId);
         vm.expectRevert();
         // should revert due to openzep erc721 design
         assertTrue(wamos.ownerOf(tokenId) == address(0));
+    }
+
+    // function testMultipleIncompleteSpawnsCanComplete(address[5] memory players)
+    //     public
+    // {
+    //     for (uint256 i = 0; i < 5; i++) {
+    //         vm.deal(players[i], 1 ether);
+    //         vm.prank(players[i]);
+    //         uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+    //     }
+    // }
+
+    function testWithdraw() public {
+        uint256 numberSold = 10;
+        uint256 requestId;
+        for (uint256 i = 0; i < 10; i++) {
+            vm.prank(player1);
+            requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        }
+        console.log("this balance: %s", address(this).balance);
+        // assertTrue(wamos.tokenCount() == numberSold);
+        assertTrue(deployer.balance == 0);
+        vm.prank(deployer);
+        wamos.withdrawFunds();
+        assertTrue(deployer.balance == numberSold * MINT_PRICE);
+    }
+
+    function testCannotWithdrawByBadActor() public {
+        uint256 numberSold = 10;
+        uint256 requestId;
+        for (uint256 i = 0; i < 10; i++) {
+            vm.prank(player1);
+            requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        }
+        console.log("this balance: %s", address(this).balance);
+        // assertTrue(wamos.tokenCount() == numberSold);
+        assertTrue(deployer.balance == 0);
+        vm.prank(player2);
+        vm.expectRevert();
+        wamos.withdrawFunds();
     }
 }

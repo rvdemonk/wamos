@@ -165,7 +165,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
         wamoIdToTraits[tokenId] = generateWamoTraits(randomWord);
         address owner = requestIdToSpawnRequest[requestId].sender;
-        _safeMint(owner, tokenId);
+        // _safeMint(owner, tokenId);
         emit SpawnCompleted(requestId, tokenId, owner);
     }
 
@@ -244,6 +244,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         requestIdToSpawnRequest[_requestId].randomnessFulfilled = true;
         requestIdToSpawnRequest[_requestId].randomWord = _randomWords[0];
         uint256 tokenId = requestIdToSpawnRequest[_requestId].tokenId;
+        address owner = requestIdToSpawnRequest[_requestId].sender;
+        _safeMint(owner, tokenId);
         emit RandomnessFulfilled(_requestId, tokenId);
     }
 }
