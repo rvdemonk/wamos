@@ -74,7 +74,7 @@ struct VRFRequest {
     uint256 randomWord;
 }
 
-error RandomnessRequestFailed(uint256 requestId);
+error VRFRequestNotFound(uint256 requestId);
 
 contract WamosV0 is ERC721, VRFConsumerBaseV2 {
     //// META CONSTANTS
@@ -147,20 +147,31 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
             fulfilled: false,
             randomWord: 0
         });
+        // store request id
+        vrfRequestIds.push(requestId);
+        lastVrfRequestId = requestId;
+        // emit event
+        // TODO
+        return requestId;
     }
 
-    function tokenURI(uint256 id)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
+    function tokenURI(uint256 id) public view override returns (string memory) {
         return Strings.toString(id);
     }
 
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
-    ) internal override {}
+    ) internal override {
+        // check request exists
+        if (!vrfRequests[_requestId].exists) {
+            revert VRFRequestNotFound(_requestId);
+        }
+        // toggle request fulfillment status
+        vrfRequests[_requestId].fulfilled = true;
+        // store randomness
+        vrfRequests[_requestId].randomWord = _randomWords[0];
+        // emit event
+        // TODO
+    }
 }
