@@ -94,9 +94,4 @@ contract WamosRandomnessV0Test is Test {
             console.log("word #%s : %s", i, words[0]);
         }
     }
-
-    function testTestWordStored() public {
-        assertTrue(testWord != 0);
-        console.log("test word: %s", testWord);
-    }
 }
