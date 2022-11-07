@@ -2,7 +2,7 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/WamosRandomnessV0.sol";
+import "../src/v0/WamosRandomnessV0.sol";
 import "../src/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosRandomnessV0Test is Test {
@@ -87,13 +87,11 @@ contract WamosRandomnessV0Test is Test {
 
     function testRandomWords() public {
         uint256 reqId;
-        for (uint i = 0; i < 20; i++) {
+        for (uint256 i = 0; i < 20; i++) {
             reqId = VRFConsumer.requestRandomWords();
             Coordinator.fulfillRandomWords(reqId, address(VRFConsumer));
-            (, uint256[] memory words) = VRFConsumer.getRequestStatus(
-            reqId
-        );  
-        console.log("word #%s : %s", i, words[0]);
+            (, uint256[] memory words) = VRFConsumer.getRequestStatus(reqId);
+            console.log("word #%s : %s", i, words[0]);
         }
     }
 

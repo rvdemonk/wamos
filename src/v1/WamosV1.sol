@@ -7,7 +7,6 @@ import "openzeppelin/utils/Strings.sol";
 // import "solmate/tokens/ERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "./WamosRandomnessV0.sol";
 
 struct Ability {
     uint256 Type;
@@ -218,6 +217,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     {
         traits = wamoIdToTraits[tokenId];
         return traits;
+    }
+
+    function getRequestCount() public view returns (uint256 count) {
+        count = requestIds.length;
+        return count;
     }
 
     function setMintPrice(uint256 _mintPrice) public onlyOwner {

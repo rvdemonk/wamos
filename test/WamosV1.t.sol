@@ -2,7 +2,7 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/WamosV1.sol";
+import "../src/v1/WamosV1.sol";
 import "../src/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosV1Test is Test {
@@ -22,6 +22,7 @@ contract WamosV1Test is Test {
     VRFCoordinatorV2Mock vrfCoordinator;
     WamosV1 wamos;
     uint64 subscriptionId;
+    uint256[] requestIds;
 
     function setUp() public {
         // set up coordinator mock
@@ -171,15 +172,20 @@ contract WamosV1Test is Test {
         assertTrue(wamos.ownerOf(tokenId) == address(0));
     }
 
-    // function testMultipleIncompleteSpawnsCanComplete(address[5] memory players)
-    //     public
-    // {
-    //     for (uint256 i = 0; i < 5; i++) {
-    //         vm.deal(players[i], 1 ether);
-    //         vm.prank(players[i]);
-    //         uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
-    //     }
-    // }
+    function testMultipleIncompleteSpawnsCanComplete(address[5] memory players)
+        public
+    {
+        uint256 beforeReqCount = requestIds.length;
+        for (uint256 i = 0; i < 5; i++) {
+            vm.deal(players[i], 1 ether);
+            vm.prank(players[i]);
+            uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+            requestIds.push(requestId);
+        }
+        // no tokens completed yet
+        assertTrue(wamos.tokenCount() == 5);
+        assertTrue(wamos.getRequestCount() == 5);
+    }
 
     function testWithdraw() public {
         uint256 numberSold = 10;
