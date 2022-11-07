@@ -141,7 +141,7 @@ contract WamosV1Test is Test {
         wamos.completeSpawnWamo(tokenId);
         // check traits
         WamoTraits memory traits = wamos.getWamoTraits(tokenId);
-        assertTrue(traits.Health != 0);
+        assertTrue(traits.health != 0);
     }
 
     function testBuyerCanTransfer() public {

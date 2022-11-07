@@ -10,25 +10,29 @@ import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 struct Ability {
     uint256 Type;
-    uint256 Attack;
-    uint256 Defence;
-    uint256 MagicAttack;
-    uint256 MagicDefence;
-    uint256 Speed;
-    uint256 Accuracy;
-    uint256 PP;
-    uint256 Cooldown;
+    uint256 attack;
+    uint256 defence;
+    uint256 magicAttack;
+    uint256 magicDefence;
+    uint256 speed;
+    uint256 accuracy;
+    uint256 manaCost;
+    uint256 staminaCost;
+    uint256 healthCost;
+    uint256 cooldown;
 }
 
 struct WamoTraits {
-    uint256 Health;
-    uint256 Attack;
-    uint256 Defence;
-    uint256 MagicAttack;
-    uint256 MagicDefence;
-    uint256 Stamina;
-    uint256 Mana;
-    uint256 Luck;
+    uint256 health;
+    uint256 attack;
+    uint256 defence;
+    uint256 magicAttack;
+    uint256 magicDefence;
+    uint256 stamina;
+    uint256 mana;
+    uint256 luck;
+    uint256 movements;
+    // gear slots
 }
 
 struct SpawnRequest {
@@ -177,9 +181,13 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         pure
         returns (WamoTraits memory traits)
     {
-        traits.Health = (randomWord % 100) + 1;
+        traits.health = (randomWord % 100) + 1;
         return traits;
     }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////     VIEW FUNCTIONS      //////////////////// 
+    /////////////////////////////////////////////////////////////////
 
     function getSpawnRequest(uint256 requestId)
         public
@@ -210,6 +218,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return tokenId;
     }
 
+    function getRequestCount() public view returns (uint256 count) {
+        count = requestIds.length;
+        return count;
+    }
+
     function getWamoTraits(uint256 tokenId)
         public
         view
@@ -219,10 +232,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return traits;
     }
 
-    function getRequestCount() public view returns (uint256 count) {
-        count = requestIds.length;
-        return count;
-    }
+    /////////////////////////////////////////////////////////////////
+    /////////////////     META MINT FUNCTIONS      ////////////////// 
+    /////////////////////////////////////////////////////////////////
 
     function setMintPrice(uint256 _mintPrice) public onlyOwner {
         mintPrice = _mintPrice;
@@ -231,11 +243,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     function withdrawFunds() public payable onlyOwner {
         payable(contractOwner).transfer(address(this).balance);
     }
-
-    /** @dev only for solmate erc721 */
-    // function tokenURI(uint256 id) public pure override returns (string memory) {
-    //     return Strings.toString(id);
-    // }
 
     function fulfillRandomWords(
         uint256 _requestId,
@@ -252,4 +259,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         _safeMint(owner, tokenId);
         emit RandomnessFulfilled(_requestId, tokenId);
     }
+
+    /** @dev only for solmate erc721 */
+    // function tokenURI(uint256 id) public pure override returns (string memory) {
+    //     return Strings.toString(id);
+    // }
 }
