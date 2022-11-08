@@ -38,7 +38,7 @@ struct GameData {
 
 /** @notice Stores and tracks state of a single Wamo during a battle  */
 struct WamoStatus {
-    uint256 positionIndex;
+    int16 positionIndex;
     uint256 health;
 }
 
@@ -62,6 +62,7 @@ error GameDoesNotExist(uint256 gameId);
 error NotPlayerOfGame(uint256 gameId, address addr);
 error PlayerDoesNotOwnThisWamo(uint256 wamoId, address player);
 error GameIsNotOnfoot(uint256 gameId);
+error WamoMovementNotFound(uint256 gameId, uint256 wamoId, int16 indexMutation);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** VRF CONSUMER CONFIG */
@@ -83,7 +84,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     WamosV1Interface wamos;
 
     /** GAME CONSTANTS */
-    int8 public constant GRID_SIZE = 16;
+    int16 public constant GRID_SIZE = 16;
     uint256 public constant MAX_PLAYERS = 2;
     uint256 public constant PARTY_SIZE = 2;
 
@@ -249,7 +250,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             uint256 wamoId = party[i];
 
             // starting position
-            uint256 startPosition;
+            int16 startPosition;
             if (player == gameIdToGameData[gameId].challenger) {
                 startPosition = 0;
             } else {
@@ -264,16 +265,74 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
-    // TODO return new index
-    function move(uint256 gameId, int8 indexMutation)
+    // // TODO return new index
+    // function move(
+    //     uint256 gameId,
+    //     uint256 wamoId,
+    //     int16 indexMutation
+    // )
+    //     external
+    //     onlyPlayer(gameId)
+    //     onlyOnfootGame(gameId)
+    //     returns (int16 newPosition)
+    // {
+    //     // @custom:decision hit wamos contract for movements or store locally in battle contract?
+    //     int16[8] memory movements = wamos.getWamoMovements(wamoId);
+    //     // TODO check move is valid regarding wamos list of moves
+    //     // TODO @dev make this less retarded
+    //     bool moveFound;
+    //     for (uint256 i = 0; i < movements.length; i++) {
+    //         if (movements[i] == indexMutation) {
+    //             moveFound = true;
+    //         }
+    //     }
+    //     if (!moveFound) {
+    //         revert WamoMovementNotFound(gameId, wamoId, indexMutation);
+    //     }
+    //     // mutate index
+    //     newPosition =
+    //         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex +
+    //         indexMutation;
+    //     // set new position
+    //     _setWamoPosition(gameId, wamoId, newPosition);
+    // }
+
+    /**
+     * @notice mutates wamos position from a selection of movement possiblities accordint wamo trait
+     * @param gameId the id of the game containing the wamo being moved
+     * @param wamoId the id of the wamo being moved
+     * @param moveTraitIndex the array index of the chosen movement corresponding to the
+     *          array of possible movements open to the wamo
+     * @return newPosition the position of the wamo after the position mutation
+     */
+    function move(
+        uint256 gameId,
+        uint256 wamoId,
+        uint256 moveTraitIndex
+    )
         external
         onlyPlayer(gameId)
         onlyOnfootGame(gameId)
+        returns (int16 newPosition)
     {
-        // check move is valid regarding wamos list of moves
+        int16[8] memory movements = wamos.getWamoMovements(wamoId);
+        int16 positionMutation = movements[moveTraitIndex];
+        newPosition = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
+        _setWamoPosition(gameId, wamoId, newPosition);
+        return newPosition;
     }
 
     function useAbility() external {}
+
+    //////////////// GAME SET FUNCTIONS  ////////////////
+
+    function _setWamoPosition(
+        uint256 gameId,
+        uint256 wamoId,
+        int16 newIndex
+    ) internal {
+        gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
+    }
 
     //////////////// GAME END FUNCTIONS  ////////////////
 
@@ -281,7 +340,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     // return wamos
     // toggle staking requests to not staked and request dne
 
-    //////////////// SET FUNCTIONS  ////////////////
+    //////////////// CONTRACT SET FUNCTIONS  ////////////////
 
     function setPlayerTag(string calldata newPlayerTag) public {
         addrToPlayerTag[msg.sender] = newPlayerTag;
@@ -289,11 +348,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     //////////////// VIEW FUNCTIONS ////////////////
 
-    function getGameData(uint256 gameId)
-        external
-        view
-        returns (GameData memory)
-    {
+    function getGameData(uint256 gameId) public view returns (GameData memory) {
         if (gameCount >= gameId) {
             revert GameDoesNotExist(gameId);
         }
@@ -307,6 +362,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     {
         return addrToChallengesReceived[player];
     }
+
+    // function getWamoPosition()
 
     // @dev TODO staking logic here
     function onERC721Received(

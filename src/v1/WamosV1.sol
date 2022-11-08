@@ -31,7 +31,7 @@ struct WamoTraits {
     uint256 stamina;
     uint256 mana;
     uint256 luck;
-    int8[8] movements;
+    int16[8] movements;
     // gear slots
 }
 
@@ -184,7 +184,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         traits.health = (randomWord % 100) + 1;
         // hardcoded king movement for testing
         // traits.movements = [-1, 1, 15, 16, 17, -15, -16, -17];
-        traits.movements = [-1, 1, 15, 16, 17, -15, -16, -17];
+        traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
         return traits;
     }
 
@@ -233,6 +233,14 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     {
         traits = wamoIdToTraits[tokenId];
         return traits;
+    }
+
+    function getWamoMovements(uint256 tokenId)
+        public
+        view
+        returns (int16[8] memory)
+    {
+        return wamoIdToTraits[tokenId].movements;
     }
 
     /////////////////////////////////////////////////////////////////
