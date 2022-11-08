@@ -83,7 +83,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     WamosV1Interface wamos;
 
     /** GAME CONSTANTS */
-    int256 public constant GRID_SIZE = 16;
+    int8 public constant GRID_SIZE = 16;
     uint256 public constant MAX_PLAYERS = 2;
     uint256 public constant PARTY_SIZE = 2;
 
@@ -265,7 +265,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     // TODO return new index
-    function move(uint256 gameId, int256 indexMutation)
+    function move(uint256 gameId, int8 indexMutation)
         external
         onlyPlayer(gameId)
         onlyOnfootGame(gameId)

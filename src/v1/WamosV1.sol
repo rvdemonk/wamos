@@ -31,7 +31,7 @@ struct WamoTraits {
     uint256 stamina;
     uint256 mana;
     uint256 luck;
-    uint256 movements;
+    int8[8] movements;
     // gear slots
 }
 
@@ -182,11 +182,14 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         returns (WamoTraits memory traits)
     {
         traits.health = (randomWord % 100) + 1;
+        // hardcoded king movement for testing
+        // traits.movements = [-1, 1, 15, 16, 17, -15, -16, -17];
+        traits.movements = [-1, 1, 15, 16, 17, -15, -16, -17];
         return traits;
     }
 
     /////////////////////////////////////////////////////////////////
-    ////////////////////     VIEW FUNCTIONS      //////////////////// 
+    ////////////////////     VIEW FUNCTIONS      ////////////////////
     /////////////////////////////////////////////////////////////////
 
     function getSpawnRequest(uint256 requestId)
@@ -233,7 +236,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     /////////////////////////////////////////////////////////////////
-    /////////////////     META MINT FUNCTIONS      ////////////////// 
+    /////////////////     META MINT FUNCTIONS      //////////////////
     /////////////////////////////////////////////////////////////////
 
     function setMintPrice(uint256 _mintPrice) public onlyOwner {

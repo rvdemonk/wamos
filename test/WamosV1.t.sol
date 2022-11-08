@@ -142,6 +142,7 @@ contract WamosV1Test is Test {
         // check traits
         WamoTraits memory traits = wamos.getWamoTraits(tokenId);
         assertTrue(traits.health != 0);
+        console.log("Wamo has health trait of %s", traits.health);
     }
 
     function testBuyerCanTransfer() public {
