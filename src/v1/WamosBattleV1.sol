@@ -52,41 +52,55 @@ struct VRFRequest {
     uint256 randomWord;
 }
 
+struct StakingStatus {
+    bool exists;
+    bool stakeRequested;
+    uint256 gameId;
+    bool isStaked;
+}
+
 error GameDoesNotExist(uint256 gameId);
+error NotPlayerOfGame(uint256 gameId, address addr);
+error PlayerDoesNotOwnThisWamo(uint256 wamoId, address player);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
-    // VRF CONFIGURATION
+    /** VRF CONSUMER CONFIG */
     bytes32 public vrfKeyHash;
     uint16 public vrfRequestConfirmations;
     uint32 public vrfNumWords;
     uint32 public vrfCallbackGasLimit;
     uint64 public vrfSubscriptionId;
 
-    // VRF CONSUMER STORAGE
+    /** VRF CONSUMER DATA */
     mapping(uint256 => VRFRequest) requestIdToRequest;
     uint256[] public requestIds;
     uint256 public lastRequest;
 
-    // VRF COORDINATOR
+    /** VRF COORDINATOR INTERFACE */
     VRFCoordinatorV2Interface vrfCoordinator;
 
-    // WAMOS INTERFACE
+    /** WAMOS INTERFACE */
     WamosV1Interface wamos;
 
-    // GAME CONSTANTS
+    /** GAME CONSTANTS */
     int256 public constant GRID_SIZE = 16;
     uint256 public constant MAX_PLAYERS = 2;
     uint256 public constant PARTY_SIZE = 2;
 
-    // GAME CONTRACT DATA
+    /** GAME CONTRACT DATA */
     uint256 public gameCount;
-    mapping(uint256 => bool) public wamoIdToIsStaked;
+    // staking
+    mapping(uint256 => StakingStatus) public wamoIdToStakingStatus;
+    // invite system
     mapping(address => uint256[]) public addrToChallengesSent;
     mapping(address => uint256[]) public addrToChallengesReceived;
+    // player name
     mapping(address => string) public addrToPlayerTag;
 
-    // GAME STATE STORAGE
+    /** GAME STATE STORAGE */
     mapping(uint256 => GameData) public gameIdToGameData;
+    mapping(uint256 => mapping(address => uint256))
+        public gameIdToPlayerToStakedCount;
     mapping(uint256 => mapping(address => uint256[PARTY_SIZE]))
         public gameIdToPlayerToWamoPartyIds;
     mapping(uint256 => mapping(uint256 => WamoStatus))
@@ -110,6 +124,19 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         vrfRequestConfirmations = 2;
     }
 
+    ////////////////    MODIFIERS   ////////////////
+
+    /** @notice Reverts function if msg.sender is not a player of gameId */
+    modifier onlyPlayer(uint256 gameId) {
+        if (
+            gameIdToGameData[gameId].players[0] != msg.sender &&
+            gameIdToGameData[gameId].players[1] != msg.sender
+        ) {
+            revert NotPlayerOfGame(gameId, msg.sender);
+        }
+        _;
+    }
+
     /**
      * @return id of new game created.
      */
@@ -131,7 +158,41 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return game.id;
     }
 
-    function connectWamo() external {}
+    function connectWamo(uint256 gameId, uint256 wamoId)
+        external
+        onlyPlayer(gameId)
+    {
+        // TODO custom errors
+        // check wamo isnt already staked
+        require(
+            !wamoIdToStakingStatus[wamoId].isStaked,
+            "Wamo is already staked!"
+        );
+        // check max wamos already not staked
+        require(
+            gameIdToPlayerToStakedCount[gameId][msg.sender] <= PARTY_SIZE,
+            "Maximum Wamos already staked!"
+        );
+        // check that sender owns wamo
+        if (wamos.ownerOf(wamoId) != msg.sender) {
+            revert PlayerDoesNotOwnThisWamo(wamoId, msg.sender);
+        }
+        // prompt wamo transfer
+        wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
+        // register staking request
+        if (wamoIdToStakingStatus[wamoId].exists) {
+            wamoIdToStakingStatus[wamoId].stakeRequested = true;
+            wamoIdToStakingStatus[wamoId].gameId = gameId;
+            wamoIdToStakingStatus[wamoId].isStaked = false;
+        } else {
+            wamoIdToStakingStatus[wamoId] = StakingStatus({
+                exists: true,
+                stakeRequested: true,
+                gameId: gameId,
+                isStaked: false
+            });
+        }
+    }
 
     function move() external {}
 
@@ -139,7 +200,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     //////////////// SET FUNCTIONS  ////////////////
 
-    function setPlayerTag(string calldata newPlayerTag) external {
+    function setPlayerTag(string calldata newPlayerTag) public {
         addrToPlayerTag[msg.sender] = newPlayerTag;
     }
 
@@ -154,6 +215,14 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             revert GameDoesNotExist(gameId);
         }
         return gameIdToGameData[gameId];
+    }
+
+    function getChallengesReceivedBy(address player)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return addrToChallengesReceived[player];
     }
 
     // @dev TODO staking logic here
