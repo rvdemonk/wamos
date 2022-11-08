@@ -28,7 +28,7 @@ enum GameStatus {
 struct GameData {
     uint256 id;
     GameStatus status;
-    uint256 startTime;
+    uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
     address[2] players;
@@ -52,6 +52,8 @@ struct VRFRequest {
     uint256 randomWord;
 }
 
+error GameDoesNotExist(uint256 gameId);
+
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     // VRF CONFIGURATION
     bytes32 public vrfKeyHash;
@@ -72,20 +74,23 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     WamosV1Interface wamos;
 
     // GAME CONSTANTS
-    int256 public GRID_SIZE = 16;
-    uint256 public MAX_PLAYERS = 2;
-    uint256 public PARTY_SIZE = 2;
+    int256 public constant GRID_SIZE = 16;
+    uint256 public constant MAX_PLAYERS = 2;
+    uint256 public constant PARTY_SIZE = 2;
 
     // GAME CONTRACT DATA
     uint256 public gameCount;
     mapping(uint256 => bool) public wamoIdToIsStaked;
     mapping(address => uint256[]) public addrToChallengesSent;
     mapping(address => uint256[]) public addrToChallengesReceived;
+    mapping(address => string) public addrToPlayerTag;
 
     // GAME STATE STORAGE
     mapping(uint256 => GameData) public gameIdToGameData;
-    mapping(uint256 => mapping(address => uint256[2]))
-        public gameIdToPlayersWamoParty;
+    mapping(uint256 => mapping(address => uint256[PARTY_SIZE]))
+        public gameIdToPlayerToWamoPartyIds;
+    mapping(uint256 => mapping(uint256 => WamoStatus))
+        public gameIdToWamoIdToStatus;
 
     constructor(
         address _wamosAddr,
@@ -105,14 +110,25 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         vrfRequestConfirmations = 2;
     }
 
-    function createGame(address player0, address player1)
+    /**
+     * @return id of new game created.
+     */
+    function createGame(address challenger, address challengee)
         external
-        returns (uint256 gameId)
+        returns (uint256)
     {
-        // gameId = gameCount++;
-        GameData storage game;
+        // initialise gamedata struct
+        GameData memory game;
         game.id = gameCount++;
-        return gameId;
+        game.players = [challenger, challengee];
+        game.createTime = block.timestamp;
+        game.status = GameStatus.PREGAME;
+        // store game data
+        gameIdToGameData[game.id] = game;
+        // store challenge
+        addrToChallengesSent[challenger].push(game.id);
+        addrToChallengesReceived[challengee].push(game.id);
+        return game.id;
     }
 
     function connectWamo() external {}
@@ -120,6 +136,25 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     function move() external {}
 
     function useAbility() external {}
+
+    //////////////// SET FUNCTIONS  ////////////////
+
+    function setPlayerTag(string calldata newPlayerTag) external {
+        addrToPlayerTag[msg.sender] = newPlayerTag;
+    }
+
+    //////////////// VIEW FUNCTIONS ////////////////
+
+    function getGameData(uint256 gameId)
+        external
+        view
+        returns (GameData memory)
+    {
+        if (gameCount >= gameId) {
+            revert GameDoesNotExist(gameId);
+        }
+        return gameIdToGameData[gameId];
+    }
 
     // @dev TODO staking logic here
     function onERC721Received(
