@@ -98,11 +98,15 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     mapping(address => string) public addrToPlayerTag;
 
     /** GAME STATE STORAGE */
+    // game data
     mapping(uint256 => GameData) public gameIdToGameData;
+    // number of wamos staked by player in gameId
     mapping(uint256 => mapping(address => uint256))
         public gameIdToPlayerToStakedCount;
+    // ids of wamos in players party for game id
     mapping(uint256 => mapping(address => uint256[PARTY_SIZE]))
         public gameIdToPlayerToWamoPartyIds;
+    // the state of wamo w in game x
     mapping(uint256 => mapping(uint256 => WamoStatus))
         public gameIdToWamoIdToStatus;
 
@@ -163,7 +167,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         onlyPlayer(gameId)
     {
         // TODO custom errors
-        // check wamo isnt already staked
+        // check wamo is not already staked
         require(
             !wamoIdToStakingStatus[wamoId].isStaked,
             "Wamo is already staked!"
@@ -198,6 +202,12 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     function useAbility() external {}
 
+    //////////////// GAME END FUNCTIONS  ////////////////
+
+    // end game
+    // return wamos
+    // toggle staking requests to not staked and request dne
+
     //////////////// SET FUNCTIONS  ////////////////
 
     function setPlayerTag(string calldata newPlayerTag) public {
@@ -231,10 +241,24 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         address from,
         uint256 tokenId,
         bytes calldata data
-    ) external view override returns (bytes4) {
+    ) external override returns (bytes4) {
+        // if a wamo has been received
         if (operator == address(wamos)) {
-            // wamo received
             // match wamo with game and player (from)
+            if (wamoIdToStakingStatus[tokenId].stakeRequested) {
+                // get game id from staking request struct
+                uint256 gameId = wamoIdToStakingStatus[tokenId].gameId;
+                uint256 stakedCount = gameIdToPlayerToStakedCount[gameId][from];
+                // toggle staked
+                wamoIdToStakingStatus[tokenId].isStaked = true;
+                // add wamo to players party in game
+                // party array is fixed size, so set as index stakedCount
+                gameIdToPlayerToWamoPartyIds[gameId][from][
+                    stakedCount
+                ] = tokenId;
+                // add to stake count
+                gameIdToPlayerToStakedCount[gameId][from]++;
+            }
             // record wamo as staked in game
         }
         return IERC721Receiver.onERC721Received.selector;
