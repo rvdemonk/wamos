@@ -1,7 +1,0 @@
-dotenv: .env
-networks:
-  default: goerli
-  goerli:
-    verify: True
-wallets:
-  from_key: ${PRIVATE_KEY}

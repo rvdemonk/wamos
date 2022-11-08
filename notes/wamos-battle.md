@@ -1,0 +1,3 @@
+# WAMOS BATTLE DESIGN NOTES
+
+## Game State

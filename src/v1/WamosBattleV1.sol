@@ -3,11 +3,11 @@
 /**
  * @dev WAMOS BATTLE V1: USAGE
  * create game -> connect wamos -> start game -> take turns... -> conquest/resignation
- * 
+ *
  * @dev CHANGES FROM V0
  *  - Games stored in mapping instead of array for efficiency (arrays must be iterated over
  *    in solidity to find the specified index).
- * 
+ *
  */
 
 pragma solidity <0.9.0;
@@ -32,8 +32,8 @@ struct GameData {
     uint256 lastMoveTime;
     uint256 turnCount;
     address[2] players;
-    mapping(address => uint256) addrToPlayerId;
-    mapping(address => uint256[]) addrToPartyTokenIds;
+    // mapping(address => uint256) addrToPlayerId;
+    // mapping(address => uint256[]) addrToPartyTokenIds;
 }
 
 /** @notice Stores and tracks state of a single Wamo during a battle  */
@@ -64,7 +64,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     mapping(uint256 => VRFRequest) requestIdToRequest;
     uint256[] public requestIds;
     uint256 public lastRequest;
-    
+
     // VRF COORDINATOR
     VRFCoordinatorV2Interface vrfCoordinator;
 
@@ -78,19 +78,22 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     // GAME CONTRACT DATA
     uint256 public gameCount;
+    mapping(uint256 => bool) public wamoIdToIsStaked;
+    mapping(address => uint256[]) public addrToChallengesSent;
+    mapping(address => uint256[]) public addrToChallengesReceived;
 
     // GAME STATE STORAGE
     mapping(uint256 => GameData) public gameIdToGameData;
-    mapping(uint256 => bool) public wamoIdIsStaked;
+    mapping(uint256 => mapping(address => uint256[2]))
+        public gameIdToPlayersWamoParty;
 
     constructor(
-        address _wamosAddr, 
-        address _vrfCoordinatorAddr, 
+        address _wamosAddr,
+        address _vrfCoordinatorAddr,
         bytes32 _vrfKeyHash,
         uint64 _vrfSubscriptionId
-    ) VRFConsumerBaseV2(_vrfCoordinatorAddr) 
-    {
-        // instantiate wamos interface 
+    ) VRFConsumerBaseV2(_vrfCoordinatorAddr) {
+        // instantiate wamos interface
         wamos = WamosV1Interface(_wamosAddr);
         // instantiate vrf coordinator interface
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorAddr);
@@ -102,15 +105,21 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         vrfRequestConfirmations = 2;
     }
 
-    ////////////////////////////////////////////////////////////
-    /////////////////      GAME SETUP      /////////////////////
-    ////////////////////////////////////////////////////////////
-
-    function createGame(address player0, address player1) external returns (uint256 gameId) {
-        gameId = gameCount++;
+    function createGame(address player0, address player1)
+        external
+        returns (uint256 gameId)
+    {
+        // gameId = gameCount++;
+        GameData storage game;
+        game.id = gameCount++;
         return gameId;
     }
 
+    function connectWamo() external {}
+
+    function move() external {}
+
+    function useAbility() external {}
 
     // @dev TODO staking logic here
     function onERC721Received(
@@ -130,10 +139,5 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
-    ) internal override {
-
-    }
-
-
-
+    ) internal override {}
 }
