@@ -2,7 +2,7 @@
 
 /**
  * @dev WAMOS BATTLE V1: USAGE
- * create game -> connect wamos -> start game -> take turns... -> conquest/resignation
+ * create game -> connect wamos -> players ready -> game starts -> take turns... -> conquest/resignation
  *
  * @dev CHANGES FROM V0
  *  - Games stored in mapping instead of array for efficiency (arrays must be iterated over
@@ -32,13 +32,12 @@ struct GameData {
     uint256 lastMoveTime;
     uint256 turnCount;
     address[2] players;
-    // mapping(address => uint256) addrToPlayerId;
-    // mapping(address => uint256[]) addrToPartyTokenIds;
+    address challenger;
+    address challengee;
 }
 
 /** @notice Stores and tracks state of a single Wamo during a battle  */
 struct WamoStatus {
-    uint256 tokenId;
     uint256 positionIndex;
     uint256 health;
 }
@@ -103,6 +102,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     // number of wamos staked by player in gameId
     mapping(uint256 => mapping(address => uint256))
         public gameIdToPlayerToStakedCount;
+    // is player p ready in game x
+    mapping(uint256 => mapping(address => bool)) public gameIdToPlayerIsReady;
     // ids of wamos in players party for game id
     mapping(uint256 => mapping(address => uint256[PARTY_SIZE]))
         public gameIdToPlayerToWamoPartyIds;
@@ -133,8 +134,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** @notice Reverts function if msg.sender is not a player of gameId */
     modifier onlyPlayer(uint256 gameId) {
         if (
-            gameIdToGameData[gameId].players[0] != msg.sender &&
-            gameIdToGameData[gameId].players[1] != msg.sender
+            gameIdToGameData[gameId].challenger != msg.sender &&
+            gameIdToGameData[gameId].challengee != msg.sender
         ) {
             revert NotPlayerOfGame(gameId, msg.sender);
         }
@@ -152,6 +153,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         GameData memory game;
         game.id = gameCount++;
         game.players = [challenger, challengee];
+        game.challenger = challenger;
+        game.challengee = challengee;
         game.createTime = block.timestamp;
         game.status = GameStatus.PREGAME;
         // store game data
@@ -162,6 +165,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return game.id;
     }
 
+    // TODO allow for connection of multiple wamos at once to save gas
     function connectWamo(uint256 gameId, uint256 wamoId)
         external
         onlyPlayer(gameId)
@@ -198,6 +202,59 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
+    function playerReady(uint256 gameId) external onlyPlayer(gameId) {
+        // TODO custom errors
+        // require: game must be pregame
+        require(
+            gameIdToGameData[gameId].status == GameStatus.PREGAME,
+            "Must be pregame to start"
+        );
+        // require: sufficient wamos must be staked
+        require(
+            gameIdToPlayerToStakedCount[gameId][msg.sender] == PARTY_SIZE,
+            "Player cannot be ready until sufficient wamos staked"
+        );
+        // load wamos data
+        loadWamos(gameId, msg.sender);
+        // if both players ready: game started?
+        // @dev TODO does this make gas ridik????
+        address challenger = gameIdToGameData[gameId].challenger;
+        address challengee = gameIdToGameData[gameId].challengee;
+        if (
+            gameIdToPlayerIsReady[gameId][challenger] &&
+            gameIdToPlayerIsReady[gameId][challengee]
+        ) {
+            gameIdToGameData[gameId].status = GameStatus.ONFOOT;
+        }
+    }
+
+    function loadWamos(uint256 gameId, address player) internal {
+        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+            player
+        ];
+
+        // for each wamo in the party load wamo data
+        for (uint256 i = 0; i < PARTY_SIZE; i++) {
+            // TODO load full wamo stats when all traits are known
+            uint256 wamoId = party[i];
+
+            // starting position
+            uint256 startPosition;
+            if (player == gameIdToGameData[gameId].challenger) {
+                startPosition = 0;
+            } else {
+                startPosition = 255;
+            }
+
+            WamoTraits memory traits = wamos.getWamoTraits(wamoId);
+            gameIdToWamoIdToStatus[gameId][wamoId] = WamoStatus({
+                positionIndex: startPosition,
+                health: traits.health
+            });
+        }
+    }
+
+    // TODO return new index
     function move() external {}
 
     function useAbility() external {}
@@ -259,7 +316,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 // add to stake count
                 gameIdToPlayerToStakedCount[gameId][from]++;
             }
-            // record wamo as staked in game
         }
         return IERC721Receiver.onERC721Received.selector;
     }
