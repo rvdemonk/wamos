@@ -61,6 +61,7 @@ struct StakingStatus {
 error GameDoesNotExist(uint256 gameId);
 error NotPlayerOfGame(uint256 gameId, address addr);
 error PlayerDoesNotOwnThisWamo(uint256 wamoId, address player);
+error GameIsNotOnfoot(uint256 gameId);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** VRF CONSUMER CONFIG */
@@ -141,6 +142,15 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
         _;
     }
+
+    modifier onlyOnfootGame(uint256 gameId) {
+        if (gameIdToGameData[gameId].status != GameStatus.ONFOOT) {
+            revert GameIsNotOnfoot(gameId);
+        }
+        _;
+    }
+
+    ////////////////    GAME SETUP   ////////////////
 
     /**
      * @return id of new game created.
@@ -255,7 +265,13 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     // TODO return new index
-    function move() external {}
+    function move(uint256 gameId, int256 indexMutation)
+        external
+        onlyPlayer(gameId)
+        onlyOnfootGame(gameId)
+    {
+        // check move is valid regarding wamos list of moves
+    }
 
     function useAbility() external {}
 
