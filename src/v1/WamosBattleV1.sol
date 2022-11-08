@@ -265,38 +265,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
-    // // TODO return new index
-    // function move(
-    //     uint256 gameId,
-    //     uint256 wamoId,
-    //     int16 indexMutation
-    // )
-    //     external
-    //     onlyPlayer(gameId)
-    //     onlyOnfootGame(gameId)
-    //     returns (int16 newPosition)
-    // {
-    //     // @custom:decision hit wamos contract for movements or store locally in battle contract?
-    //     int16[8] memory movements = wamos.getWamoMovements(wamoId);
-    //     // TODO check move is valid regarding wamos list of moves
-    //     // TODO @dev make this less retarded
-    //     bool moveFound;
-    //     for (uint256 i = 0; i < movements.length; i++) {
-    //         if (movements[i] == indexMutation) {
-    //             moveFound = true;
-    //         }
-    //     }
-    //     if (!moveFound) {
-    //         revert WamoMovementNotFound(gameId, wamoId, indexMutation);
-    //     }
-    //     // mutate index
-    //     newPosition =
-    //         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex +
-    //         indexMutation;
-    //     // set new position
-    //     _setWamoPosition(gameId, wamoId, newPosition);
-    // }
-
     /**
      * @notice mutates wamos position from a selection of movement possiblities accordint wamo trait
      * @param gameId the id of the game containing the wamo being moved
@@ -316,8 +284,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         returns (int16 newPosition)
     {
         int16[8] memory movements = wamos.getWamoMovements(wamoId);
-        int16 positionMutation = movements[moveTraitIndex];
-        newPosition = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
+        int16 mutation = movements[moveTraitIndex];
+        newPosition =
+            gameIdToWamoIdToStatus[gameId][wamoId].positionIndex +
+            mutation;
         _setWamoPosition(gameId, wamoId, newPosition);
         return newPosition;
     }
