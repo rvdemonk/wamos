@@ -38,6 +38,7 @@ struct GameData {
 
 /** @notice Stores and tracks state of a single Wamo during a battle  */
 struct WamoStatus {
+    // incomplete
     int16 positionIndex;
     uint256 health;
 }
@@ -51,6 +52,7 @@ struct VRFRequest {
     uint256 randomWord;
 }
 
+/** @notice Tracks the staking request status and staking status of a wamo */
 struct StakingStatus {
     bool exists;
     bool stakeRequested;
