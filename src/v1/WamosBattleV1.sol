@@ -146,6 +146,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         _;
     }
 
+    /** @notice Reverts function if game gameId is not onfoot */
     modifier onlyOnfootGame(uint256 gameId) {
         if (gameIdToGameData[gameId].status != GameStatus.ONFOOT) {
             revert GameIsNotOnfoot(gameId);
@@ -228,11 +229,12 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             "Player cannot be ready until sufficient wamos staked"
         );
         // load wamos data
-        loadWamos(gameId, msg.sender);
+        _loadWamos(gameId, msg.sender);
         // if both players ready: game started?
         // @dev TODO does this make gas ridik????
         address challenger = gameIdToGameData[gameId].challenger;
         address challengee = gameIdToGameData[gameId].challengee;
+        // if both players are ready set the game status to onfoot
         if (
             gameIdToPlayerIsReady[gameId][challenger] &&
             gameIdToPlayerIsReady[gameId][challengee]
@@ -241,11 +243,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
-    function loadWamos(uint256 gameId, address player) internal {
+    function _loadWamos(uint256 gameId, address player) internal {
         uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
             player
         ];
-
         // for each wamo in the party load wamo data
         for (uint256 i = 0; i < PARTY_SIZE; i++) {
             // TODO load full wamo stats when all traits are known
@@ -268,7 +269,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     /**
-     * @notice mutates wamos position from a selection of movement possiblities accordint wamo trait
+     * @notice mutates wamos position from a selection of movement possiblities according to wamo trait
      * @param gameId the id of the game containing the wamo being moved
      * @param wamoId the id of the wamo being moved
      * @param moveTraitIndex the array index of the chosen movement corresponding to the
