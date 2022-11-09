@@ -19,6 +19,7 @@ contract WamosRandomnessV0Test is Test {
 
     uint64 subId;
     uint256 testWord;
+    bytes1[] byteArr;
 
     function setUp() public {
         // deploy mocks
@@ -140,12 +141,52 @@ contract WamosRandomnessV0Test is Test {
         bytes memory b = _toBytes2(testWord);
     }
 
-    function _spliceBytes(bytes calldata b) internal {
-        return b[:4];
+    // function _spliceBytes(bytes32 calldata b) internal returns (bytes4) {
+    //     return b[:4];
+    // }
+
+    // function testByteSplit() public {
+    //     bytes32 b = _toBytes2(testWord);
+    //     bytes4 subBytes = _spliceBytes(b);
+    //     console.logBytes4(subBytes);
+    // }
+
+    function testByteSplit2() public {
+        uint256 word = testWord;
+        console.log(word);
+        bytes memory b = abi.encode(testWord);
+        console.logBytes(b);
+        bytes1 sub0;
+        bytes1 sub1;
+        bytes1 sub2;
+        // for (uint256 i = 0; i < 4; i++) {
+        //     subb[i] = b[i];
+        // }
+        sub0 = b[0];
+        sub1 = b[30];
+        console.logBytes1(sub0);
+        console.logBytes1(sub1);
     }
 
-    function testByteSplit() public {
-        bytes4 subBytes = _spliceBytes(testWord);
-        console.logBytes(subBytes);
+    function testByteSplitArray() public {
+        bytes memory b = abi.encode(testWord);
+        // bytes1[] storage byteArr;
+        for (uint256 i = 0; i < 32; i++) {
+            byteArr.push(b[i]);
+        }
+        console.logBytes1(byteArr[0]);
+        console.logBytes1(byteArr[31]);
+    }
+
+    function testByteToUint() public {
+        bytes memory b = abi.encode(testWord);
+        // bytes1[] storage byteArr;
+        for (uint256 i = 0; i < 32; i++) {
+            byteArr.push(b[i]);
+        }
+        bytes1 b1 = byteArr[27];
+        console.logBytes1(b1);
+        uint256 n0 = uint256(bytes32(b1));
+        console.log(n0);
     }
 }
