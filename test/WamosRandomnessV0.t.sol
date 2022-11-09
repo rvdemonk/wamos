@@ -34,6 +34,13 @@ contract WamosRandomnessV0Test is Test {
         // fund subscription
         Coordinator.fundSubscription(subId, SUB_FUNDING);
         Coordinator.addConsumer(subId, address(VRFConsumer));
+
+        // store test word
+        uint256 reqId = VRFConsumer.requestRandomWords();
+        Coordinator.fulfillRandomWords(reqId, address(VRFConsumer));
+        // convert to bytes
+        (, uint256[] memory words) = VRFConsumer.getRequestStatus(reqId);
+        testWord = words[0];
     }
 
     function testSubscriptionIsSetup() public {
@@ -93,5 +100,41 @@ contract WamosRandomnessV0Test is Test {
             (, uint256[] memory words) = VRFConsumer.getRequestStatus(reqId);
             console.log("word #%s : %s", i, words[0]);
         }
+    }
+
+    function testWordByte() public {
+        uint256 reqId = VRFConsumer.requestRandomWords();
+        Coordinator.fulfillRandomWords(reqId, address(VRFConsumer));
+        // convert to bytes
+        (, uint256[] memory words) = VRFConsumer.getRequestStatus(reqId);
+        bytes memory wordB = _toBytes1(words[0]);
+        console.log("random word: %s", words[0]);
+        console.logBytes(wordB);
+    }
+
+    function _toBytes1(uint256 x) private pure returns (bytes memory b) {
+        b = new bytes(32);
+        for (uint256 i = 0; i < 32; i++) {
+            b[i] = bytes1(uint8(x / 2**(8 * (31 - i))));
+        }
+        return b;
+    }
+
+    function _toBytes2(uint256 x) private pure returns (bytes memory) {
+        return abi.encode(x);
+    }
+
+    function testBytesConversionsAreEquivalent() public {
+        bytes memory b = _toBytes1(testWord);
+        bytes memory encoding = _toBytes2(testWord);
+        assertEq(b, encoding);
+    }
+
+    function testBytesConvertManual() public {
+        bytes memory b = _toBytes1(testWord);
+    }
+
+    function testBytesConvertEncode() public {
+        bytes memory b = _toBytes2(testWord);
     }
 }

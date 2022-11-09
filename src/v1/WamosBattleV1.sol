@@ -292,7 +292,12 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return newPosition;
     }
 
-    function useAbility() external {}
+    /** TODO */
+    function useAbility(
+        uint256 gameId,
+        uint256 wamoId,
+        uint256 abilityTraitIndex
+    ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {}
 
     //////////////// GAME SET FUNCTIONS  ////////////////
 
