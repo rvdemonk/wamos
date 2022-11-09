@@ -103,15 +103,15 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** GAME STATE STORAGE */
     // game data
     mapping(uint256 => GameData) public gameIdToGameData;
-    // number of wamos staked by player in gameId
+    // number of wamos staked in gameId x by player y
     mapping(uint256 => mapping(address => uint256))
         public gameIdToPlayerToStakedCount;
-    // is player p ready in game x
+    // is player y ready in game x
     mapping(uint256 => mapping(address => bool)) public gameIdToPlayerIsReady;
-    // ids of wamos in players party for game id
+    // ids of wamos in player y party for game id x
     mapping(uint256 => mapping(address => uint256[PARTY_SIZE]))
         public gameIdToPlayerToWamoPartyIds;
-    // the state of wamo w in game x
+    // the state of wamo y in game x
     mapping(uint256 => mapping(uint256 => WamoStatus))
         public gameIdToWamoIdToStatus;
 
