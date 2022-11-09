@@ -102,6 +102,8 @@ contract WamosRandomnessV0Test is Test {
         }
     }
 
+    ////////  EXPERIMENTS WITH BYTES  /////////
+
     function testWordByte() public {
         uint256 reqId = VRFConsumer.requestRandomWords();
         Coordinator.fulfillRandomWords(reqId, address(VRFConsumer));
@@ -136,5 +138,14 @@ contract WamosRandomnessV0Test is Test {
 
     function testBytesConvertEncode() public {
         bytes memory b = _toBytes2(testWord);
+    }
+
+    function _spliceBytes(bytes calldata b) internal {
+        return b[:4];
+    }
+
+    function testByteSplit() public {
+        bytes4 subBytes = _spliceBytes(testWord);
+        console.logBytes(subBytes);
     }
 }
