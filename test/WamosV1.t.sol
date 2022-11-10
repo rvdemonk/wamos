@@ -95,7 +95,9 @@ contract WamosV1Test is Test {
         vm.prank(player1);
         uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
         uint256 afterCount = wamos.tokenCount();
-        assertTrue(beforeCount == afterCount - 1);
+        assertTrue(beforeCount + 1 == afterCount);
+        console.log("before count: %s", beforeCount);
+        console.log("after count: %s", afterCount);
     }
 
     function testRequestRandomnessFulfills() public {
