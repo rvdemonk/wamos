@@ -22,13 +22,12 @@ library WamosMath {
         return (a, b, c, d, e);
     }
 
-    // function splitWordForTenDigits(uint256 word)
-    //     public
-    //     pure
-    //     returns (uint256[10] memory digits)
-    // {
-    //     for (uint256 i = 0; i < 10; i++) {
-    //         digits.push((word / (10 * i)) % 10);
-    //     }
-    // }
+    function splitAllIntegers(uint256 x, uint256 mod)
+        public
+        pure
+        returns (uint256[] memory array)
+    {
+        // while (x > mod) {
+        // }
+    }
 }
