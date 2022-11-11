@@ -146,6 +146,7 @@ contract WamosV1Test is Test {
         console.log("randomness: %s", wamos.getSpawnRequest(requestId).randomWord);
         console.log("health %s", traits.health);
         console.log("attack %s", traits.attack);
+        console.log("fecundity: %s", traits.fecundity);
         assertTrue(traits.health != 0);
         assertTrue(traits.attack != 0);
         assertTrue(traits.defence != 0);

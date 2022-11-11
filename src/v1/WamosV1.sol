@@ -7,7 +7,7 @@ import "openzeppelin/utils/Strings.sol";
 // import "solmate/tokens/ERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "src/v1/lib/WamosMathV1.sol";
+// import "src/v1/lib/WamosMathV1.sol";
 
 // struct Ability {
 //     uint256 Type;
@@ -180,7 +180,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // retrieve randomness
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
         // generator traits and abilities with randomness
-        wamoIdToTraits[tokenId] = generateWamoTraits(randomWord);
+        wamoIdToTraits[tokenId] = _generateWamoTraits(randomWord);
         address owner = requestIdToSpawnRequest[requestId].sender;
         // _safeMint(owner, tokenId);
         emit SpawnCompleted(requestId, tokenId, owner);
@@ -188,9 +188,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
 
     /**
      * @dev public visibility for testing and experimenting
-     * TODO trait generation algorithm
+     * TODO make less shit
      */
-    function generateWamoTraits(uint256 randomWord)
+    function _generateWamoTraits(uint256 randomWord)
         public
         pure
         returns (WamoTraits memory traits)
@@ -204,7 +204,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 uint256 c,
                 uint256 d,
                 uint256 e
-            ) = WamosMathV1.splitFirstFiveIntegers(randomWord, 100); 
+            ) = splitFirstFiveIntegers(randomWord, 100); 
             traits.health = a;
             traits.attack = b;
             traits.defence = c;
@@ -218,12 +218,12 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 uint256 h,
                 uint256 i,
                 uint256 j
-            ) = WamosMathV1.splitSecondFiveIntegers(randomWord, 100); 
+            ) = splitSecondFiveIntegers(randomWord, 100); 
             traits.stamina = f;
             traits.mana = g;
             traits.luck = h;
-            traits.fecundity = i;   
         }
+            traits.fecundity = randomWord % 11;   
             traits.gearSlots = randomWord % 4;
         return traits;
     }
@@ -315,4 +315,44 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     // function tokenURI(uint256 id) public pure override returns (string memory) {
     //     return Strings.toString(id);
     // }
+
+    /** LIBRARY FUNCTIONS */
+
+    function splitFirstFiveIntegers(uint256 x, uint256 base)
+        internal
+        pure
+        returns (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        )
+    {
+        a = x % base;
+        b = (x / 10) % base;
+        c = (x / 100) % base;
+        d = (x / 1000) % base;
+        e = (x / 10000) % base;
+        return (a, b, c, d, e);
+    }
+
+    function splitSecondFiveIntegers(uint256 x, uint256 base)
+        internal
+        pure
+        returns (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        )
+        {
+        a = (x / 100000) % base;
+        b = (x / 1000000) % base;
+        c = (x / 10000000) % base;
+        d = (x / 100000000) % base;
+        e = (x / 1000000000) % base;
+        return (a, b, c, d, e);
+        }
 }
