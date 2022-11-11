@@ -8,17 +8,27 @@ import "openzeppelin/utils/Strings.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
+// struct Ability {
+//     uint256 Type;
+//     uint256 attack;
+//     uint256 defence;
+//     uint256 magicAttack;
+//     uint256 magicDefence;
+//     uint256 speed;
+//     uint256 accuracy;
+//     uint256 manaCost;
+//     uint256 staminaCost;
+//     uint256 healthCost;
+//     uint256 cooldown;
+// }
+
 struct Ability {
-    uint256 Type;
-    uint256 attack;
-    uint256 defence;
-    uint256 magicAttack;
-    uint256 magicDefence;
-    uint256 speed;
+    uint256 dietyType;
+    uint256 effectType;
+    uint256 targetTrait;
+    uint256 power;
     uint256 accuracy;
-    uint256 manaCost;
-    uint256 staminaCost;
-    uint256 healthCost;
+    uint256 cost;
     uint256 cooldown;
 }
 

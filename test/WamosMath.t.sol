@@ -28,9 +28,11 @@ contract WamoMathTest is Test {
         console.log(e);
     }
 
+    /** @dev >1.5m gas for a word */
     function testSplitAllInplace() public {
         assertTrue(splitStore.length == 0);
         WamosMath.splitAllIntegers(word, 10, splitStore);
         assertTrue(splitStore.length > 0);
+
     }
 }
