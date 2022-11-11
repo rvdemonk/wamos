@@ -3,7 +3,7 @@
 pragma solidity <0.9.0;
 
 library WamosMath {
-    function splitFirstFiveIntegers(uint256 x, uint256 mod)
+    function splitFirstFiveIntegers(uint256 x, uint256 base)
         public
         pure
         returns (
@@ -14,20 +14,21 @@ library WamosMath {
             uint256 e
         )
     {
-        a = x % mod;
-        b = (x / 10) % mod;
-        c = (x / 100) % mod;
-        d = (x / 1000) % mod;
-        e = (x / 10000) % mod;
+        a = x % base;
+        b = (x / 10) % base;
+        c = (x / 100) % base;
+        d = (x / 1000) % base;
+        e = (x / 10000) % base;
         return (a, b, c, d, e);
     }
 
-    function splitAllIntegers(uint256 x, uint256 mod)
+    /** Modifies storage array in place */
+    function splitAllIntegers(uint256 x, uint256 base, uint256[] storage array)
         public
-        pure
-        returns (uint256[] memory array)
     {
-        // while (x > mod) {
-        // }
+        while (x > base) {
+            array.push(x % base);
+            x = x / base;
+        }
     }
 }

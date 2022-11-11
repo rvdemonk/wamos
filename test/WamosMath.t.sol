@@ -9,6 +9,8 @@ contract WamoMathTest is Test {
     uint256 word =
         78541660797044910968829902406342334108369226379826116161446442989268089806461;
 
+    uint256[] splitStore;
+
     function setUp() public {}
 
     function testWordSplit() public {
@@ -24,5 +26,11 @@ contract WamoMathTest is Test {
         console.log(c);
         console.log(d);
         console.log(e);
+    }
+
+    function testSplitAllInplace() public {
+        assertTrue(splitStore.length == 0);
+        WamosMath.splitAllIntegers(word, 10, splitStore);
+        assertTrue(splitStore.length > 0);
     }
 }
