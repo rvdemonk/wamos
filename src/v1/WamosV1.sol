@@ -7,6 +7,7 @@ import "openzeppelin/utils/Strings.sol";
 // import "solmate/tokens/ERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "src/v1/lib/WamosMathV1.sol";
 
 // struct Ability {
 //     uint256 Type;
@@ -33,6 +34,7 @@ struct Ability {
 }
 
 struct WamoTraits {
+    int16[8] movements;
     uint256 health;
     uint256 attack;
     uint256 defence;
@@ -41,8 +43,8 @@ struct WamoTraits {
     uint256 stamina;
     uint256 mana;
     uint256 luck;
-    int16[8] movements;
-    // gear slots
+    uint256 fecundity;
+    uint256 gearSlots;
 }
 
 struct SpawnRequest {
@@ -175,7 +177,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         if (!requestIdToSpawnRequest[requestId].randomnessFulfilled) {
             revert SpawnRequestNotFulfilled(requestId);
         }
+        // retrieve randomness
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
+        // generator traits and abilities with randomness
         wamoIdToTraits[tokenId] = generateWamoTraits(randomWord);
         address owner = requestIdToSpawnRequest[requestId].sender;
         // _safeMint(owner, tokenId);
@@ -191,10 +195,36 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         pure
         returns (WamoTraits memory traits)
     {
-        traits.health = (randomWord % 100) + 1;
         // hardcoded king movement for testing
-        // traits.movements = [-1, 1, 15, 16, 17, -15, -16, -17];
         traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
+        {        
+            (
+                uint256 a,
+                uint256 b,
+                uint256 c,
+                uint256 d,
+                uint256 e
+            ) = WamosMathV1.splitFirstFiveIntegers(randomWord, 100); 
+            traits.health = a;
+            traits.attack = b;
+            traits.defence = c;
+            traits.magicAttack = d;
+            traits.magicDefence = e;
+        }
+                {        
+            (
+                uint256 f,
+                uint256 g,
+                uint256 h,
+                uint256 i,
+                uint256 j
+            ) = WamosMathV1.splitSecondFiveIntegers(randomWord, 100); 
+            traits.stamina = f;
+            traits.mana = g;
+            traits.luck = h;
+            traits.fecundity = i;   
+        }
+            traits.gearSlots = randomWord % 4;
         return traits;
     }
 

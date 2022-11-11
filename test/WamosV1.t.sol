@@ -143,8 +143,14 @@ contract WamosV1Test is Test {
         wamos.completeSpawnWamo(tokenId);
         // check traits
         WamoTraits memory traits = wamos.getWamoTraits(tokenId);
+        console.log("randomness: %s", wamos.getSpawnRequest(requestId).randomWord);
+        console.log("health %s", traits.health);
+        console.log("attack %s", traits.attack);
         assertTrue(traits.health != 0);
-        console.log("Wamo has health trait of %s", traits.health);
+        assertTrue(traits.attack != 0);
+        assertTrue(traits.defence != 0);
+        assertTrue(traits.magicAttack != 0);
+        assertTrue(traits.magicDefence != 0);
     }
 
     function testBuyerCanTransfer() public {
