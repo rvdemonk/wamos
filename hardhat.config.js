@@ -50,10 +50,15 @@ module.exports = {
       url: "https://polygon-mumbai.g.alchemy.com/v2/eYgXsBSOPz9oR2j30eumjxLssbFSvo6i",
       gas: 2100000,
       gasPrice: 8000000000,
-      subscriptionId: 2463,
+      subscriptionId: 2476,
       vrfCoordinator: "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
       gasLane:
         "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f",
+    },
+  },
+  etherscan: {
+    apiKey: {
+      polygonMumbai: "91IE9SEC9VWW3I8I3YH27H6JFSUISRZ87K",
     },
   },
   devChains: ["hardhat", "anvil"],

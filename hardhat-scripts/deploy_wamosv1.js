@@ -4,13 +4,17 @@ const MINT_PRICE = hre.ethers.utils.parseUnits("0.001", "ether");
 
 async function main() {
   const deployer = await hre.ethers.getSigner();
-  console.log(`Deployer address ${(deployer.address).substring(0,6)}`);
-  console.log(`Deployer balance: ${(await deployer.getBalance() / 10**18).toFixed(3)} matic`)
+  console.log(`Deployer address ${deployer.address.substring(0, 6)}`);
+  console.log(
+    `Deployer balance: ${((await deployer.getBalance()) / 10 ** 18).toFixed(
+      3
+    )} matic`
+  );
 
   const WamosV1 = await hre.ethers.getContractFactory("WamosV1");
 
   const network = hre.network.name;
-  const chainConfig = hre.config.networks[network]
+  const chainConfig = hre.config.networks[network];
 
   console.log(`${network} vrf coord: ${chainConfig.vrfCoordinator}`);
 
@@ -21,10 +25,15 @@ async function main() {
     MINT_PRICE
   );
 
-  console.log(`\nDeploying WamosV1 with mint price of ${MINT_PRICE/10**18} eth (${MINT_PRICE} wei)`)
+  console.log(
+    `\nDeploying WamosV1 with mint price of ${
+      MINT_PRICE / 10 ** 18
+    } eth (${MINT_PRICE} wei)`
+  );
 
-//   const wamos_deployed = await wamos.deployed();
-
+  const wamos_deployed = await wamos.deployed();
+  console.log(wamos_deployed);
+  console.log(wamos.address);
 }
 
 main().catch((error) => {
