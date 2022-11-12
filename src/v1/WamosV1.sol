@@ -61,7 +61,10 @@ error SpawnRequestNotFulfilled(uint256 requestId);
 error WamoAlreadySpawned(uint256 tokenId);
 
 contract WamosV1 is ERC721, VRFConsumerBaseV2 {
-    //// META CONSTANTS
+    // TEST VARIABLES
+    uint256 public requestCount;
+
+    // META CONSTANTS
     string public NAME = "WamosTokenV1";
     string public SYMBOL = "WAMOSV1";
 
@@ -134,6 +137,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      * @custom:decision return request id or token id? does this matter with two-way mapping?
      */
     function requestSpawnWamo() public payable returns (uint256 requestId) {
+        requestCount++;
         require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
         // assign token id for new wamo
         uint256 tokenId = tokenCount;
@@ -197,34 +201,34 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     {
         // hardcoded king movement for testing
         traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
-        {        
+        {
             (
                 uint256 a,
                 uint256 b,
                 uint256 c,
                 uint256 d,
                 uint256 e
-            ) = splitFirstFiveIntegers(randomWord, 100); 
+            ) = splitFirstFiveIntegers(randomWord, 100);
             traits.health = a;
             traits.attack = b;
             traits.defence = c;
             traits.magicAttack = d;
             traits.magicDefence = e;
         }
-                {        
+        {
             (
                 uint256 f,
                 uint256 g,
                 uint256 h,
                 uint256 i,
                 uint256 j
-            ) = splitSecondFiveIntegers(randomWord, 100); 
+            ) = splitSecondFiveIntegers(randomWord, 100);
             traits.stamina = f;
             traits.mana = g;
             traits.luck = h;
         }
-            traits.fecundity = randomWord % 11;   
-            traits.gearSlots = randomWord % 4;
+        traits.fecundity = randomWord % 11;
+        traits.gearSlots = randomWord % 4;
         return traits;
     }
 
@@ -311,12 +315,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         emit RandomnessFulfilled(_requestId, tokenId);
     }
 
-    /** @dev only for solmate erc721 */
-    // function tokenURI(uint256 id) public pure override returns (string memory) {
-    //     return Strings.toString(id);
-    // }
-
-    /** LIBRARY FUNCTIONS */
+    /////////////////////////////////////////////////////////////////
+    /////////////////      LIBRARY FUNCTIONS       //////////////////
+    /////////////////////////////////////////////////////////////////
 
     function splitFirstFiveIntegers(uint256 x, uint256 base)
         internal
@@ -347,12 +348,12 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             uint256 d,
             uint256 e
         )
-        {
+    {
         a = (x / 100000) % base;
         b = (x / 1000000) % base;
         c = (x / 10000000) % base;
         d = (x / 100000000) % base;
         e = (x / 1000000000) % base;
         return (a, b, c, d, e);
-        }
+    }
 }
