@@ -122,7 +122,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         vrfKeyHash = _vrfKeyHash;
         vrfSubscriptionId = _vrfSubscriptionId;
         vrfNumWords = 1;
-        vrfCallbackGasLimit = 40000;
+        vrfCallbackGasLimit = 200000;
         vrfRequestConfirmations = 3;
     }
 
@@ -313,6 +313,19 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         address owner = requestIdToSpawnRequest[_requestId].sender;
         _safeMint(owner, tokenId);
         emit RandomnessFulfilled(_requestId, tokenId);
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////  VRF CONFIG FUNCTIONS   ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    // TODO at checks and require statements
+    function setVrfCallbackGasLimit(uint32 _gasLimit) public onlyOwner {
+        vrfCallbackGasLimit = _gasLimit;
+    }
+
+    function setVrfRequestConfirmations(uint16 _requestConfirmations) public onlyOwner {
+        vrfRequestConfirmations = _requestConfirmations;
     }
 
     /////////////////////////////////////////////////////////////////
