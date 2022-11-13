@@ -1,7 +1,5 @@
 const hre = require("hardhat");
 
-const MINT_PRICE = hre.ethers.utils.parseUnits("0.001", "ether");
-
 async function main() {
   const deployer = await hre.ethers.getSigner();
   console.log(`Deployer address ${deployer.address.substring(0, 6)}`);
@@ -28,8 +26,8 @@ async function main() {
 
   console.log(
     `\nDeployed WamosV1 at ${wamos.address} with mint price of ${
-      MINT_PRICE / 10 ** 18
-    } eth (${MINT_PRICE} wei)`
+      mintPrice/ 10 ** 18
+    } eth (${mintPrice} wei)`
   );
 }
 
