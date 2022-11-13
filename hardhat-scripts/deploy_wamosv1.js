@@ -26,14 +26,10 @@ async function main() {
   );
 
   console.log(
-    `\nDeploying WamosV1 with mint price of ${
+    `\nDeployed WamosV1 at ${wamos.address} with mint price of ${
       MINT_PRICE / 10 ** 18
     } eth (${MINT_PRICE} wei)`
   );
-
-  const wamos_deployed = await wamos.deployed();
-  console.log(wamos_deployed);
-  console.log(wamos.address);
 }
 
 main().catch((error) => {
