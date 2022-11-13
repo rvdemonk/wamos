@@ -73,7 +73,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     uint256 public mintPrice;
 
     // VRF COORDINATOR
-    VRFCoordinatorV2Interface vrfCoordinator;
+    VRFCoordinatorV2Interface public vrfCoordinator;
 
     // VRF CONFIGURATION
     bytes32 public vrfKeyHash;
@@ -122,7 +122,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         vrfKeyHash = _vrfKeyHash;
         vrfSubscriptionId = _vrfSubscriptionId;
         vrfNumWords = 1;
-        vrfCallbackGasLimit = 100000;
+        vrfCallbackGasLimit = 40000;
         vrfRequestConfirmations = 3;
     }
 
@@ -136,8 +136,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      * Wamo request is made, VRF request sent, request stored, event emitted
      * @custom:decision return request id or token id? does this matter with two-way mapping?
      */
-    function requestSpawnWamo() public returns (uint256 requestId) {
-        // require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
+    function requestSpawnWamo() public payable returns (uint256 requestId) {
+        require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
         requestCount++;
         // assign token id for new wamo
         uint256 tokenId = tokenCount;
@@ -150,19 +150,19 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             vrfCallbackGasLimit,
             vrfNumWords
         );
-        // // store request, including token id of requested wamo
-        // requestIdToSpawnRequest[requestId] = SpawnRequest({
-        //     exists: true,
-        //     randomnessFulfilled: false,
-        //     completed: false,
-        //     randomWord: 0,
-        //     sender: msg.sender,
-        //     tokenId: tokenId
-        // });
-        // tokenIdToSpawnRequest[tokenId] = requestId;
-        // requestIds.push(requestId);
-        // lastRequestId = requestId;
-        // emit SpawnRequested(requestId, tokenId, msg.sender);
+        // store request, including token id of requested wamo
+        requestIdToSpawnRequest[requestId] = SpawnRequest({
+            exists: true,
+            randomnessFulfilled: false,
+            completed: false,
+            randomWord: 0,
+            sender: msg.sender,
+            tokenId: tokenId
+        });
+        tokenIdToSpawnRequest[tokenId] = requestId;
+        requestIds.push(requestId);
+        lastRequestId = requestId;
+        emit SpawnRequested(requestId, tokenId, msg.sender);
         return requestId;
     }
 

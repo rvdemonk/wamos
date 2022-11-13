@@ -15,6 +15,7 @@ async function main() {
 
   const network = hre.network.name;
   const chainConfig = hre.config.networks[network];
+  const mintPrice = hre.config.WAMOSV1_PRICE;
 
   console.log(`${network} vrf coord: ${chainConfig.vrfCoordinator}`);
 
@@ -22,7 +23,7 @@ async function main() {
     chainConfig.vrfCoordinator,
     chainConfig.gasLane,
     chainConfig.subscriptionId,
-    MINT_PRICE
+    mintPrice
   );
 
   console.log(

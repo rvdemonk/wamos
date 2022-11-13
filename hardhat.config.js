@@ -63,6 +63,7 @@ module.exports = {
   },
   devChains: ["hardhat", "anvil"],
   VERIFICATION_BLOCK_CONFIRMATIONS: 6,
+  WAMOSV1_PRICE: "1000000000000000",
   preprocess: {
     eachLine: (hre) => ({
       transform: (line) => {

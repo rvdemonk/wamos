@@ -1,5 +1,3 @@
-import { MINT_PRICE } from "./constants.js";
-
 const hre = require("hardhat");
 
 async function main() {
@@ -7,6 +5,8 @@ async function main() {
 
   const network = hre.network.name;
   const chainConfig = hre.config.networks[network];
+  const mintPrice = hre.config.WAMOSV1_PRICE;
+  // const mintPrice = hre.ethers.utils.parseEther(hre.config.MINT_PRICE)
 
   console.log(`${network} vrf coord: ${chainConfig.vrfCoordinator}`);
 
@@ -15,15 +15,18 @@ async function main() {
     chainConfig.vrfCoordinator,
     chainConfig.gasLane,
     chainConfig.subscriptionId,
-    MINT_PRICE
+    mintPrice
   );
 
   console.log(`\nDeployed WamosV1 at ${wamos.address}`);
 
+  // adding as consumer
+  await wamos.vrfCoordinator.addConsumer(chainConfig.subscriptionId, wamos.address);
+
   // mint
   const tokenCountStart = await wamos.tokenCount();
   // no payment value for this test deployment contract version
-  let req = await wamos.requestWamoSpawn();
+  let req = await wamos.requestWamoSpawn({value: mintPrice});
   console.log(`Requested wamo spawn with tx ${req.hash}`);
   const tokenCountEnd = await wamos.tokenCount();
   console.log(`Token mint successful -> ${tokenCountEnd !== tokenCountStart}`);
