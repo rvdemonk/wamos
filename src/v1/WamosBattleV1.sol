@@ -2,7 +2,7 @@
 
 /**
  * @dev WAMOS BATTLE V1 SET UP
- * deploy wamos -> deploy wamos battle -> approve battle staking in wamos
+ * deploy wamos -> deploy wamos battle -> users approve battle staking in wamos
  *
  * @dev WAMOS BATTLE V1: USAGE
  * create game -> connect wamos -> players ready -> game starts -> take turns... -> conquest/resignation
@@ -332,6 +332,15 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             revert GameDoesNotExist(gameId);
         }
         return gameIdToGameData[gameId];
+    }
+
+    function getPlayerParty(uint256 gameId, address player)
+        public
+        view
+        returns (uint256[PARTY_SIZE] memory wamoIds)
+    {
+        wamoIds = gameIdToPlayerToWamoPartyIds[gameId][player];
+        return wamoIds;
     }
 
     function getChallengesReceivedBy(address player)

@@ -20,9 +20,9 @@ abstract contract WamosTestHelper {
     // TEST CONFIG
     uint256 ACTOR_STARTING_BAL = 1 ether;
     uint256 WAMOS_PER_PLAYER = 10;
-    address deployer = 0xA5cd5af52b504895c8525B5A5677859Fb04F8907;
     address player1 = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
     address player2 = 0x417622F534d5F30321CF78cB7355773f8BAC7621;
+    address badActor = 0xA5cd5af52b504895c8525B5A5677859Fb04F8907;
 
     // VRF STORAGE
     uint64 subscriptionId;
@@ -41,7 +41,6 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         vrfCoordinator = new VRFCoordinatorV2Mock(BASE_FEE, GAS_PRICE_LINK);
         subscriptionId = vrfCoordinator.createSubscription();
         // deploy WamosV1
-        vm.prank(deployer);
         wamos = new WamosV1(
             address(vrfCoordinator),
             VRF_MOCK_KEYHASH,
@@ -61,14 +60,24 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
             subscriptionId
         );
 
+        // approve staking in wamos for wamos battle
+        vm.prank(player1);
+        wamos.approveBattleStaking(address(wamosBattle));
+        vm.prank(player2);
+        wamos.approveBattleStaking(address(wamosBattle));
+        vm.prank(badActor);
+        wamos.approveBattleStaking(address(wamosBattle));
+
+        // deal some funny money
         vm.deal(player1, ACTOR_STARTING_BAL);
         vm.deal(player2, ACTOR_STARTING_BAL);
+        vm.deal(badActor, ACTOR_STARTING_BAL);
 
         // mint 10 wamos for each player
         uint256 requestId;
         uint256 tokenId;
         address minter;
-        // player 1 owns odd wamos, player 2 owns evens
+        // player 1 owns odd id wamos, player 2 owns evens
         for (uint256 i = 0; i < WAMOS_PER_PLAYER * 2; i++) {
             if (i % 2 == 1) {
                 minter = player1;
@@ -80,6 +89,15 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             tokenId = wamos.getTokenIdFromRequestId(requestId);
             vm.prank(minter);
+            wamos.completeSpawnWamo(tokenId);
+        }
+
+        for (uint256 i = 20; i < WAMOS_PER_PLAYER * 3; i++) {
+            vm.prank(badActor);
+            requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+            vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+            tokenId = wamos.getTokenIdFromRequestId(requestId);
+            vm.prank(badActor);
             wamos.completeSpawnWamo(tokenId);
         }
     }
@@ -150,22 +168,44 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
 
     /** TEST WAMO CONNECTION */
 
+    function testBattleIsTransferApproved() public {
+        assertTrue(wamos.isApprovedForAll(player1, address(wamosBattle)));
+        assertTrue(wamos.isApprovedForAll(player2, address(wamosBattle)));
+    }
+
     function testWamosCanConnect() public {
         // create game
         vm.prank(player1);
         uint256 gameId = wamosBattle.createGame(player2);
-        // connect wamos
+        // connect p1 wamos
         vm.prank(player1);
         wamosBattle.connectWamo(gameId, 1);
-        // vm.prank(player1);
-        // wamosBattle.connectWamo(gameId, p1Party[1]);
-        // vm.prank(player2);
-        // wamosBattle.connectWamo(gameId, p2Party[0]);
-        // vm.prank(player2);
-        // wamosBattle.connectWamo(gameId, p2Party[1]);
+        vm.prank(player1);
+        wamosBattle.connectWamo(gameId, 3);
+        // connect p2 wamos
+        vm.prank(player2);
+        wamosBattle.connectWamo(gameId, 2);
+        vm.prank(player2);
+        wamosBattle.connectWamo(gameId, 4);
+        // get players parties
+        // uint256[wamosBattle.PARTY_SIZE] memory party1 = wamosBattle
+        //     .getPlayerParty(gameId, player1);
+        // uint256[wamosBattle.PARTY_SIZE] memory party2 = wamosBattle
+        //     .getPlayerParty(gameId, player2);
+        // check wamos battle owns tokens
+        assertTrue(wamos.ownerOf(1) == address(wamosBattle));
+        assertTrue(wamos.ownerOf(2) == address(wamosBattle));
+        assertTrue(wamos.ownerOf(3) == address(wamosBattle));
+        assertTrue(wamos.ownerOf(4) == address(wamosBattle));
     }
 
-    function testCannotConnectThirdParty() public {}
+    function testCannotConnectThirdParty() public {
+        vm.prank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+
+        vm.expectRevert();
+        wamosBattle.connectWamo(gameId, 25);
+    }
 
     /** TEST VIEW FUNCTIONS */
 

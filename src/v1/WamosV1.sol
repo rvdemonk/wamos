@@ -47,6 +47,12 @@ struct WamoTraits {
     uint256 gearSlots;
 }
 
+struct WamoRecord {
+    uint256 wins;
+    uint256 losses;
+    uint256 draws;
+}
+
 struct SpawnRequest {
     bool exists;
     bool randomnessFulfilled;
@@ -87,6 +93,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => uint256) requestIdToTokenId;
     mapping(uint256 => uint256) tokenIdToRandomnWord;
     mapping(uint256 => uint256) tokenIdToSpawnRequestId;
+    mapping(uint256 => WamoRecord) tokenIdToRecord;
     uint256[] public requestIds;
     uint256 public lastRequestId;
 
@@ -313,6 +320,15 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return wamoIdToTraits[tokenId].movements;
     }
 
+    function getWamoRecord(uint256 tokenId)
+        public
+        view
+        returns (WamoRecord memory record)
+    {
+        record = tokenIdToRecord[tokenId];
+        return record;
+    }
+
     /////////////////////////////////////////////////////////////////
     /////////////////     META MINT FUNCTIONS      //////////////////
     /////////////////////////////////////////////////////////////////
@@ -345,8 +361,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////   BATTLE STAKING FUNCTIONS   //////////////////
     /////////////////////////////////////////////////////////////////
 
-    /** @notice Approves the wamos battle contract to transfer any token */
-    function approveBattleStaking(address _wamosBattle) public onlyOwner {
+    /**
+     @notice Approves the wamos battle contract to transfer any token on 
+        behalf of the CALLER
+    */
+    function approveBattleStaking(address _wamosBattle) public {
         super.setApprovalForAll(_wamosBattle, true);
     }
 
