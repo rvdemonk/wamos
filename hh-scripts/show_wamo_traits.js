@@ -10,7 +10,13 @@ async function main() {
 
   const traits = await wamos.getWamoTraits(10);
 
-  console.log(traits);
+  console.log(Object.keys(traits));
+
+  for (const property in traits) {
+    // console.log(property, traits[property].toString());
+    console.log(property, typeof property, Number(property));
+  }
+
 }
 
 main().catch((error) => {

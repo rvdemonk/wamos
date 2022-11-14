@@ -6,10 +6,10 @@ async function displayTraits(wamosContract, wamoId) {
   let traits = await wamosContract.getWamoTraits(wamoId);
   if (traits.health._hex !== "0x00") {
     console.log(`\n---- Wamo #${wamoId} Traits ----\n`);
-    for (const trait in Object.keys(traits)) {
-      console.log(`${trait}:  ${traits[trait]}`);
-      // if (Number(trait) === NaN) {
-      // }
+    for (const property in traits) {
+      if (isNaN(Number(property))) {
+        console.log(`${traits[property].toString()} | ${property}`);
+      }
     }
   } else {
     setTimeout(() => displayTraits(wamosContract, wamoId), 3000);
