@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 /**
+ * @dev WAMOS BATTLE V1 SET UP
+ * deploy wamos -> deploy wamos battle -> users approve battle staking in wamos
+ *
  * @dev WAMOS BATTLE V1: USAGE
  * create game -> connect wamos -> players ready -> game starts -> take turns... -> conquest/resignation
  *
@@ -159,10 +162,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /**
      * @return id of new game created.
      */
-    function createGame(address challenger, address challengee)
-        external
-        returns (uint256)
-    {
+    function createGame(address challengee) external returns (uint256) {
+        address challenger = msg.sender;
         // initialise gamedata struct
         GameData memory game;
         game.id = gameCount++;
@@ -295,14 +296,24 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return newPosition;
     }
 
-    /** TODO */
+    // TODO
     function useAbility(
         uint256 gameId,
         uint256 wamoId,
         uint256 abilityTraitIndex
     ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {}
 
-    //////////////// GAME SET FUNCTIONS  ////////////////
+    // TODO
+    function resign(uint256 gameId)
+        external
+        onlyPlayer(gameId)
+        onlyOnfootGame(gameId)
+    {
+        // logic?
+        _endGame(gameId);
+    }
+
+    //////////////// INTERNAL GAME FUNCTIONS  ////////////////
 
     function _setWamoPosition(
         uint256 gameId,
@@ -312,11 +323,14 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
     }
 
-    //////////////// GAME END FUNCTIONS  ////////////////
-
-    // end game
-    // return wamos
-    // toggle staking requests to not staked and request dne
+    // TODO
+    function _endGame(uint256 gameId) internal {
+        // alter wamos record
+        // distribute spoils
+        // return wamos to players
+        // toggle staking status to unstaked
+        // toggle game status to finished
+    }
 
     //////////////// CONTRACT SET FUNCTIONS  ////////////////
 
@@ -327,10 +341,19 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     //////////////// VIEW FUNCTIONS ////////////////
 
     function getGameData(uint256 gameId) public view returns (GameData memory) {
-        if (gameCount >= gameId) {
+        if (gameId >= gameCount) {
             revert GameDoesNotExist(gameId);
         }
         return gameIdToGameData[gameId];
+    }
+
+    function getPlayerParty(uint256 gameId, address player)
+        public
+        view
+        returns (uint256[PARTY_SIZE] memory wamoIds)
+    {
+        wamoIds = gameIdToPlayerToWamoPartyIds[gameId][player];
+        return wamoIds;
     }
 
     function getChallengesReceivedBy(address player)
