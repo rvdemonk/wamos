@@ -172,26 +172,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     /**
-     * @dev Called by VRF Coordinator to fulfilled randomness
-     */
-    function fulfillRandomWords(
-        uint256 _requestId,
-        uint256[] memory _randomWords
-    ) internal override {
-        // check request exists
-        if (!requestIdToSpawnRequest[_requestId].exists) {
-            revert SpawnRequestNotFound(_requestId);
-        }
-        requestIdToSpawnRequest[_requestId].randomnessFulfilled = true;
-        requestIdToSpawnRequest[_requestId].randomWord = _randomWords[0];
-        uint256 tokenId = requestIdToSpawnRequest[_requestId].tokenId;
-        address owner = requestIdToSpawnRequest[_requestId].sender;
-        // MINT TO OWNER
-        _safeMint(owner, tokenId);
-        emit RandomnessFulfilled(_requestId, tokenId);
-    }
-
-    /**
      * @notice Stage 2 of wamo mint
      * @param tokenId the id of the token requested for which to generate traits and mint to request sender
      */
@@ -256,6 +236,26 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         traits.fecundity = randomWord % 11;
         traits.gearSlots = randomWord % 4;
         return traits;
+    }
+
+    /**
+     * @dev Called by VRF Coordinator to fulfilled randomness
+     */
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] memory _randomWords
+    ) internal override {
+        // check request exists
+        if (!requestIdToSpawnRequest[_requestId].exists) {
+            revert SpawnRequestNotFound(_requestId);
+        }
+        requestIdToSpawnRequest[_requestId].randomnessFulfilled = true;
+        requestIdToSpawnRequest[_requestId].randomWord = _randomWords[0];
+        uint256 tokenId = requestIdToSpawnRequest[_requestId].tokenId;
+        address owner = requestIdToSpawnRequest[_requestId].sender;
+        // MINT TO OWNER
+        _safeMint(owner, tokenId);
+        emit RandomnessFulfilled(_requestId, tokenId);
     }
 
     /////////////////////////////////////////////////////////////////
