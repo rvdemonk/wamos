@@ -104,19 +104,24 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     mapping(address => string) public addrToPlayerTag;
 
     /** GAME STATE STORAGE */
-    // game data
-    mapping(uint256 => GameData) public gameIdToGameData;
+    //// META GAME
     // number of wamos staked in gameId x by player y
     mapping(uint256 => mapping(address => uint256))
         public gameIdToPlayerToStakedCount;
     // is player y ready in game x
     mapping(uint256 => mapping(address => bool)) public gameIdToPlayerIsReady;
+    
+    ///// GAME 
+    // game data
+    mapping(uint256 => GameData) public gameIdToGameData;
     // ids of wamos in player y party for game id x
     mapping(uint256 => mapping(address => uint256[PARTY_SIZE]))
         public gameIdToPlayerToWamoPartyIds;
     // the state of wamo y in game x
     mapping(uint256 => mapping(uint256 => WamoStatus))
         public gameIdToWamoIdToStatus;
+    // for game x, token id of wamo on index y, 0 if none
+    mapping(uint256 => mapping(uint256 => uint256)) gameIdToGridIndexToWamoId;
 
     constructor(
         address _wamosAddr,
@@ -311,6 +316,35 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     {
         // logic?
         _endGame(gameId);
+    }
+
+    /**
+     * @dev move and use ability in a single function call
+     *  Design choice would save time (ie one transaction instead of two), however
+     *  would likely increase gas, due to the number of require statements needed to
+     *  confirm permissibility of move + ability combo.
+     */
+    function commitTurn(
+        uint256 gameId,
+        uint256 wamoId,
+        uint256 moveTraitIndex,
+        uint256 abilityIndex,
+        uint256 targetGridIndex
+    ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {
+        // require wamo to be in players party
+        // require wamo to be alive
+        // require movement to remain on board
+        // require targetGridIndex to be between [0,255]
+        // require targetGridIndex to be within radius of 
+        //------//
+        // mutate position index
+        // set mapping gridIndex -> wamoId
+        // get wamo on target gridindex
+        // -> pseudo randomness injected into move outcome
+        // calculate damage/ability effect
+        // mutate target wamos stats (or target gridindex stats)
+        // increment turn
+        // emit event
     }
 
     //////////////// INTERNAL GAME FUNCTIONS  ////////////////
