@@ -25,7 +25,7 @@ async function main() {
   console.log(`mint price: ${mintPrice / 10 ** 18}`);
   console.log(`callback gas limit: ${await wamos.vrfCallbackGasLimit()}`);
 
-  // request mint: phase 1
+  // PHASE 1: REQUEST MINT
   console.log(`\n ** BEGINNING MINT\n`);
 
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });
@@ -69,7 +69,7 @@ async function main() {
     console.log(`\nRequest for wamo #${tokenId} fulfilled!\n`);
     console.log(`random word: ${word}`);
 
-    // complete mint: phase 2
+    // PHASE 2: COMPLETE MINT
     console.log(`\n ** COMPLETING MINT\n`);
     const completeSpawntx = await wamos.completeSpawnWamo(tokenId);
     // display traits
