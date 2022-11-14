@@ -296,14 +296,24 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return newPosition;
     }
 
-    /** TODO */
+    // TODO
     function useAbility(
         uint256 gameId,
         uint256 wamoId,
         uint256 abilityTraitIndex
     ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {}
 
-    //////////////// GAME SET FUNCTIONS  ////////////////
+    // TODO
+    function resign(uint256 gameId)
+        external
+        onlyPlayer(gameId)
+        onlyOnfootGame(gameId)
+    {
+        // logic?
+        _endGame(gameId);
+    }
+
+    //////////////// INTERNAL GAME FUNCTIONS  ////////////////
 
     function _setWamoPosition(
         uint256 gameId,
@@ -313,11 +323,14 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
     }
 
-    //////////////// GAME END FUNCTIONS  ////////////////
-
-    // end game
-    // return wamos
-    // toggle staking requests to not staked and request dne
+    // TODO
+    function _endGame(uint256 gameId) internal {
+        // alter wamos record
+        // distribute spoils
+        // return wamos to players
+        // toggle staking status to unstaked
+        // toggle game status to finished
+    }
 
     //////////////// CONTRACT SET FUNCTIONS  ////////////////
 
