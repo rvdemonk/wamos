@@ -11,3 +11,17 @@ no need to generate 8 separate moves; perhaps generate 2 or 3, and remaining mov
 ## trait generation
 
 how expensive would creating and sampling from a normal distribution be?
+
+## evolve
+
+change form -> change formula for image? bigger?
+
+## training wam0s
+
+stake in training camp?
+or gain levels and glory only from battles?
+
+## wamos loaning
+
+separate contract to allow people to loan and borrow wamos
+
