@@ -205,7 +205,6 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
 
         vm.expectRevert();
         wamosBattle.connectWamo(gameId, 25);
-        ////
     }
 
     /** TEST VIEW FUNCTIONS */
