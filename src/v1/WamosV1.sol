@@ -86,7 +86,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => SpawnRequest) requestIdToSpawnRequest;
     mapping(uint256 => uint256) requestIdToTokenId;
     mapping(uint256 => uint256) tokenIdToRandomnWord;
-    mapping(uint256 => uint256) tokenIdToSpawnRequest;
+    mapping(uint256 => uint256) tokenIdToSpawnRequestId;
     uint256[] public requestIds;
     uint256 public lastRequestId;
 
@@ -150,6 +150,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             vrfCallbackGasLimit,
             vrfNumWords
         );
+        tokenIdToSpawnRequestId[tokenId] = requestId;
+
         // store request, including token id of requested wamo
         requestIdToSpawnRequest[requestId] = SpawnRequest({
             exists: true,
@@ -159,11 +161,34 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             sender: msg.sender,
             tokenId: tokenId
         });
-        tokenIdToSpawnRequest[tokenId] = requestId;
+        // map req id to token id
+        requestIdToTokenId[requestId] = tokenId;
+        // store req id
         requestIds.push(requestId);
+        // cache most recent req id
         lastRequestId = requestId;
         emit SpawnRequested(requestId, tokenId, msg.sender);
         return requestId;
+    }
+
+    /**
+     * @dev Called by VRF Coordinator to fulfilled randomness
+     */
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] memory _randomWords
+    ) internal override {
+        // check request exists
+        if (!requestIdToSpawnRequest[_requestId].exists) {
+            revert SpawnRequestNotFound(_requestId);
+        }
+        requestIdToSpawnRequest[_requestId].randomnessFulfilled = true;
+        requestIdToSpawnRequest[_requestId].randomWord = _randomWords[0];
+        uint256 tokenId = requestIdToSpawnRequest[_requestId].tokenId;
+        address owner = requestIdToSpawnRequest[_requestId].sender;
+        // MINT TO OWNER
+        _safeMint(owner, tokenId);
+        emit RandomnessFulfilled(_requestId, tokenId);
     }
 
     /**
@@ -172,7 +197,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      */
     function completeSpawnWamo(uint256 tokenId) public payable {
         require(tokenCount > tokenId, "This token id has not been minted yet!");
-        uint256 requestId = tokenIdToSpawnRequest[tokenId];
+        uint256 requestId = tokenIdToSpawnRequestId[tokenId];
         // check request has not already been fulfilled
         if (requestIdToSpawnRequest[requestId].completed) {
             revert WamoAlreadySpawned(tokenId);
@@ -186,7 +211,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // generator traits and abilities with randomness
         wamoIdToTraits[tokenId] = _generateWamoTraits(randomWord);
         address owner = requestIdToSpawnRequest[requestId].sender;
-        // _safeMint(owner, tokenId);
+        // toggle spawn request as complete
+        requestIdToSpawnRequest[requestId].completed = true;
         emit SpawnCompleted(requestId, tokenId, owner);
     }
 
@@ -299,22 +325,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         payable(contractOwner).transfer(address(this).balance);
     }
 
-    function fulfillRandomWords(
-        uint256 _requestId,
-        uint256[] memory _randomWords
-    ) internal override {
-        // check request exists
-        if (!requestIdToSpawnRequest[_requestId].exists) {
-            revert SpawnRequestNotFound(_requestId);
-        }
-        requestIdToSpawnRequest[_requestId].randomnessFulfilled = true;
-        requestIdToSpawnRequest[_requestId].randomWord = _randomWords[0];
-        uint256 tokenId = requestIdToSpawnRequest[_requestId].tokenId;
-        address owner = requestIdToSpawnRequest[_requestId].sender;
-        _safeMint(owner, tokenId);
-        emit RandomnessFulfilled(_requestId, tokenId);
-    }
-
     /////////////////////////////////////////////////////////////////
     ////////////////////  VRF CONFIG FUNCTIONS   ////////////////////
     /////////////////////////////////////////////////////////////////
@@ -324,7 +334,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         vrfCallbackGasLimit = _gasLimit;
     }
 
-    function setVrfRequestConfirmations(uint16 _requestConfirmations) public onlyOwner {
+    function setVrfRequestConfirmations(uint16 _requestConfirmations)
+        public
+        onlyOwner
+    {
         vrfRequestConfirmations = _requestConfirmations;
     }
 

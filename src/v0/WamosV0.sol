@@ -117,7 +117,7 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         vrfSubscriptionId = _vrfSubscriptionId;
 
         vrfNumWords = 1;
-        vrfCallbackGasLimit = 100000;
+        vrfCallbackGasLimit = 200000;
         vrfRequestConfirmations = 2;
     }
 
