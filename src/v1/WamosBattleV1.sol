@@ -159,10 +159,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /**
      * @return id of new game created.
      */
-    function createGame(address challenger, address challengee)
-        external
-        returns (uint256)
-    {
+    function createGame(address challengee) external returns (uint256) {
+        address challenger = msg.sender;
         // initialise gamedata struct
         GameData memory game;
         game.id = gameCount++;
@@ -327,7 +325,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     //////////////// VIEW FUNCTIONS ////////////////
 
     function getGameData(uint256 gameId) public view returns (GameData memory) {
-        if (gameCount >= gameId) {
+        if (gameId >= gameCount) {
             revert GameDoesNotExist(gameId);
         }
         return gameIdToGameData[gameId];
