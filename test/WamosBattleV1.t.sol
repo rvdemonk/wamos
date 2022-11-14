@@ -68,8 +68,9 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         uint256 requestId;
         uint256 tokenId;
         address minter;
+        // player 1 owns odd wamos, player 2 owns evens
         for (uint256 i = 0; i < WAMOS_PER_PLAYER * 2; i++) {
-            if (i < WAMOS_PER_PLAYER) {
+            if (i % 2 == 1) {
                 minter = player1;
             } else {
                 minter = player2;
@@ -113,6 +114,16 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         GameData memory game = wamosBattle.getGameData(gameId);
         assertTrue(game.id == gameId);
         assertTrue(game.createTime != 0);
+        assertTrue(game.challenger == player1);
+        assertTrue(game.challengee == player2);
+        assertTrue(game.turnCount == 0);
+    }
+
+    function testGameStatusStartsPregame() public {
+        vm.prank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        GameData memory data = wamosBattle.getGameData(gameId);
+        assertTrue(data.status == GameStatus.PREGAME);
     }
 
     function testGameCountIncrements() public {
@@ -126,9 +137,35 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         assertTrue(endCount == startCount + gamesToCreate);
     }
 
-    // function testGameId() public {}
+    function testGameId() public {
+        uint256 gamesToCreate = 20;
+        uint256 startCount = wamosBattle.gameCount();
+        for (uint256 i = 0; i < gamesToCreate; i++) {
+            vm.prank(player1);
+            wamosBattle.createGame(player2);
+        }
+        uint256 endCount = wamosBattle.gameCount();
+        assertTrue(wamosBattle.getGameData(19).id == 19);
+    }
 
     /** TEST WAMO CONNECTION */
+
+    function testWamosCanConnect() public {
+        // create game
+        vm.prank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        // connect wamos
+        vm.prank(player1);
+        wamosBattle.connectWamo(gameId, 1);
+        // vm.prank(player1);
+        // wamosBattle.connectWamo(gameId, p1Party[1]);
+        // vm.prank(player2);
+        // wamosBattle.connectWamo(gameId, p2Party[0]);
+        // vm.prank(player2);
+        // wamosBattle.connectWamo(gameId, p2Party[1]);
+    }
+
+    function testCannotConnectThirdParty() public {}
 
     /** TEST VIEW FUNCTIONS */
 

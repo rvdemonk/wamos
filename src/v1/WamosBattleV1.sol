@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 /**
+ * @dev WAMOS BATTLE V1 SET UP
+ * deploy wamos -> deploy wamos battle -> approve battle staking in wamos
+ *
  * @dev WAMOS BATTLE V1: USAGE
  * create game -> connect wamos -> players ready -> game starts -> take turns... -> conquest/resignation
  *
