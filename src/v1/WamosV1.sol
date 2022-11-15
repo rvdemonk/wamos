@@ -24,7 +24,7 @@ import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 // }
 
 struct Ability {
-    uint256 dietyType;
+    // uint256 dietyType;
     uint256 effectType;
     uint256 targetTrait;
     uint256 power;
@@ -37,8 +37,10 @@ struct Ability {
 struct WamoTraits {
     int16[8] movements;
     uint256 health;
-    uint256 attack;
-    uint256 defence;
+    uint256 meeleeAttack;
+    uint256 meeleeDefence;
+    uint256 rangeAttack;
+    uint256 rangeDefence;
     uint256 magicAttack;
     uint256 magicDefence;
     uint256 stamina;
@@ -72,8 +74,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     uint256 public requestCount;
 
     // META CONSTANTS
-    string public NAME = "WamosTokenV1";
-    string public SYMBOL = "WAMOSV1";
+    string public constant NAME = "WamosTokenV1";
+    string public constant SYMBOL = "WAMOSV1";
+
+    // WAMO ATTRIBUTE CONSTANTS
+    uint256 public constant WAMO_ABILITY_SLOTS = 4;
 
     address public contractOwner;
     uint256 public tokenCount;
@@ -197,25 +202,25 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         if (!requestIdToSpawnRequest[requestId].randomnessFulfilled) {
             revert SpawnRequestNotFulfilled(requestId);
         }
-        // retrieve randomness
+        // generate traits and abilities
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
-        // generator traits and abilities with randomness
-        wamoIdToTraits[tokenId] = _generateWamoTraits(randomWord);
-        address owner = requestIdToSpawnRequest[requestId].sender;
+        _generateWamoTraits(tokenId, randomWord);
+        _generateAbilities(tokenId, randomWord);
         // toggle spawn request as complete
         requestIdToSpawnRequest[requestId].completed = true;
+        // retrieve owner in case it is not msg.sender
+        address owner = requestIdToSpawnRequest[requestId].sender;
         emit SpawnCompleted(requestId, tokenId, owner);
     }
 
     /**
-     * @dev public visibility for testing and experimenting
+     * @dev public visibility for testing and experimenting TODO change this
      * TODO make less shit
      */
-    function _generateWamoTraits(uint256 randomWord)
-        public
-        pure
-        returns (WamoTraits memory traits)
+    function _generateWamoTraits(uint256 tokenId, uint256 randomWord)
+        internal
     {
+        WamoTraits memory traits;
         // hardcoded king movement for testing
         traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
         {
@@ -227,8 +232,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 uint256 e
             ) = splitFirstFiveIntegers(randomWord, 100);
             traits.health = a;
-            traits.attack = b;
-            traits.defence = c;
+            traits.meeleeAttack = b;
+            traits.meeleeDefence = c;
             traits.magicAttack = d;
             traits.magicDefence = e;
         }
@@ -243,10 +248,19 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             traits.stamina = f;
             traits.mana = g;
             traits.luck = h;
+            traits.rangeAttack = i;
+            traits.rangeDefence = j;
         }
         traits.fecundity = randomWord % 11;
         traits.gearSlots = randomWord % 4;
-        return traits;
+        // store traits
+        wamoIdToTraits[tokenId] = traits;
+    }
+
+    function _generateAbilities(uint256 tokenId, uint256 randomWord) internal {
+        for (uint i=0; i<WAMO_ABILITY_SLOTS; i++) {
+            //
+        }
     }
 
     /**

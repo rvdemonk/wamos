@@ -145,11 +145,11 @@ contract WamosV1Test is Test {
         WamoTraits memory traits = wamos.getWamoTraits(tokenId);
         console.log("randomness: %s", wamos.getSpawnRequest(requestId).randomWord);
         console.log("health %s", traits.health);
-        console.log("attack %s", traits.attack);
+        console.log("attack %s", traits.meeleeAttack);
         console.log("fecundity: %s", traits.fecundity);
         assertTrue(traits.health != 0);
-        assertTrue(traits.attack != 0);
-        assertTrue(traits.defence != 0);
+        assertTrue(traits.meeleeAttack != 0);
+        assertTrue(traits.meeleeDefence != 0);
         assertTrue(traits.magicAttack != 0);
         assertTrue(traits.magicDefence != 0);
     }
