@@ -512,7 +512,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      * @param segmentNum \in [0, 10]; the set of five to be shaven: ie, 0-> first five, 1-> second five
      * @notice returns five single digit uint256
      */
-    function shaveOffRandomIntegers(uint256 randomWord, uint256 segmentNum) 
+    function shaveOffRandomIntegers(uint256 randomWord, uint256 segmentNum, uint256 base) 
         public 
         pure 
         returns (
@@ -523,12 +523,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             uint256 e
         )
         {
-            // uint256 quotientMultiplier = 100_000 * (segmentNum+1)
-            a = (randomWord / (1 * 100_000**segmentNum)) % 10;
-            b = (randomWord / (10 * 100_000**segmentNum)) % 10;
-            c = (randomWord / (100 * 100_000**segmentNum)) % 10;
-            d = (randomWord / (1000 * 100_000**segmentNum)) % 10;
-            e = (randomWord / (10000 * 100_000**segmentNum)) % 10;
+            a = (randomWord / (1 * 100_000**segmentNum)) % base;
+            b = (randomWord / (10 * 100_000**segmentNum)) % base;
+            c = (randomWord / (100 * 100_000**segmentNum)) % base;
+            d = (randomWord / (1000 * 100_000**segmentNum)) % base;
+            e = (randomWord / (10000 * 100_000**segmentNum)) % base;
         return (a, b, c, d, e);
         } 
 

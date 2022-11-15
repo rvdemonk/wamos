@@ -244,7 +244,7 @@ contract WamosV1Test is Test {
             uint256 c,
             uint256 d,
             uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 0);
+        ) = wamos.shaveOffRandomIntegers(word, 0, 100);
         console.log(a);
         console.log(b);
         console.log(c);
@@ -258,7 +258,7 @@ contract WamosV1Test is Test {
             uint256 c,
             uint256 d,
             uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 1);
+        ) = wamos.shaveOffRandomIntegers(word, 1, 100);
         console.log(a);
         console.log(b);
         console.log(c);
@@ -272,7 +272,7 @@ contract WamosV1Test is Test {
             uint256 c,
             uint256 d,
             uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 2);
+        ) = wamos.shaveOffRandomIntegers(word, 2, 100);
         console.log(a);
         console.log(b);
         console.log(c);
