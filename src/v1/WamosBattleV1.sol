@@ -20,6 +20,7 @@ import "openzeppelin/token/ERC721/IERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "src/v1/interfaces/WamosV1Interface.sol";
+import "src/v1/WamosV1.sol";
 
 enum GameStatus {
     PREGAME,
@@ -68,6 +69,11 @@ error NotPlayerOfGame(uint256 gameId, address addr);
 error PlayerDoesNotOwnThisWamo(uint256 wamoId, address player);
 error GameIsNotOnfoot(uint256 gameId);
 error WamoMovementNotFound(uint256 gameId, uint256 wamoId, int16 indexMutation);
+error InvalidAbilityIndex(uint256 gameId, address player);
+error InvalidMoveIndex(uint256 gameId, address player);
+error WamoHasNoHealth(uint256 gameId, uint256 wamoId);
+error WamoNotInGame(uint256 gameId, uint256 wamoId);
+error NotPlayersTurn(uint256 gameId, address player);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** VRF CONSUMER CONFIG */
@@ -86,7 +92,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     VRFCoordinatorV2Interface vrfCoordinator;
 
     /** WAMOS INTERFACE */
-    WamosV1Interface wamos;
+    WamosV1 wamos;
 
     /** GAME CONSTANTS */
     int16 public constant GRID_SIZE = 16;
@@ -131,7 +137,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint64 _vrfSubscriptionId
     ) VRFConsumerBaseV2(_vrfCoordinatorAddr) {
         // instantiate wamos interface
-        wamos = WamosV1Interface(_wamosAddr);
+        wamos = WamosV1(_wamosAddr);
         // instantiate vrf coordinator interface
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorAddr);
         // configure coordinator variables
@@ -246,6 +252,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         gameIdToPlayerIsReady[gameId][msg.sender] = true;
         // if both players ready: game started?
         // @dev TODO does this make gas ridik????
+        // todo simply see if other player is ready -- this player is clearly ready
         address challenger = gameIdToGameData[gameId].challenger;
         address challengee = gameIdToGameData[gameId].challengee;
         // if both players are ready set the game status to onfoot
@@ -341,23 +348,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return newPosition;
     }
 
-    // TODO
-    function useAbility(
-        uint256 gameId,
-        uint256 wamoId,
-        uint256 abilityTraitIndex
-    ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {}
-
-    // TODO
-    function resign(uint256 gameId)
-        external
-        onlyPlayer(gameId)
-        onlyOnfootGame(gameId)
-    {
-        // logic?
-        _endGame(gameId);
-    }
-
     /**
      * @dev move and use ability in a single function call
      *  Design choice would save time (ie one transaction instead of two), however
@@ -367,25 +357,42 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     function commitTurn(
         uint256 gameId,
         uint256 wamoId,
-        uint256 moveTraitIndex,
-        uint256 abilityIndex,
-        uint256 targetGridIndex
+        uint256 moveChoice,
+        uint256 abilityChoice,
+        uint256 targetGridIndex,
+        bool moveBeforeAbility
     ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {
-        // require wamo to be in players party
-        // require wamo to be alive
-        // require movement to remain on board
-        // require targetGridIndex to be between [0,255]
-        // require targetGridIndex to be within radius of 
-        //------//
-        // mutate position index
-        // set mapping gridIndex -> wamoId
-        // get wamo on target gridindex
-        // -> pseudo randomness injected into move outcome
-        // calculate damage/ability effect
-        // if effectype 1 -> meelee; if effect type2
-        // mutate target wamos stats (or target gridindex stats)
-        // increment turn
-        // emit event
+        // player must be in game
+        // game must be onfoot <-safety switch: should ensure wamos staked, players readied
+        //-----//
+        require(targetGridIndex < 256, "Target square must be on the grid!");
+        // indices of move and ability must be within valid range
+        if (abilityChoice >= wamos.ABILITY_SLOTS()) {
+            revert InvalidAbilityIndex(gameId, msg.sender);
+        }
+        if (moveChoice >= wamos.MOVE_CHOICE()) {
+            revert InvalidMoveIndex(gameId, msg.sender);
+        }
+        // wamo must be in party
+        if (!wamoIdToStakingStatus[wamoId].isStaked) {
+            revert WamoNotInGame(gameId, wamoId);
+        }
+        // wamo must be alive -> simple return, end function immediately?
+        if (gameIdToWamoIdToStatus[gameId][wamoId].health == 0) {
+            revert WamoHasNoHealth(gameId, wamoId);
+        }
+        // target is within range 
+        // todo
+        // it is players turn (challenger moves first)
+        uint256 turnCount = gameIdToGameData[gameId].turnCount;
+        if ((msg.sender == gameIdToGameData[gameId].challenger 
+                && turnCount % 2 == 1 )
+                || (msg.sender == gameIdToGameData[gameId].challengee 
+                && turnCount % 2 == 0 )) {
+                revert NotPlayersTurn(gameId, msg.sender);
+            }
+        // turn logic //
+
     }
 
 

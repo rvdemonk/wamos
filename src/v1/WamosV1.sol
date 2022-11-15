@@ -91,7 +91,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     string public constant SYMBOL = "WAMOSV1";
 
     // WAMO CONSTANTS
-    uint256 public constant WAMO_ABILITY_SLOTS = 4;
+    uint256 public constant ABILITY_SLOTS = 4;
+    uint256 public constant MOVE_CHOICE = 8;
 
     // GAME CONSTANTS
     // mapping()
@@ -357,6 +358,15 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return traits;
     }
 
+    function getWamoRecord(uint256 tokenId)
+        public
+        view
+        returns (WamoRecord memory record)
+    {
+        record = tokenIdToRecord[tokenId];
+        return record;
+    }
+
     function getWamoMovements(uint256 tokenId)
         public
         view
@@ -365,13 +375,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return wamoIdToTraits[tokenId].movements;
     }
 
-    function getWamoRecord(uint256 tokenId)
-        public
-        view
-        returns (WamoRecord memory record)
-    {
-        record = tokenIdToRecord[tokenId];
-        return record;
+    function getWamoAbilities(uint256 tokenId) public view returns (Ability[] memory abilities) {
+        return wamoIdToAbilities[tokenId];
     }
 
     /////////////////////////////////////////////////////////////////

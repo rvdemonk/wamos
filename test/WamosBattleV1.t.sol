@@ -299,6 +299,33 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
     
     /** TEST GAMEPLAY */
 
+    function testCommitTurn() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, 3);
+        wamosBattle.playerReady(gameId);
+        vm.stopPrank();
+        vm.startPrank(player2);
+        wamosBattle.connectWamo(gameId, 2);
+        wamosBattle.connectWamo(gameId, 4);
+        wamosBattle.playerReady(gameId);
+        vm.stopPrank();
+        vm.startPrank(player1);
+        uint256[2] memory party = wamosBattle.getPlayerParty(gameId, player1);
+        console.log("wamos in party");
+        console.log(party[0]);
+        console.log(party[1]);
+        ( bool exists, bool stakeRequested, uint256 stakedGameId, bool isStaked) 
+            = wamosBattle.wamoIdToStakingStatus(1);
+        console.log("staking status of wamo #1");
+        console.log(isStaked);
+        uint256 p1StakedCount = wamosBattle.getPlayerStakedCount(gameId, player1);
+        console.log("player1 staked count");
+        console.log(p1StakedCount);
+        // TODO somehow staked count is 2, but staked wamo ids are 0,0
+    }
+
 
     /** TEST VIEW FUNCTIONS */
 

@@ -24,3 +24,20 @@ or defensive - buffs attribute
 ## eventually
 
 abilities are nfts, some are soulbound, others can be traded
+
+## comments written inside function code
+        // require wamo to be in players party
+        // require wamo to be alive
+        // require movement to remain on board
+        // require targetGridIndex to be between [0,255]
+        // require targetGridIndex to be within radius of 
+        //------//
+        // mutate position index
+        // set mapping gridIndex -> wamoId
+        // get wamo on target gridindex
+        // -> pseudo randomness injected into move outcome
+        // calculate damage/ability effect
+        // if effectype 1 -> meelee; if effect type2
+        // mutate target wamos stats (or target gridindex stats)
+        // increment turn
+        // emit event
