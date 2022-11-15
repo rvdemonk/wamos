@@ -122,7 +122,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     mapping(uint256 => mapping(uint256 => WamoStatus))
         public gameIdToWamoIdToStatus;
     // for game x, token id of wamo on index y, 0 if none
-    mapping(uint256 => mapping(uint256 => uint256)) gameIdToGridIndexToWamoId;
+    mapping(uint256 => mapping(int16 => uint256)) gameIdToGridIndexToWamoId;
 
     constructor(
         address _wamosAddr,
@@ -142,7 +142,9 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         vrfRequestConfirmations = 2;
     }
 
-    ////////////////    MODIFIERS   ////////////////
+    /////////////////////////////////////////////////////////////////
+    ////////////////////        MODIFIERS        ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     /** @notice Reverts function if msg.sender is not a player of gameId */
     modifier onlyPlayer(uint256 gameId) {
@@ -163,7 +165,9 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         _;
     }
 
-    ////////////////    GAME SETUP   ////////////////
+    /////////////////////////////////////////////////////////////////
+    ////////////////////       GAME SET UP       ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     /**
      * @return id of new game created.
@@ -239,6 +243,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         );
         // load wamos data
         _loadWamos(gameId, msg.sender);
+        gameIdToPlayerIsReady[gameId][msg.sender] = true;
         // if both players ready: game started?
         // @dev TODO does this make gas ridik????
         address challenger = gameIdToGameData[gameId].challenger;
@@ -277,8 +282,40 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
+        function onERC721Received(
+        address operator, // should be wamos contract
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override returns (bytes4) {
+        // if a wamo has been received
+        if (operator == address(wamos)) {
+            // match wamo with game and player (from)
+            if (wamoIdToStakingStatus[tokenId].stakeRequested) {
+                // get game id from staking request struct
+                uint256 gameId = wamoIdToStakingStatus[tokenId].gameId;
+                uint256 stakedCount = gameIdToPlayerToStakedCount[gameId][from];
+                // toggle staked
+                wamoIdToStakingStatus[tokenId].isStaked = true;
+                // add wamo to players party in game
+                // party array is fixed size, so set as index stakedCount
+                gameIdToPlayerToWamoPartyIds[gameId][from][
+                    stakedCount
+                ] = tokenId;
+                // add to stake count
+                gameIdToPlayerToStakedCount[gameId][from]++;
+            }
+        }
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////    GAMEPLAY FUNCTIONS   ////////////////////
+    /////////////////////////////////////////////////////////////////
+
     /**
-     * @notice mutates wamos position from a selection of movement possiblities according to wamo trait
+     * @notice mutates wamos position from a selection of movement possiblities 
+     *          according to wamo trait
      * @param gameId the id of the game containing the wamo being moved
      * @param wamoId the id of the wamo being moved
      * @param moveTraitIndex the array index of the chosen movement corresponding to the
@@ -350,7 +387,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // emit event
     }
 
-    //////////////// INTERNAL GAME FUNCTIONS  ////////////////
+
+    /////////////////////////////////////////////////////////////////
+    //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function _setWamoPosition(
         uint256 gameId,
@@ -369,24 +409,28 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // toggle game status to finished
     }
 
-    //////////////// CONTRACT SET FUNCTIONS  ////////////////
-
-    function setPlayerTag(string calldata newPlayerTag) public {
-        addrToPlayerTag[msg.sender] = newPlayerTag;
-    }
-
-    //////////////// VIEW FUNCTIONS ////////////////
+    /////////////////////////////////////////////////////////////////
+    ////////////////////     VIEW FUNCTIONS      ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function getPlayerStakedCount(uint256 gameId, address player) public view returns (uint256 wamosStaked) {
         wamosStaked = gameIdToPlayerToStakedCount[gameId][player];
         return wamosStaked;
     } 
 
+    function isPlayerReady(uint256 gameId, address player) public view returns (bool) {
+        return gameIdToPlayerIsReady[gameId][player];
+    }
+
     function getGameData(uint256 gameId) public view returns (GameData memory) {
         if (gameId >= gameCount) {
             revert GameDoesNotExist(gameId);
         }
         return gameIdToGameData[gameId];
+    }
+
+    function getGameStatus(uint256 gameId) public view returns (GameStatus) {
+        return gameIdToGameData[gameId].status;
     }
 
     function getPlayerParty(uint256 gameId, address player)
@@ -406,35 +450,35 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return addrToChallengesReceived[player];
     }
 
-    // function getWamoPosition()
-
-    // @dev TODO staking logic here
-    function onERC721Received(
-        address operator, // should be wamos contract
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external override returns (bytes4) {
-        // if a wamo has been received
-        if (operator == address(wamos)) {
-            // match wamo with game and player (from)
-            if (wamoIdToStakingStatus[tokenId].stakeRequested) {
-                // get game id from staking request struct
-                uint256 gameId = wamoIdToStakingStatus[tokenId].gameId;
-                uint256 stakedCount = gameIdToPlayerToStakedCount[gameId][from];
-                // toggle staked
-                wamoIdToStakingStatus[tokenId].isStaked = true;
-                // add wamo to players party in game
-                // party array is fixed size, so set as index stakedCount
-                gameIdToPlayerToWamoPartyIds[gameId][from][
-                    stakedCount
-                ] = tokenId;
-                // add to stake count
-                gameIdToPlayerToStakedCount[gameId][from]++;
-            }
-        }
-        return IERC721Receiver.onERC721Received.selector;
+    // TODO how to return position of specific wamo without iterating through array?
+    // new mapping? wamoId => positionIndex.
+    // no need for nested mapping as wamo could only be in one game at a time.
+    function getWamoPosition(uint256 gameId, uint256 wamoId) public view returns (int16 positionIndex) {
+        positionIndex = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
+        return positionIndex;
     }
+
+    /** 
+     * @notice Returns the wamoID of the wamo occupying the specified grid tile index
+     * @notice If the tile is unnocupied, a 0 is returned.
+     */
+    function getGridTileOccupant(uint256 gameId, int16 gridIndex) public view returns (uint256 wamoId) {
+        wamoId = gameIdToGridIndexToWamoId[gameId][gridIndex];
+        return wamoId;
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////    CONTRACT SETTERS     ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function setPlayerTag(string calldata newPlayerTag) public {
+        addrToPlayerTag[msg.sender] = newPlayerTag;
+    }
+
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////   OVERRIDE FUNCTIONS    ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function fulfillRandomWords(
         uint256 _requestId,

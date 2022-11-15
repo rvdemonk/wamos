@@ -20,3 +20,6 @@ spread index-> wamoid mapping throughout game
  - starting position
  - move
 
+## batch minting
+make number of words a variable to reflect batch
+arrays of ids

@@ -67,8 +67,8 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamos.approveBattleStaking();
         vm.prank(player2);
         wamos.approveBattleStaking();
-        vm.prank(badActor);
-        wamos.approveBattleStaking();
+        // vm.prank(badActor);
+        // wamos.approveBattleStaking();
 
         // deal some funny money
         vm.deal(player1, ACTOR_STARTING_BAL);
@@ -175,6 +175,13 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         assertTrue(wamos.isApprovedForAll(player2, address(wamosBattle)));
     }
 
+    function testCannotConnectWithoutApproving() public {
+        vm.startPrank(badActor);
+        uint256 id = wamosBattle.createGame(player2);
+        vm.expectRevert();
+        wamosBattle.connectWamo(id, 25);
+    }
+
     function testWamosCanConnect() public {
         // create game
         vm.prank(player1);
@@ -210,6 +217,8 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         vm.prank(player1);
         uint256 gameId = wamosBattle.createGame(player2);
 
+        vm.startPrank(badActor);
+        wamos.approveBattleStaking();
         vm.expectRevert();
         wamosBattle.connectWamo(gameId, 25);
     }
@@ -240,6 +249,56 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         vm.expectRevert();
         wamosBattle.connectWamo(gameId, 1);
     }
+
+    /** TEST PLAYER READY */
+
+    function testPlayerReadyToggle() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, 3);
+        assertFalse(wamosBattle.isPlayerReady(gameId, player1));
+        wamosBattle.playerReady(gameId);
+        assertTrue(wamosBattle.isPlayerReady(gameId, player1));
+    }
+
+    function testCannotReadyWithoutFullParty() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        vm.expectRevert();
+        wamosBattle.playerReady(gameId);
+    }
+
+    function testGameNotStartedWithOnePlayerReady() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, 3);
+        wamosBattle.playerReady(gameId);
+        assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.PREGAME);
+    }
+
+    function testGameStartsWhenPlayersReady() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, 3);
+        wamosBattle.playerReady(gameId);
+        vm.stopPrank();
+        vm.startPrank(player2);
+        wamosBattle.connectWamo(gameId, 2);
+        wamosBattle.connectWamo(gameId, 4);
+        wamosBattle.playerReady(gameId);
+        assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
+    }
+
+    /** TEST GAME START */
+
+    function testCannotTakeTurnBeforeGameOnfoot() public {}
+    
+    /** TEST GAMEPLAY */
+
 
     /** TEST VIEW FUNCTIONS */
 

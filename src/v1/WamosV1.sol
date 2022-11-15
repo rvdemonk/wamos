@@ -421,4 +421,24 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         e = (x / 1000000000) % base;
         return (a, b, c, d, e);
     }
+
+    function splitThirdFiveIntegers(uint256 x, uint256 base)
+        internal
+        pure
+        returns (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        )
+    {
+        a = (x / 10000000000) % base;
+        b = (x / 100000000000) % base;
+        c = (x / 1000000000000) % base;
+        d = (x / 10000000000000) % base;
+        e = (x / 100000000000000) % base;
+        return (a, b, c, d, e);
+    }
+
 }
