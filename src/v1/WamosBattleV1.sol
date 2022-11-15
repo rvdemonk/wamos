@@ -97,17 +97,18 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     uint256 public gameCount;
     // staking
     mapping(uint256 => StakingStatus) public wamoIdToStakingStatus;
+    // number of wamos staked in gameId x by player y
+    mapping(uint256 => mapping(address => uint256)) gameIdToPlayerToStakedCount;
+
     // invite system
     mapping(address => uint256[]) public addrToChallengesSent;
     mapping(address => uint256[]) public addrToChallengesReceived;
+    
     // player name
     mapping(address => string) public addrToPlayerTag;
 
     /** GAME STATE STORAGE */
     //// META GAME
-    // number of wamos staked in gameId x by player y
-    mapping(uint256 => mapping(address => uint256))
-        public gameIdToPlayerToStakedCount;
     // is player y ready in game x
     mapping(uint256 => mapping(address => bool)) public gameIdToPlayerIsReady;
     
@@ -198,7 +199,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         );
         // check max wamos already not staked
         require(
-            gameIdToPlayerToStakedCount[gameId][msg.sender] <= PARTY_SIZE,
+            gameIdToPlayerToStakedCount[gameId][msg.sender] < PARTY_SIZE,
             "Maximum Wamos already staked!"
         );
         // check that sender owns wamo
@@ -207,6 +208,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
         // prompt wamo transfer
         wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
+        // increment staked count
+        gameIdToPlayerToStakedCount[gameId][msg.sender]++;
         // register staking request
         if (wamoIdToStakingStatus[wamoId].exists) {
             wamoIdToStakingStatus[wamoId].stakeRequested = true;
@@ -373,6 +376,11 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     //////////////// VIEW FUNCTIONS ////////////////
+
+    function getPlayerStakedCount(uint256 gameId, address player) public view returns (uint256 wamosStaked) {
+        wamosStaked = gameIdToPlayerToStakedCount[gameId][player];
+        return wamosStaked;
+    } 
 
     function getGameData(uint256 gameId) public view returns (GameData memory) {
         if (gameId >= gameCount) {

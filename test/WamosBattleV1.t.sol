@@ -60,13 +60,15 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
             subscriptionId
         );
 
+        wamos.setWamosBattleAddress(address(wamosBattle));
+
         // approve staking in wamos for wamos battle
         vm.prank(player1);
-        wamos.approveBattleStaking(address(wamosBattle));
+        wamos.approveBattleStaking();
         vm.prank(player2);
-        wamos.approveBattleStaking(address(wamosBattle));
+        wamos.approveBattleStaking();
         vm.prank(badActor);
-        wamos.approveBattleStaking(address(wamosBattle));
+        wamos.approveBattleStaking();
 
         // deal some funny money
         vm.deal(player1, ACTOR_STARTING_BAL);
@@ -192,11 +194,16 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         //     .getPlayerParty(gameId, player1);
         // uint256[wamosBattle.PARTY_SIZE] memory party2 = wamosBattle
         //     .getPlayerParty(gameId, player2);
+
         // check wamos battle owns tokens
         assertTrue(wamos.ownerOf(1) == address(wamosBattle));
         assertTrue(wamos.ownerOf(2) == address(wamosBattle));
         assertTrue(wamos.ownerOf(3) == address(wamosBattle));
         assertTrue(wamos.ownerOf(4) == address(wamosBattle));
+
+        // check mapping for staked count
+        assertTrue(wamosBattle.getPlayerStakedCount(gameId, player1) == 2);
+        assertTrue(wamosBattle.getPlayerStakedCount(gameId, player2) == 2);
     }
 
     function testCannotConnectThirdParty() public {
@@ -205,6 +212,33 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
 
         vm.expectRevert();
         wamosBattle.connectWamo(gameId, 25);
+    }
+
+    function testCannotStakeExtraWamo() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, 3);
+        // console.log(wamosBattle.getPlayerStakedCount(gameId, player1));
+        vm.expectRevert();
+        wamosBattle.connectWamo(gameId, 5);
+        // console.log(wamosBattle.getPlayerStakedCount(gameId, player1));
+    }
+
+    function testCannotStakeUnownedWamo() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        vm.expectRevert();
+        wamosBattle.connectWamo(gameId, 4); //unowned        
+    }
+
+    function testCannotStakeSameWamoTwice() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        vm.expectRevert();
+        wamosBattle.connectWamo(gameId, 1);
     }
 
     /** TEST VIEW FUNCTIONS */

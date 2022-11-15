@@ -29,6 +29,7 @@ struct Ability {
     uint256 targetTrait;
     uint256 power;
     uint256 accuracy;
+    uint256 range;
     uint256 cost;
     uint256 cooldown;
 }
@@ -364,6 +365,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////   BATTLE STAKING FUNCTIONS   //////////////////
     /////////////////////////////////////////////////////////////////
 
+
     function setWamosBattleAddress(address _wamosBattleAddr) external onlyOwner {
         wamosBattleAddr = _wamosBattleAddr;
     }
@@ -371,6 +373,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /**
      @notice Approves the wamos battle contract to transfer any token on 
         behalf of the CALLER
+     @notice This function must be called by a player before they can connect their
+        wamos and participate in battles
     */
     function approveBattleStaking() public {
         super.setApprovalForAll(wamosBattleAddr, true);
