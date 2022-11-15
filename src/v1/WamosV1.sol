@@ -101,6 +101,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => WamoTraits) wamoIdToTraits;
     mapping(uint256 => Ability[]) wamoIdToAbilities;
 
+    // WAMOS BATTLE ADDRESS
+    address public wamosBattleAddr;
+
     // EVENTS
     event SpawnRequested(
         uint256 requestId,
@@ -361,12 +364,16 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////   BATTLE STAKING FUNCTIONS   //////////////////
     /////////////////////////////////////////////////////////////////
 
+    function setWamosBattleAddress(address _wamosBattleAddr) external onlyOwner {
+        wamosBattleAddr = _wamosBattleAddr;
+    }
+
     /**
      @notice Approves the wamos battle contract to transfer any token on 
         behalf of the CALLER
     */
-    function approveBattleStaking(address _wamosBattle) public {
-        super.setApprovalForAll(_wamosBattle, true);
+    function approveBattleStaking() public {
+        super.setApprovalForAll(wamosBattleAddr, true);
     }
 
     /////////////////////////////////////////////////////////////////
