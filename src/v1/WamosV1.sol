@@ -522,12 +522,40 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             uint256 d,
             uint256 e
         )
-        {
+        {   
+
             a = (randomWord / (1 * 100_000**segmentNum)) % base;
             b = (randomWord / (10 * 100_000**segmentNum)) % base;
             c = (randomWord / (100 * 100_000**segmentNum)) % base;
             d = (randomWord / (1000 * 100_000**segmentNum)) % base;
             e = (randomWord / (10000 * 100_000**segmentNum)) % base;
+        return (a, b, c, d, e);
+        } 
+
+    /**
+     * @notice internal library function to shave off random digits in sets of five from a 256bit randomWord
+     * @param randomWord the random uint256 to be shaved
+     * @param segmentNum \in [0, 10]; the set of five to be shaven: ie, 0-> first five, 1-> second five
+     * @param shavingSize >0; size of numbers to be shaved off: 1 -> 1 digit numbers, 2 -> 2 digit numbers
+     * @notice returns five single digit uint256
+     */
+    function shaveOffRandomIntegers2(uint256 randomWord, uint256 segmentNum, uint256 shavingSize) 
+        public 
+        pure 
+        returns (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        )
+        {   
+            uint256 base = 10**shavingSize;
+            a = (randomWord / (1**shavingSize * 100_000**segmentNum)) % base;
+            b = (randomWord / (10**shavingSize * 100_000**segmentNum)) % base;
+            c = (randomWord / (100**shavingSize * 100_000**segmentNum)) % base;
+            d = (randomWord / (1000**shavingSize * 100_000**segmentNum)) % base;
+            e = (randomWord / (10000**shavingSize * 100_000**segmentNum)) % base;
         return (a, b, c, d, e);
         } 
 
