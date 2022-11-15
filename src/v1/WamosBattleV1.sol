@@ -282,7 +282,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
-        function onERC721Received(
+    function onERC721Received(
         address operator, // should be wamos contract
         address from,
         uint256 tokenId,
@@ -442,6 +442,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return wamoIds;
     }
 
+    // @notice TODO reconsider returning an array here? tooo gassy? how else though?
     function getChallengesReceivedBy(address player)
         public
         view
@@ -450,9 +451,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return addrToChallengesReceived[player];
     }
 
-    // TODO how to return position of specific wamo without iterating through array?
-    // new mapping? wamoId => positionIndex.
-    // no need for nested mapping as wamo could only be in one game at a time.
+    // TODO new mapping? wamoId => positionIndex.
+    // no need for nested mapping as wamo could only be in one game at a time?
     function getWamoPosition(uint256 gameId, uint256 wamoId) public view returns (int16 positionIndex) {
         positionIndex = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
         return positionIndex;
@@ -474,7 +474,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     function setPlayerTag(string calldata newPlayerTag) public {
         addrToPlayerTag[msg.sender] = newPlayerTag;
     }
-
 
     /////////////////////////////////////////////////////////////////
     ////////////////////   OVERRIDE FUNCTIONS    ////////////////////
