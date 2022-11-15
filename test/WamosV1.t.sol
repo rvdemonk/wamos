@@ -143,7 +143,10 @@ contract WamosV1Test is Test {
         wamos.completeSpawnWamo(tokenId);
         // check traits
         WamoTraits memory traits = wamos.getWamoTraits(tokenId);
-        console.log("randomness: %s", wamos.getSpawnRequest(requestId).randomWord);
+        console.log(
+            "randomness: %s",
+            wamos.getSpawnRequest(requestId).randomWord
+        );
         console.log("health %s", traits.health);
         console.log("attack %s", traits.meeleeAttack);
         console.log("fecundity: %s", traits.fecundity);
@@ -228,8 +231,8 @@ contract WamosV1Test is Test {
     }
 
     /** LIBRARY FUNCTION TESTS */
-    
-    function testShaveOffReturnsDigits() public {
+
+    function testShaveOff() public {
         vm.prank(player1);
         uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
         vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
@@ -238,71 +241,67 @@ contract WamosV1Test is Test {
         console.log("Random word: %s", word);
         // shave
         {
-            (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 0, 100);
-        console.log(a);
-        console.log(b);
-        console.log(c);
-        console.log(d);
-        console.log(e);
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 0);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
         }
         {
-            (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 1, 100);
-        console.log(a);
-        console.log(b);
-        console.log(c);
-        console.log(d);
-        console.log(e);
-                }   
-        {
-            (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 2, 100);
-        console.log(a);
-        console.log(b);
-        console.log(c);
-        console.log(d);
-        console.log(e);
-                }   
- }   
-
-     function testShaveOff2() public {
-        vm.prank(player1);
-        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
-        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
-        SpawnRequest memory request = wamos.getSpawnRequest(requestId);
-        uint256 word = request.randomWord;
-        console.log("Random word: %s", word);
-        // shave
-        {
-        (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        ) = wamos.shaveOffRandomIntegers(word, 0, 4);
-        console.log(a);
-        console.log(b);
-        console.log(c);
-        console.log(d);
-        console.log(e);
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 1);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
         }
- }   
-
+        {
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 2);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
+        }
+        {
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 3);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
+        }
+        {
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 4);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
+        }
+        {
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 5);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
+        }
+        {
+            (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e) = wamos
+                .shaveOffRandomIntegers(word, 2, 6);
+            console.log(a);
+            console.log(b);
+            console.log(c);
+            console.log(d);
+            console.log(e);
+        }
+    }
 }
