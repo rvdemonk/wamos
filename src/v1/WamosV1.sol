@@ -31,7 +31,20 @@ struct Ability {
     uint256 accuracy;
     uint256 range;
     uint256 cost;
-    uint256 cooldown;
+    // uint256 cooldown;
+}
+
+struct Ability2 {
+    uint256 meeleeDamage; // 0 or 1
+    uint256 magicDamage; // 0 or 1
+    uint256 rangeDamage; // 0 or 1
+
+    // (de)buff effects
+
+    uint256 power;
+    uint256 accuracy;
+    uint256 range;
+    uint256 cost;
 }
 
 struct WamoTraits {
@@ -48,6 +61,8 @@ struct WamoTraits {
     uint256 luck;
     uint256 fecundity;
     uint256 gearSlots;
+    // hp regen per turn
+
 }
 
 struct WamoRecord {
@@ -77,8 +92,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     string public constant NAME = "WamosTokenV1";
     string public constant SYMBOL = "WAMOSV1";
 
-    // WAMO ATTRIBUTE CONSTANTS
+    // WAMO CONSTANTS
     uint256 public constant WAMO_ABILITY_SLOTS = 4;
+
+    // GAME CONSTANTS
+    // mapping()
 
     address public contractOwner;
     uint256 public tokenCount;
@@ -258,9 +276,23 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     function _generateAbilities(uint256 tokenId, uint256 randomWord) internal {
-        for (uint i=0; i<WAMO_ABILITY_SLOTS; i++) {
-            //
-        }
+        // TODO generate four abilities to store in wamo ability array
+        
+        // attack or buff?
+        // if attack:
+            // target: health
+            // damage type: meelee, range, magic?
+            // power
+            // accuracy
+            // range
+            // cost
+        // if buff:
+            // target: health, attacks, defences
+            // buff or debuff
+            // power
+            // accuracy
+            // range
+            // cost
     }
 
     /**
@@ -454,5 +486,50 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         e = (x / 100000000000000) % base;
         return (a, b, c, d, e);
     }
+
+    function splitFourthFiveIntegers(uint256 x, uint256 base)
+        internal
+        pure
+        returns (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        )
+    {
+        a = (x / 1000000000000000) % base;
+        b = (x / 10000000000000000) % base;
+        c = (x / 100000000000000000) % base;
+        d = (x / 1000000000000000000) % base;
+        e = (x / 10000000000000000000) % base;
+        return (a, b, c, d, e);
+    }
+
+    /**
+     * @notice internal library function to shave off random digits in sets of five from a 256bit randomWord
+     * @param randomWord the random uint256 to be shaved
+     * @param segmentNum \in [0, 10]; the set of five to be shaven: ie, 0-> first five, 1-> second five
+     * @notice returns five single digit uint256
+     */
+    function shaveOffRandomIntegers(uint256 randomWord, uint256 segmentNum) 
+        public 
+        pure 
+        returns (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        )
+        {
+            // uint256 quotientMultiplier = 100_000 * (segmentNum+1)
+            a = (randomWord / (1 * 100_000**segmentNum)) % 10;
+            b = (randomWord / (10 * 100_000**segmentNum)) % 10;
+            c = (randomWord / (100 * 100_000**segmentNum)) % 10;
+            d = (randomWord / (1000 * 100_000**segmentNum)) % 10;
+            e = (randomWord / (10000 * 100_000**segmentNum)) % 10;
+        return (a, b, c, d, e);
+        } 
 
 }

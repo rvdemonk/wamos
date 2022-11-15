@@ -226,4 +226,59 @@ contract WamosV1Test is Test {
         vm.expectRevert();
         wamos.withdrawFunds();
     }
+
+    /** LIBRARY FUNCTION TESTS */
+    
+    function testShaveOffReturnsDigits() public {
+        vm.prank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        SpawnRequest memory request = wamos.getSpawnRequest(requestId);
+        uint256 word = request.randomWord;
+        console.log("Random word: %s", word);
+        // shave
+        {
+            (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        ) = wamos.shaveOffRandomIntegers(word, 0);
+        console.log(a);
+        console.log(b);
+        console.log(c);
+        console.log(d);
+        console.log(e);
+        }
+        {
+            (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        ) = wamos.shaveOffRandomIntegers(word, 1);
+        console.log(a);
+        console.log(b);
+        console.log(c);
+        console.log(d);
+        console.log(e);
+                }   
+        {
+            (
+            uint256 a,
+            uint256 b,
+            uint256 c,
+            uint256 d,
+            uint256 e
+        ) = wamos.shaveOffRandomIntegers(word, 2);
+        console.log(a);
+        console.log(b);
+        console.log(c);
+        console.log(d);
+        console.log(e);
+                }   
+ }   
+
 }

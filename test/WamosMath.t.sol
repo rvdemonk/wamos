@@ -49,4 +49,16 @@ contract WamosMathV1Test is Test {
         console.log(d);
         console.log(e);
     }
+
+    function testMathGasMultiply() public{
+        uint256 number = 10 * 10 * 10 * 10;
+    }
+
+    function testMathGasExponent() public {
+        uint256 number = 10**4;
+    }
+
+    function testMathGasBigExponent() public {
+        uint256 number = 7 * 100_000**5;
+    }
 }

@@ -382,6 +382,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // get wamo on target gridindex
         // -> pseudo randomness injected into move outcome
         // calculate damage/ability effect
+        // if effectype 1 -> meelee; if effect type2
         // mutate target wamos stats (or target gridindex stats)
         // increment turn
         // emit event
