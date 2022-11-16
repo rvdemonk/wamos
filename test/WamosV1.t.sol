@@ -238,7 +238,7 @@ contract WamosV1Test is Test {
         vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
         uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
         wamos.completeSpawnWamo(tokenId);
-        assertTrue(wamos.ownerOf(1) == player1);
+        assertTrue(wamos.ownerOf(0) == player1);
     }
 
     /** LIBRARY FUNCTION TESTS */
