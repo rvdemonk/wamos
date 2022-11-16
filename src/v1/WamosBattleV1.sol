@@ -375,18 +375,21 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         int16 targetGridIndex,
         bool moveBeforeAbility
     ) internal {
+        // get traits for attack and stamina/mana stats
+        WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
+
         int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId]
             .positionIndex;
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
-
-        WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
+    
 
         // move first? adjust position
         if (moveBeforeAbility) {
             _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
         }
+        
         // ensure target is within range
         // todo
         int16 targetDistance = (actorPosition - targetGridIndex) % GRID_SIZE;
