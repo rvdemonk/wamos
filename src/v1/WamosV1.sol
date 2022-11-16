@@ -38,8 +38,7 @@ struct Ability2 {
     uint256 meeleeDamage; // 0 or 1
     uint256 magicDamage; // 0 or 1
     uint256 rangeDamage; // 0 or 1
-    // (de)buff effects
-
+    // insert (de)buff effects
     uint256 power;
     uint256 accuracy;
     uint256 range;
@@ -173,8 +172,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
         requestCount++;
         // assign token id for new wamo
-        uint256 tokenId = tokenCount;
-        tokenCount++;
+        uint256 tokenId = tokenCount + 1; // wamo #1 is first wamo
         // request randomness (from the gods)
         requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
@@ -289,6 +287,20 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // accuracy
         // range
         // cost
+        for (uint i = 0; i < ABILITY_SLOTS; i++) {
+            // word segment starts at 2 - first 2 used in trait gen
+            {
+                uint256 wordSegmentNum = i+2;
+                (
+                    uint256 a,
+                    uint256 b,
+                    uint256 c,
+                    uint256 d,
+                    uint256 e
+                ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
+            }
+            
+        }
     }
 
     /**
