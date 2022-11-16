@@ -230,6 +230,17 @@ contract WamosV1Test is Test {
         wamos.withdrawFunds();
     }
 
+    /** ABILITIES TESTS */
+
+    function testAbilitiesExist() public {
+        vm.startPrank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        wamos.completeSpawnWamo(tokenId);
+        assertTrue(wamos.ownerOf(1) == player1);
+    }
+
     /** LIBRARY FUNCTION TESTS */
 
     function testShaveOff() public {
