@@ -230,6 +230,19 @@ contract WamosV1Test is Test {
         wamos.withdrawFunds();
     }
 
+    /** VIEW TESTS */
+
+    function testGetWamoTraits() public {
+        vm.startPrank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        wamos.completeSpawnWamo(tokenId);
+        WamoTraits memory traits = wamos.getWamoTraits(tokenId);
+        assertTrue(traits.health != 0);
+        assertTrue(traits.luck != 0);
+    }
+
     /** ABILITIES TESTS */
 
     function testAbilitiesExist() public {
@@ -247,7 +260,7 @@ contract WamosV1Test is Test {
         console.log("range?", a.rangeDamage);
         console.log("power ", a.power);
         console.log("accuracy ", a.accuracy);
-        console.log("range ", a.range);
+        console.logInt(a.range);
         console.log("cost ", a.cost);
     }
 
@@ -340,5 +353,12 @@ contract WamosV1Test is Test {
             console.log(d);
             console.log(e);
         }
+    }
+
+    /** MISC TESTS */
+
+    function testBitShift() public {
+        uint256 testNum = 987654321;
+        console.log(testNum<<1);
     }
 }

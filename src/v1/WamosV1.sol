@@ -41,7 +41,7 @@ struct Ability {
     // -> insert (de)buff effects
     uint256 power;
     uint256 accuracy;
-    uint256 range;
+    int16 range;
     uint256 cost;
 }
 
@@ -58,7 +58,8 @@ struct WamoTraits {
     uint256 mana;
     uint256 luck;
     uint256 fecundity;
-    uint256 gearSlots;
+    // uint256 gearSlots;
+    uint256 powerRegen; // mana and stamina
     // hp regen per turn
 }
 
@@ -288,9 +289,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             int16 move1 = int8(int256(k)) % MAX_INDEX_MUATION;
             int16 move2 = int8(int256(l)) % MAX_INDEX_MUATION;
             traits.movements = [int16(-1), 1, 16, -16, move1, -move1, move2, -move2];
+            traits.powerRegen = m % 25;
         }
         traits.fecundity = randomWord % 11;
-        traits.gearSlots = randomWord % 4;
+        // traits.gearSlots = randomWord % 4;
         // store traits
         wamoIdToTraits[tokenId] = traits;
     }
@@ -330,10 +332,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 ability.range = 1;
             } else if (a < 67) {
                 ability.magicDamage = 1;
-                ability.range = d;
+                ability.range = int16(uint16(d));
             } else {
                 ability.rangeDamage = 1;
-                ability.range = d;
+                ability.range = int16(uint16(d));
             }
             ability.power = b;
             ability.accuracy = c;
