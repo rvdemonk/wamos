@@ -223,7 +223,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // generate traits and abilities
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
         _generateWamoTraits(tokenId, randomWord);
-        // _generateAbilities(tokenId, randomWord);
+        _generateAbilities(tokenId, randomWord);
         // toggle spawn request as complete
         requestIdToSpawnRequest[requestId].completed = true;
         // retrieve owner in case it is not msg.sender
@@ -293,31 +293,32 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         for (uint i = 0; i < ABILITY_SLOTS; i++) {
             // word segment starts at 2 - first 2 used in trait gen
             Ability memory ability;
-            {
-                uint256 wordSegmentNum = i+2;
-                (
-                    uint256 a,
-                    uint256 b,
-                    uint256 c,
-                    uint256 d,
-                    uint256 e
-                ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
+            uint256 wordSegmentNum = i+2;
+            (
+                uint256 a,
+                uint256 b,
+                uint256 c,
+                uint256 d,
+                uint256 e
+            ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
 
-                // determine move type
-                if (a < 34) {
-                    ability.meeleeDamage = 1;
-                } else if (a < 67) {
-                    ability.magicDamage = 1;
-                } else {
-                    ability.rangeDamage = 1;
-                }
-                ability.power = b;
-                ability.accuracy = c;
+            // determine move type
+            if (a < 34) {
+                ability.meeleeDamage = 1;
+                ability.range = 1;
+            } else if (a < 67) {
+                ability.magicDamage = 1;
                 ability.range = d;
-                ability.cost = e % 33;
+            } else {
+                ability.rangeDamage = 1;
+                ability.range = d;
             }
+            ability.power = b;
+            ability.accuracy = c;
+            ability.cost = e % 33;
             // store ability
-            wamoIdToAbilities[tokenId][i] = ability;
+            wamoIdToAbilities[tokenId].push(ability);
+            // wamoIdToAbilities[tokenId][i] = ability;
         }
     }
 
@@ -388,6 +389,13 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return traits;
     }
 
+    function getWamoAbilities(uint256 tokenId) 
+        public 
+        view 
+        returns (Ability[] memory abilities) {
+        return wamoIdToAbilities[tokenId];
+    }
+
     function getWamoRecord(uint256 tokenId)
         public
         view
@@ -403,10 +411,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         returns (int16[8] memory)
     {
         return wamoIdToTraits[tokenId].movements;
-    }
-
-    function getWamoAbilities(uint256 tokenId) public view returns (Ability[] memory abilities) {
-        return wamoIdToAbilities[tokenId];
     }
 
     /////////////////////////////////////////////////////////////////

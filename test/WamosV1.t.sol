@@ -239,6 +239,17 @@ contract WamosV1Test is Test {
         uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
         wamos.completeSpawnWamo(tokenId);
         assertTrue(wamos.ownerOf(0) == player1);
+        Ability[] memory abilities = wamos.getWamoAbilities(tokenId);
+        Ability memory a = abilities[0];
+        console.log("Ability 1 of wam0 #0");
+        console.log("meelee?", a.meeleeDamage);
+        console.log("magic?", a.magicDamage);
+        console.log("range?", a.rangeDamage);
+        console.log("power ", a.power);
+        console.log("accuracy ", a.accuracy);
+        console.log("range ", a.range);
+        console.log("cost ", a.cost);
+
     }
 
     /** LIBRARY FUNCTION TESTS */
