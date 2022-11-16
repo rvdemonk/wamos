@@ -23,18 +23,18 @@ import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 //     uint256 cooldown;
 // }
 
-struct Ability {
-    // uint256 dietyType;
-    uint256 effectType;
-    uint256 targetTrait;
-    uint256 power;
-    uint256 accuracy;
-    uint256 range;
-    uint256 cost;
-    // uint256 cooldown;
-}
+// struct Ability {
+//     // uint256 dietyType;
+//     uint256 effectType;
+//     uint256 targetTrait;
+//     uint256 power;
+//     uint256 accuracy;
+//     uint256 range;
+//     uint256 cost;
+//     // uint256 cooldown;
+// }
 
-struct Ability2 {
+struct Ability {
     uint256 meeleeDamage; // 0 or 1
     uint256 magicDamage; // 0 or 1
     uint256 rangeDamage; // 0 or 1
@@ -172,7 +172,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
         requestCount++;
         // assign token id for new wamo
-        uint256 tokenId = tokenCount + 1; // wamo #1 is first wamo
+        uint256 tokenId = tokenCount;
+        tokenCount++;
         // request randomness (from the gods)
         requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
@@ -207,8 +208,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      * @param tokenId the id of the token requested for which to generate traits and mint to request sender
      */
     function completeSpawnWamo(uint256 tokenId) public payable {
-        require(tokenCount > tokenId, "This token id has not been minted yet!");
+        require(tokenCount >= tokenId, "This token id has not been minted yet!");
         uint256 requestId = tokenIdToSpawnRequestId[tokenId];
+        
         // check request has not already been fulfilled
         if (requestIdToSpawnRequest[requestId].completed) {
             revert WamoAlreadySpawned(tokenId);
@@ -217,6 +219,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         if (!requestIdToSpawnRequest[requestId].randomnessFulfilled) {
             revert SpawnRequestNotFulfilled(requestId);
         }
+        
         // generate traits and abilities
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
         _generateWamoTraits(tokenId, randomWord);
@@ -289,6 +292,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // cost
         for (uint i = 0; i < ABILITY_SLOTS; i++) {
             // word segment starts at 2 - first 2 used in trait gen
+            Ability memory ability;
             {
                 uint256 wordSegmentNum = i+2;
                 (
@@ -298,8 +302,22 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                     uint256 d,
                     uint256 e
                 ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
+
+                // determine move type
+                if (a < 34) {
+                    ability.meeleeDamage = 1;
+                } else if (a < 67) {
+                    ability.magicDamage = 1;
+                } else {
+                    ability.rangeDamage = 1;
+                }
+                ability.power = b;
+                ability.accuracy = c;
+                ability.range = d;
+                ability.cost = e % 33;
             }
-            
+            // store ability
+            wamoIdToAbilities[tokenId][i] = ability;
         }
     }
 

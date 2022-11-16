@@ -459,6 +459,11 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return addrToChallengesReceived[player];
     }
 
+    function getChallengesSentBy(address player) public view returns (uint256[] memory)
+    {
+        return addrToChallengesSent[player];
+    }
+
     // TODO new mapping? wamoId => positionIndex.
     // no need for nested mapping as wamo could only be in one game at a time?
     function getWamoPosition(uint256 gameId, uint256 wamoId) public view returns (int16 positionIndex) {
