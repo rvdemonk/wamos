@@ -249,7 +249,6 @@ contract WamosV1Test is Test {
         console.log("accuracy ", a.accuracy);
         console.log("range ", a.range);
         console.log("cost ", a.cost);
-
     }
 
     /** LIBRARY FUNCTION TESTS */

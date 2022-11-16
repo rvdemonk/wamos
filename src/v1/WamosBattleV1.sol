@@ -392,7 +392,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 revert NotPlayersTurn(gameId, msg.sender);
             }
         // turn logic //
-
+        ///////
+        //////
+        //////
+        /////
     }
 
 
