@@ -321,34 +321,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /////////////////////////////////////////////////////////////////
 
     /**
-     * @notice mutates wamos position from a selection of movement possiblities 
-     *          according to wamo trait
-     * @param gameId the id of the game containing the wamo being moved
-     * @param wamoId the id of the wamo being moved
-     * @param moveTraitIndex the array index of the chosen movement corresponding to the
-     *          array of possible movements open to the wamo
-     * @return newPosition the position of the wamo after the position mutation
-     */
-    function move(
-        uint256 gameId,
-        uint256 wamoId,
-        uint256 moveTraitIndex
-    )
-        external
-        onlyPlayer(gameId)
-        onlyOnfootGame(gameId)
-        returns (int16 newPosition)
-    {
-        int16[8] memory movements = wamos.getWamoMovements(wamoId);
-        int16 mutation = movements[moveTraitIndex];
-        newPosition =
-            gameIdToWamoIdToStatus[gameId][wamoId].positionIndex +
-            mutation;
-        _setWamoPosition(gameId, wamoId, newPosition);
-        return newPosition;
-    }
-
-    /**
      * @dev move and use ability in a single function call
      *  Design choice would save time (ie one transaction instead of two), however
      *  would likely increase gas, due to the number of require statements needed to
@@ -389,23 +361,31 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 && turnCount % 2 == 0 )) {
                 revert NotPlayersTurn(gameId, msg.sender);
             }
-        
-        ////////////////// turn logic ///////////////////
+        _commitTurn(gameId, wamoId, moveChoice, abilityChoice, targetGridIndex, moveBeforeAbility);
+    }
 
+
+    /////////////////////////////////////////////////////////////////
+    //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
+    /////////////////////////////////////////////////////////////////
+    
+    function _commitTurn(
+        uint256 gameId,
+        uint256 wamoId,
+        uint256 moveChoice,
+        uint256 abilityChoice,
+        int16 targetGridIndex,
+        bool moveBeforeAbility
+    ) 
+        internal
+     {
         int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][targetGridIndex];
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
 
         // move first? adjust position
         if (moveBeforeAbility) {
-            // erase prev pos
-            gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
-            // calculate new position
-            actorPosition = actorPosition + actorTraits.movements[moveChoice];
-            // map new index position to wamo id
-            gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;
-            // store new position in wamo status
-            gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = actorPosition;
+            _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
         }
         // ensure target is within range 
         // todo
@@ -413,26 +393,37 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
         uint256 dmg = _calculateDamage(gameId, wamoId, targetWamoId, abilityChoice); 
 
-        // subtract damage
+        ////
+        // subtract damage from targets health
+        /////
 
-        // if (!moveBeforeAbility) {
-        //     gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
-        //     actorPosition = actorPosition + actorTraits.movements[moveChoice];
-        //     gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;           
-        // }
+        if (!moveBeforeAbility) {
+            _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);      
+        }
     }
-
-
-    /////////////////////////////////////////////////////////////////
-    //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
-    /////////////////////////////////////////////////////////////////
 
     function _setWamoPosition(
         uint256 gameId,
         uint256 wamoId,
-        int16 newIndex
-    ) internal {
-        gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
+        uint256 moveChoice,
+        int16 actorPosition
+        // ,int16 indexMutation
+    ) internal 
+       returns (int16 newPosition) 
+    {
+        // old
+        // gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
+        
+        // new
+        int16 indexMutation = wamos.getWamoTraits(wamoId).movements[moveChoice];
+        // erase prev pos
+        gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
+        // calculate new position
+        actorPosition = actorPosition + indexMutation;
+        // map new index position to wamo id
+        gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;
+        // store new position in wamo status
+        gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = actorPosition;
     }
 
     function _calculateDamage(uint256 gameId, uint256 actingWamoId, uint256 targetWamoId, uint256 abilityChoice) 
@@ -537,6 +528,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     function getGridTileOccupant(uint256 gameId, int16 gridIndex) public view returns (uint256 wamoId) {
         wamoId = gameIdToGridIndexToWamoId[gameId][gridIndex];
         return wamoId;
+    }
+
+    function getWamoStatus(uint256 gameId, uint256 wamoId) public view returns (WamoStatus memory status) {
+        return gameIdToWamoIdToStatus[gameId][wamoId];
     }
 
     /////////////////////////////////////////////////////////////////

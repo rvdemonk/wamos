@@ -313,12 +313,17 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.playerReady(gameId);
         assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
         vm.stopPrank();
-        //
+        // gass 655k///
+        //////
         uint256[2] memory party1 = wamosBattle
             .getPlayerParty(gameId, player1);
         console.log(party1[0]);
         console.log(party1[1]);
-        // gass 655k
+
+        WamoStatus memory status = wamosBattle.getWamoStatus(gameId, wamo1);
+        ////// TODO wtf
+        console.log("health: %s", status.health);
+        ///////////////////////
         vm.prank(player1);
         wamosBattle.commitTurn(
             gameId,
