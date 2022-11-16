@@ -216,9 +216,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert PlayerDoesNotOwnThisWamo(wamoId, msg.sender);
         }
-        // prompt wamo transfer
-        // increment staked count
-        gameIdToPlayerToStakedCount[gameId][msg.sender]++;
         // register staking request
         if (wamoIdToStakingStatus[wamoId].exists) {
             wamoIdToStakingStatus[wamoId].stakeRequested = true;
@@ -232,6 +229,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 isStaked: false
             });
         }
+        // prompt wamo transfer
         wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
     }
 
@@ -296,7 +294,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         bytes calldata data
     ) external override returns (bytes4) {
         // if a wamo has been received
-        if (operator == address(wamos)) {
+        if (operator == address(this)) {
             // match wamo with game and player (from)
             if (wamoIdToStakingStatus[tokenId].stakeRequested) {
                 // get game id from staking request struct
@@ -475,6 +473,11 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         wamosStaked = gameIdToPlayerToStakedCount[gameId][player];
         return wamosStaked;
     } 
+
+    function getWamoStakingStatus(uint256 wamoId) public view returns (StakingStatus memory) {
+        return wamoIdToStakingStatus[wamoId];
+    }
+    
 
     function isPlayerReady(uint256 gameId, address player) public view returns (bool) {
         return gameIdToPlayerIsReady[gameId][player];

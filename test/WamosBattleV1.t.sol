@@ -182,7 +182,7 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.connectWamo(id, 25);
     }
 
-    function testWamosCanConnect() public {
+    function testWamosBattleOwnsStakedWamo() public {
         // create game
         vm.prank(player1);
         uint256 gameId = wamosBattle.createGame(player2);
@@ -248,6 +248,30 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.connectWamo(gameId, 1);
         vm.expectRevert();
         wamosBattle.connectWamo(gameId, 1);
+    }
+
+    function testDataStructsAfterWamosConnect() public {
+        vm.startPrank(player1);
+        uint256 gameId = wamosBattle.createGame(player2);
+        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, 3);
+        wamosBattle.playerReady(gameId);
+        vm.stopPrank();
+        vm.startPrank(player2);
+        wamosBattle.connectWamo(gameId, 2);
+        wamosBattle.connectWamo(gameId, 4);
+        wamosBattle.playerReady(gameId);
+        assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
+        // data structs
+        // stake count
+        assertTrue(wamosBattle.getPlayerStakedCount(gameId, player1) == 2);
+        assertTrue(wamosBattle.getPlayerStakedCount(gameId, player2) == 2);
+        // stake status
+        StakingStatus memory stakingStatus = wamosBattle.getWamoStakingStatus(1);
+        assertTrue(wamos.ownerOf(1) == address(wamosBattle));
+        assertTrue(stakingStatus.stakeRequested);
+        assertTrue(stakingStatus.gameId == gameId);
+        assertTrue(stakingStatus.isStaked);
     }
 
     /** TEST PLAYER READY */
