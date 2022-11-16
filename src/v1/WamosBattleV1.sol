@@ -328,7 +328,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 moveChoice,
         uint256 abilityChoice,
         int16 targetGridIndex,
-        bool moveBeforeAbility
+        bool moveBeforeAbility,
+        bool useAbility
     ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {
         require(targetGridIndex < 256, "Target square must be on the grid!");
         if (abilityChoice >= wamos.ABILITY_SLOTS()) {
@@ -352,14 +353,14 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         ) {
             revert NotPlayersTurn(gameId, msg.sender);
         }
-
         _commitTurn(
             gameId,
             wamoId,
             moveChoice,
             abilityChoice,
             targetGridIndex,
-            moveBeforeAbility
+            moveBeforeAbility,
+            useAbility
         );
     }
 
@@ -373,7 +374,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 moveChoice,
         uint256 abilityChoice,
         int16 targetGridIndex,
-        bool moveBeforeAbility
+        bool moveBeforeAbility,
+        bool useAbility
     ) internal {
         // get traits for attack and stamina/mana stats
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
@@ -383,27 +385,30 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
-    
 
         // move first? adjust position
         if (moveBeforeAbility) {
-            _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
+            actorPosition = _setWamoPosition(
+                gameId,
+                wamoId,
+                moveChoice,
+                actorPosition
+            );
         }
-        
-        // ensure target is within range
-        // todo
-        int16 targetDistance = (actorPosition - targetGridIndex) % GRID_SIZE;
 
-        uint256 dmg = _calculateDamage(
-            gameId,
-            wamoId,
-            targetWamoId,
-            abilityChoice
-        );
+        if (useAbility) {
+            // todo ensure target is within range
+            int16 targetDistance = (actorPosition - targetGridIndex) %
+                GRID_SIZE;
 
-        ////
-        // subtract damage from targets health
-        /////
+            uint256 dmg = _calculateDamage(
+                gameId,
+                wamoId,
+                targetWamoId,
+                abilityChoice
+            );
+            // todo subtract damage from targets health
+        }
 
         if (!moveBeforeAbility) {
             _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
@@ -416,19 +421,17 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 moveChoice,
         int16 actorPosition
     ) internal returns (int16 newPosition) {
-        // old
-        // gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
-
         // new
         int16 indexMutation = wamos.getWamoTraits(wamoId).movements[moveChoice];
         // erase prev pos
         gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
         // calculate new position
-        actorPosition = actorPosition + indexMutation;
+        newPosition = actorPosition + indexMutation;
         // map new index position to wamo id
         gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;
         // store new position in wamo status
-        gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = actorPosition;
+        gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newPosition;
+        return newPosition;
     }
 
     function _calculateDamage(

@@ -345,7 +345,7 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         vm.stopPrank();
         // ^gas 989k
         vm.prank(player1);
-        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true);
+        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true, true);
         // gas^ 1121k
         // turn gas = ~130k
     }
