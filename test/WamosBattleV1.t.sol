@@ -182,44 +182,6 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.connectWamo(id, 25);
     }
 
-    function testBattleReceivesWamo() public {
-        uint256 wamoToStake = 1;
-        vm.startPrank(player1);
-        uint256 gameId = wamosBattle.createGame(player2);
-        // check player1 has approved transfer
-        assertTrue(wamos.isApprovedForAll(player1, address(wamosBattle)));
-        // check player 1 owns wamo #1
-        assertTrue(wamos.ownerOf(wamoToStake) == player1);
-        // assert staking request for #1 does not exist
-        (bool requestExists0,,,) = wamosBattle.wamoIdToStakingStatus(wamoToStake);
-        assertFalse(requestExists0);
-        // connect wamo
-        wamosBattle.connectWamo(gameId, wamoToStake);
-        // assert request now exists
-        (bool requestExists1, bool requested, uint256 stakedGameId, bool isStaked) = wamosBattle.wamoIdToStakingStatus(wamoToStake);
-        assertTrue(requestExists1);
-        // check wamosBattle now owns wamo
-        assertTrue(wamos.ownerOf(wamoToStake) == address(wamosBattle));
-        // check request status data has been updated
-        assertTrue(requested);
-        assertTrue(gameId == stakedGameId);
-        ////
-        console.log("wamos: %s", address(wamos));
-        console.log("wamos battle: %s", address(wamosBattle));
-        console.log("wamos battle internal contract: %s", wamosBattle.thisContract());
-        console.log("tfer operator: %s", wamosBattle.tferOperator());
-        console.log("player 1: %s", player1);
-        console.log("tfer from: %s", wamosBattle.tferFrom()); 
-        
-        assertTrue(wamosBattle.tferOperator() == address(wamosBattle));
-        assertTrue(wamosBattle.tferOperator() == wamosBattle.thisContract());
-
-        console.log(wamosBattle.firstIfHit());
-        console.log(wamosBattle.secondIfHit());
-        // check is staked
-        assertTrue(isStaked);
-    }
-
     function testWamosCanConnect() public {
         // create game
         vm.prank(player1);
@@ -234,6 +196,11 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.connectWamo(gameId, 2);
         vm.prank(player2);
         wamosBattle.connectWamo(gameId, 4);
+        // get players parties
+        // uint256[wamosBattle.PARTY_SIZE] memory party1 = wamosBattle
+        //     .getPlayerParty(gameId, player1);
+        // uint256[wamosBattle.PARTY_SIZE] memory party2 = wamosBattle
+        //     .getPlayerParty(gameId, player2);
 
         // check wamos battle owns tokens
         assertTrue(wamos.ownerOf(1) == address(wamosBattle));
