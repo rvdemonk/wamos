@@ -121,10 +121,10 @@ contract WamosBattleV0 is IERC721Receiver {
     /**
      * @dev kept minimal for modularity and gas minimization in game creation
      */
-    function initialiseGame(address challenger, address invitee)
-        external
-        returns (uint256 gameId)
-    {
+    function initialiseGame(
+        address challenger,
+        address invitee
+    ) external returns (uint256 gameId) {
         uint256 id = games.length;
         GameData storage newgame = games.push();
         newgame.id = id;
@@ -147,11 +147,10 @@ contract WamosBattleV0 is IERC721Receiver {
      * to avoid reentrancy, or receiving wamo in this functon call but gas running out
      * before data is added, or noxious outcome if transfer fails for unforseen reason.
      */
-    function connectWamo(uint256 gameId, uint256 wamoId)
-        external
-        onlyPlayer(gameId)
-        returns (bool isSuccesful)
-    {
+    function connectWamo(
+        uint256 gameId,
+        uint256 wamoId
+    ) external onlyPlayer(gameId) returns (bool isSuccesful) {
         // require player owns wamo and wamo exists
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert SenderDoesntOwnWamo(gameId, msg.sender, wamoId);
@@ -221,11 +220,9 @@ contract WamosBattleV0 is IERC721Receiver {
     ///////////////////    VIEW FUNCTIONS    ///////////////////
     ////////////////////////////////////////////////////////////
 
-    function getPlayers(uint256 gameId)
-        public
-        view
-        returns (address[2] memory players)
-    {}
+    function getPlayers(
+        uint256 gameId
+    ) public view returns (address[2] memory players) {}
 
     function getGameStatus(uint256 gameId) public view returns (GameStatus) {
         return games[gameId].status;

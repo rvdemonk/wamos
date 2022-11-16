@@ -141,20 +141,17 @@ contract GridGame3 {
         return (newPos[0], newPos[1]);
     }
 
-    function getPlayers(uint256 gameId)
-        public
-        view
-        returns (address[2] memory)
-    {
+    function getPlayers(
+        uint256 gameId
+    ) public view returns (address[2] memory) {
         return games[gameId].players;
     }
 
     // TODO change so that returns positions of both players?
-    function getPlayerPosition(uint256 gameId, address player)
-        public
-        view
-        returns (int8[2] memory)
-    {
+    function getPlayerPosition(
+        uint256 gameId,
+        address player
+    ) public view returns (int8[2] memory) {
         return games[gameId].positions[player];
     }
 

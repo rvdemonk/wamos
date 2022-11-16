@@ -157,11 +157,9 @@ contract WamosV0 is ERC721, VRFConsumerBaseV2 {
         return requestId;
     }
 
-    function getVRFRequestStatus(uint256 _requestId)
-        public
-        view
-        returns (bool fulfilled, uint256 randomWord)
-    {
+    function getVRFRequestStatus(
+        uint256 _requestId
+    ) public view returns (bool fulfilled, uint256 randomWord) {
         if (!vrfRequests[_requestId].exists) {
             revert VRFRequestNotFound(_requestId);
         }

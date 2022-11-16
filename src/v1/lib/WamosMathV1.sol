@@ -8,16 +8,13 @@ pragma solidity <0.9.0;
  */
 
 library WamosMathV1 {
-    function splitFirstFiveIntegers(uint256 x, uint256 base)
+    function splitFirstFiveIntegers(
+        uint256 x,
+        uint256 base
+    )
         public
         pure
-        returns (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        )
+        returns (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e)
     {
         a = x % base;
         b = (x / 10) % base;
@@ -28,41 +25,37 @@ library WamosMathV1 {
     }
 
     /** Modifies storage array in place */
-    function splitAllIntegers(uint256 x, uint256 base, uint256[] storage array)
-        public
-    {
+    function splitAllIntegers(
+        uint256 x,
+        uint256 base,
+        uint256[] storage array
+    ) public {
         while (x > base) {
             array.push(x % base);
             x = x / base;
         }
     }
 
-    function splitSecondFiveIntegers(uint256 x, uint256 base)
+    function splitSecondFiveIntegers(
+        uint256 x,
+        uint256 base
+    )
         public
         pure
-        returns (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        )
-        {
+        returns (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e)
+    {
         a = (x / 100000) % base;
         b = (x / 1000000) % base;
         c = (x / 10000000) % base;
         d = (x / 100000000) % base;
         e = (x / 1000000000) % base;
         return (a, b, c, d, e);
-        }
+    }
 
-    function splitFirstFiveIntegersArray(uint256 x, uint256 base)
-        public
-        pure
-        returns (
-            uint256[5] memory values
-        )
-    {
+    function splitFirstFiveIntegersArray(
+        uint256 x,
+        uint256 base
+    ) public pure returns (uint256[5] memory values) {
         uint256 a = x % base;
         uint256 b = (x / 10) % base;
         uint256 c = (x / 100) % base;

@@ -109,7 +109,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     // invite system
     mapping(address => uint256[]) public addrToChallengesSent;
     mapping(address => uint256[]) public addrToChallengesReceived;
-    
+
     // player name
     mapping(address => string) public addrToPlayerTag;
 
@@ -117,8 +117,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     //// META GAME
     // is player y ready in game x
     mapping(uint256 => mapping(address => bool)) public gameIdToPlayerIsReady;
-    
-    ///// GAME 
+
+    ///// GAME
     // game data
     mapping(uint256 => GameData) public gameIdToGameData;
     // ids of wamos in player y party for game id x
@@ -197,10 +197,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     // TODO allow for connection of multiple wamos at once to save gas
-    function connectWamo(uint256 gameId, uint256 wamoId)
-        external
-        onlyPlayer(gameId)
-    {
+    function connectWamo(
+        uint256 gameId,
+        uint256 wamoId
+    ) external onlyPlayer(gameId) {
         // TODO custom errors
         // check wamo is not already staked
         require(
@@ -332,41 +332,43 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         int16 targetGridIndex,
         bool moveBeforeAbility
     ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {
-        // player must be in game
-        // game must be onfoot <-safety switch: should ensure wamos staked, players readied
-        //-----//
         require(targetGridIndex < 256, "Target square must be on the grid!");
-        // indices of move and ability must be within valid range
         if (abilityChoice >= wamos.ABILITY_SLOTS()) {
             revert InvalidAbilityIndex(gameId, msg.sender);
         }
         if (moveChoice >= wamos.MOVE_CHOICE()) {
             revert InvalidMoveIndex(gameId, msg.sender);
         }
-        // wamo must be in party
         if (!wamoIdToStakingStatus[wamoId].isStaked) {
             revert WamoNotInGame(gameId, wamoId);
         }
-        // wamo must be alive -> simple return, end function immediately?
         if (gameIdToWamoIdToStatus[gameId][wamoId].health == 0) {
             revert WamoHasNoHealth(gameId, wamoId);
         }
-        // it is players turn (challenger moves first)
         uint256 turnCount = gameIdToGameData[gameId].turnCount;
-        if ((msg.sender == gameIdToGameData[gameId].challenger 
-                && turnCount % 2 == 1 )
-                || (msg.sender == gameIdToGameData[gameId].challengee 
-                && turnCount % 2 == 0 )) {
-                revert NotPlayersTurn(gameId, msg.sender);
-            }
-        _commitTurn(gameId, wamoId, moveChoice, abilityChoice, targetGridIndex, moveBeforeAbility);
-    }
+        if (
+            (msg.sender == gameIdToGameData[gameId].challenger &&
+                turnCount % 2 == 1) ||
+            (msg.sender == gameIdToGameData[gameId].challengee &&
+                turnCount % 2 == 0)
+        ) {
+            revert NotPlayersTurn(gameId, msg.sender);
+        }
 
+        _commitTurn(
+            gameId,
+            wamoId,
+            moveChoice,
+            abilityChoice,
+            targetGridIndex,
+            moveBeforeAbility
+        );
+    }
 
     /////////////////////////////////////////////////////////////////
     //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
     /////////////////////////////////////////////////////////////////
-    
+
     function _commitTurn(
         uint256 gameId,
         uint256 wamoId,
@@ -374,29 +376,35 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 abilityChoice,
         int16 targetGridIndex,
         bool moveBeforeAbility
-    ) 
-        internal
-     {
-        int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
-        uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][targetGridIndex];
+    ) internal {
+        int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId]
+            .positionIndex;
+        uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
+            targetGridIndex
+        ];
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
 
         // move first? adjust position
         if (moveBeforeAbility) {
             _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
         }
-        // ensure target is within range 
+        // ensure target is within range
         // todo
         int16 targetDistance = (actorPosition - targetGridIndex) % GRID_SIZE;
 
-        uint256 dmg = _calculateDamage(gameId, wamoId, targetWamoId, abilityChoice); 
+        uint256 dmg = _calculateDamage(
+            gameId,
+            wamoId,
+            targetWamoId,
+            abilityChoice
+        );
 
         ////
         // subtract damage from targets health
         /////
 
         if (!moveBeforeAbility) {
-            _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);      
+            _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
         }
     }
 
@@ -405,13 +413,16 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 wamoId,
         uint256 moveChoice,
         int16 actorPosition
-        // ,int16 indexMutation
-    ) internal 
-       returns (int16 newPosition) 
+    )
+        internal
+        returns (
+            // ,int16 indexMutation
+            int16 newPosition
+        )
     {
         // old
         // gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
-        
+
         // new
         int16 indexMutation = wamos.getWamoTraits(wamoId).movements[moveChoice];
         // erase prev pos
@@ -424,15 +435,21 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = actorPosition;
     }
 
-    function _calculateDamage(uint256 gameId, uint256 actingWamoId, uint256 targetWamoId, uint256 abilityChoice) 
-        internal 
-        returns (uint256 damage) 
-    {
-        Ability memory ability = wamos.getWamoAbility(actingWamoId, abilityChoice);
+    function _calculateDamage(
+        uint256 gameId,
+        uint256 actingWamoId,
+        uint256 targetWamoId,
+        uint256 abilityChoice
+    ) internal returns (uint256 damage) {
+        Ability memory ability = wamos.getWamoAbility(
+            actingWamoId,
+            abilityChoice
+        );
         WamoTraits memory targetTraits = wamos.getWamoTraits(targetWamoId);
         WamoTraits memory actorTraits = wamos.getWamoTraits(actingWamoId);
         // get occupant of target square
-        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId].health;
+        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId]
+            .health;
 
         // block time for randomness
         // calculate damage
@@ -440,16 +457,19 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // calibrate for luck
         // net damage
 
-        uint256 attack = ability.power * (
-            actorTraits.meeleeAttack * ability.meeleeDamage
-            + actorTraits.magicAttack * ability.magicDamage
-            + actorTraits.rangeAttack * ability.rangeDamage
-        );
-        uint256 defence = (
-              targetTraits.meeleeAttack * ability.meeleeDamage
-            + targetTraits.magicAttack * ability.magicDamage
-            + targetTraits.rangeAttack * ability.rangeDamage
-        );
+        uint256 attack = ability.power *
+            (actorTraits.meeleeAttack *
+                ability.meeleeDamage +
+                actorTraits.magicAttack *
+                ability.magicDamage +
+                actorTraits.rangeAttack *
+                ability.rangeDamage);
+        uint256 defence = (targetTraits.meeleeAttack *
+            ability.meeleeDamage +
+            targetTraits.magicAttack *
+            ability.magicDamage +
+            targetTraits.rangeAttack *
+            ability.rangeDamage);
 
         uint256 pseudoRand = block.timestamp % 100;
         // TODO CHANGE TO REAL DAMAGE CALC
@@ -469,17 +489,24 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     ////////////////////     VIEW FUNCTIONS      ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function getPlayerStakedCount(uint256 gameId, address player) public view returns (uint256 wamosStaked) {
+    function getPlayerStakedCount(
+        uint256 gameId,
+        address player
+    ) public view returns (uint256 wamosStaked) {
         wamosStaked = gameIdToPlayerToStakedCount[gameId][player];
         return wamosStaked;
-    } 
+    }
 
-    function getWamoStakingStatus(uint256 wamoId) public view returns (StakingStatus memory) {
+    function getWamoStakingStatus(
+        uint256 wamoId
+    ) public view returns (StakingStatus memory) {
         return wamoIdToStakingStatus[wamoId];
     }
-    
 
-    function isPlayerReady(uint256 gameId, address player) public view returns (bool) {
+    function isPlayerReady(
+        uint256 gameId,
+        address player
+    ) public view returns (bool) {
         return gameIdToPlayerIsReady[gameId][player];
     }
 
@@ -494,46 +521,53 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return gameIdToGameData[gameId].status;
     }
 
-    function getPlayerParty(uint256 gameId, address player)
-        public
-        view
-        returns (uint256[PARTY_SIZE] memory wamoIds)
-    {
+    function getPlayerParty(
+        uint256 gameId,
+        address player
+    ) public view returns (uint256[PARTY_SIZE] memory wamoIds) {
         wamoIds = gameIdToPlayerToWamoPartyIds[gameId][player];
         return wamoIds;
     }
 
     // @notice TODO reconsider returning an array here? tooo gassy? how else though?
-    function getChallengesReceivedBy(address player)
-        public
-        view
-        returns (uint256[] memory)
-    {
+    function getChallengesReceivedBy(
+        address player
+    ) public view returns (uint256[] memory) {
         return addrToChallengesReceived[player];
     }
 
-    function getChallengesSentBy(address player) public view returns (uint256[] memory)
-    {
+    function getChallengesSentBy(
+        address player
+    ) public view returns (uint256[] memory) {
         return addrToChallengesSent[player];
     }
 
     // TODO new mapping? wamoId => positionIndex.
     // no need for nested mapping as wamo could only be in one game at a time?
-    function getWamoPosition(uint256 gameId, uint256 wamoId) public view returns (int16 positionIndex) {
+    function getWamoPosition(
+        uint256 gameId,
+        uint256 wamoId
+    ) public view returns (int16 positionIndex) {
         positionIndex = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
         return positionIndex;
     }
 
-    /** 
+    /**
      * @notice Returns the wamoID of the wamo occupying the specified grid tile index
      * @notice If the tile is unnocupied, a 0 is returned.
      */
-    function getGridTileOccupant(uint256 gameId, int16 gridIndex) public view returns (uint256 wamoId) {
+    function getGridTileOccupant(
+        uint256 gameId,
+        int16 gridIndex
+    ) public view returns (uint256 wamoId) {
         wamoId = gameIdToGridIndexToWamoId[gameId][gridIndex];
         return wamoId;
     }
 
-    function getWamoStatus(uint256 gameId, uint256 wamoId) public view returns (WamoStatus memory status) {
+    function getWamoStatus(
+        uint256 gameId,
+        uint256 wamoId
+    ) public view returns (WamoStatus memory status) {
         return gameIdToWamoIdToStatus[gameId][wamoId];
     }
 
