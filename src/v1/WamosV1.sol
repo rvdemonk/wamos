@@ -432,8 +432,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return wamoIdToTraits[tokenId].movements;
     }
 
-    function getWamoName(uint256 tokenId) public view returns (string) {
-        return wamoIdToWamoName;
+    function getWamoName(uint256 wamoId) public view returns (string memory) {
+        return wamoIdToWamoName[wamoId];
     }
 
     /////////////////////////////////////////////////////////////////
