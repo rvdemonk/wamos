@@ -332,26 +332,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    // function onERC721Received(
-    //     address operator,
-    //     address from,
-    //     uint256 tokenId,
-    //     bytes calldata data
-    // ) external override returns (bytes4) {
-    //     /** FOR TESTING */
-    //     thisContract = address(this);
-    //     tferOperator = operator;
-    //     tferFrom = from;
-    //     /*********************/
-    //     // Ensure erc721 received is  
-    //     if (operator == address(this)) {
-    //         uint256 gameId = wamoIdToStakingStatus[tokenId].gameId;
-    //         uint256 stakedCount = gameIdToPlayerToStakedCount[gameId][from];
-
-    //         }
-    //     }
-    //     return IERC721Receiver.onERC721Received.selector;
-    // }
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    GAMEPLAY FUNCTIONS   ////////////////////
@@ -494,6 +474,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         returns (uint256[] memory)
     {
         return addrToChallengesReceived[player];
+    }
+
+    function getChallengesSentBy(address player) public view returns (uint256[] memory) {
+        return addrToChallengesSent[player];
     }
 
     // TODO new mapping? wamoId => positionIndex.
