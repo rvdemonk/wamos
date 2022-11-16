@@ -1,5 +1,5 @@
 // // SPDX-License-Identifier: UNLICENSED
-// pragma solidity <0.9.0;
+pragma solidity <0.9.0;
 
 // import "forge-std/Test.sol";
 // import "../src/WamosV0.sol";

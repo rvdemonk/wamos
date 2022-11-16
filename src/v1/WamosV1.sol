@@ -38,7 +38,7 @@ struct Ability {
     uint256 meeleeDamage; // 0 or 1
     uint256 magicDamage; // 0 or 1
     uint256 rangeDamage; // 0 or 1
-    // insert (de)buff effects
+    // -> insert (de)buff effects
     uint256 power;
     uint256 accuracy;
     uint256 range;
@@ -92,6 +92,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     // WAMO CONSTANTS
     uint256 public constant ABILITY_SLOTS = 4;
     uint256 public constant MOVE_CHOICE = 8;
+    int16 public constant MAX_INDEX_MUATION = 48;
 
     // GAME CONSTANTS
     // mapping()
@@ -122,6 +123,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     // WAMO DATA
     mapping(uint256 => WamoTraits) wamoIdToTraits;
     mapping(uint256 => Ability[]) wamoIdToAbilities;
+    mapping(uint256 => string) wamoIdToWamoName;
 
     // WAMOS BATTLE ADDRESS
     address public wamosBattleAddr;
@@ -160,6 +162,11 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
 
     modifier onlyOwner() {
         require(msg.sender == contractOwner, "Only owner can call.");
+        _;
+    }
+
+    modifier onlyWamoOwner(uint256 wamoId) {
+        require(msg.sender == ownerOf(wamoId));
         _;
     }
 
@@ -241,7 +248,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     function _generateWamoTraits(uint256 tokenId, uint256 randomWord) internal {
         WamoTraits memory traits;
         // hardcoded king movement for testing
-        traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
+        // traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
         {
             (
                 uint256 a,
@@ -270,6 +277,18 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             traits.rangeAttack = i;
             traits.rangeDefence = j;
         }
+        {
+            (
+                uint256 k,
+                uint256 l,
+                uint256 m,
+                uint256 n,
+                uint256 o
+            ) = shaveOffRandomIntegers(randomWord, 2, 2);
+            int16 move1 = int8(int256(k)) % MAX_INDEX_MUATION;
+            int16 move2 = int8(int256(l)) % MAX_INDEX_MUATION;
+            traits.movements = [int16(-1), 1, 16, -16, move1, -move1, move2, -move2];
+        }
         traits.fecundity = randomWord % 11;
         traits.gearSlots = randomWord % 4;
         // store traits
@@ -294,7 +313,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // range
         // cost
         for (uint i = 0; i < ABILITY_SLOTS; i++) {
-            // word segment starts at 2 - first 2 used in trait gen
+            // word segment starts at 3 - first 3 used in trait gen
             Ability memory ability;
             uint256 wordSegmentNum = i + 2;
             (
@@ -303,7 +322,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 uint256 c,
                 uint256 d,
                 uint256 e
-            ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
+            ) = shaveOffRandomIntegers(randomWord, 3, wordSegmentNum);
 
             // determine move type
             if (a < 34) {
@@ -319,9 +338,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             ability.power = b;
             ability.accuracy = c;
             ability.cost = e % 33;
-            // store ability
+         
             wamoIdToAbilities[tokenId].push(ability);
-            // wamoIdToAbilities[tokenId][i] = ability;
         }
     }
 
@@ -414,7 +432,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return wamoIdToTraits[tokenId].movements;
     }
 
-    // function hasPlayer
+    function getWamoName(uint256 tokenId) public view returns (string) {
+        return wamoIdToWamoName;
+    }
 
     /////////////////////////////////////////////////////////////////
     /////////////////     META MINT FUNCTIONS      //////////////////
@@ -464,8 +484,20 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     /////////////////////////////////////////////////////////////////
+    /////////////////       SETTER FUNCTIONS       //////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function setWamoName(uint256 wamoId, string memory name) public onlyWamoOwner(wamoId) {
+        wamoIdToWamoName[wamoId] = name;
+    }
+
+    /////////////////////////////////////////////////////////////////
     /////////////////      LIBRARY FUNCTIONS       //////////////////
     /////////////////////////////////////////////////////////////////
+
+    function abs(int8 number) public pure returns (int8) {
+        return number >= 0 ? number : -number;
+    }
 
     /**
      * @notice internal library function to shave off random digits in sets of five from a 256bit randomWord

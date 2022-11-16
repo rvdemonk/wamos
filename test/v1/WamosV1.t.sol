@@ -251,6 +251,22 @@ contract WamosV1Test is Test {
         console.log("cost ", a.cost);
     }
 
+    function testWamosMovementGen() public {
+        vm.startPrank(player1);
+        uint256 requestId = wamos.requestSpawnWamo{value: MINT_PRICE}();
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        uint256 tokenId = wamos.getTokenIdFromRequestId(requestId);
+        wamos.completeSpawnWamo(tokenId);
+        assertTrue(wamos.ownerOf(0) == player1);
+        //
+        int16[8] memory movements = wamos.getWamoMovements(tokenId);
+        console.log("movments");  
+        console.logInt(movements[4]);  
+        console.logInt(movements[5]);  
+        console.logInt(movements[6]);  
+        console.logInt(movements[7]);  
+    }
+
     /** LIBRARY FUNCTION TESTS */
 
     function testShaveOff() public {

@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 
-const WAMOS_ADDR = "0x75ac1966babce83899123A671E850BFa93beb2C1";
+const WAMOS_ADDR = "0x5e723f9280c72BfC687142A389F88E0201Ed4dDE";
 
 async function displayTraits(wamosContract, wamoId) {
   let traits = await wamosContract.getWamoTraits(wamoId);
