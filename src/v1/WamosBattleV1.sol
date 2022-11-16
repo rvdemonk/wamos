@@ -217,7 +217,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             revert PlayerDoesNotOwnThisWamo(wamoId, msg.sender);
         }
         // prompt wamo transfer
-        wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
         // increment staked count
         gameIdToPlayerToStakedCount[gameId][msg.sender]++;
         // register staking request
@@ -233,6 +232,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 isStaked: false
             });
         }
+        wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
     }
 
     function playerReady(uint256 gameId) external onlyPlayer(gameId) {
