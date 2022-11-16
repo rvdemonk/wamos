@@ -359,7 +359,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 wamoId,
         uint256 moveChoice,
         uint256 abilityChoice,
-        uint256 targetGridIndex,
+        int16 targetGridIndex,
         bool moveBeforeAbility
     ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {
         // player must be in game
@@ -381,8 +381,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (gameIdToWamoIdToStatus[gameId][wamoId].health == 0) {
             revert WamoHasNoHealth(gameId, wamoId);
         }
-        // target is within range 
-        // todo
         // it is players turn (challenger moves first)
         uint256 turnCount = gameIdToGameData[gameId].turnCount;
         if ((msg.sender == gameIdToGameData[gameId].challenger 
@@ -391,11 +389,41 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 && turnCount % 2 == 0 )) {
                 revert NotPlayersTurn(gameId, msg.sender);
             }
-        // turn logic //
-        ///////
-        //////
-        //////
-        /////
+        ////////////////// turn logic ///////////////////
+        int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
+        WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
+        // move first? adjust position
+        if (moveBeforeAbility) {
+            // erase prev pos
+            gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
+            // calculate new position
+            actorPosition = actorPosition + actorTraits.movements[moveChoice];
+            // map new index position to wamo id
+            gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;
+            // store new position in wamo status
+            gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = actorPosition;
+        } 
+        // ensure target is within range 
+        // todo
+        
+        // get occupant of target square
+        uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][targetGridIndex];
+        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId].health;
+
+        // block time for randomness
+        // calculate damage
+            // calibrate for accuracy
+            // calibrate for luck
+            // net damage
+        uint256 pseudoRand = block.timestamp;
+
+        // subtract damage
+
+        if (!moveBeforeAbility) {
+            gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
+            actorPosition = actorPosition + actorTraits.movements[moveChoice];
+            gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;           
+        }
     }
 
 
