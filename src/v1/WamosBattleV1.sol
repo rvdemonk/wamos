@@ -292,7 +292,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 tokenId,
         bytes calldata data
     ) external override returns (bytes4) {
-        // if a wamo has been received
         if (operator == address(this)) {
             // match wamo with game and player (from)
             if (wamoIdToStakingStatus[tokenId].stakeRequested) {
