@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 
-const WAMOS_ADDR = "0x30991bF7E4C267F3De878559077723321E6A3E1b";
+const WAMOS_ADDR = "0xEBbdA88ddb9f6CCAB03a2841Ff2Ea1F4b14A0E00";
 
 async function displayTraits(wamosContract, wamoId) {
   let traits = await wamosContract.getWamoTraits(wamoId);
@@ -28,10 +28,12 @@ async function main() {
   // PHASE 1: REQUEST MINT
   console.log(`\n ** BEGINNING MINT\n`);
 
+  console.log("request count before req:", await wamos.getRequestCount())
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });
   console.log(`Requested wamo spawn with tx ${requesttx.hash}`);
 
   const requestCount = await wamos.getRequestCount();
+  console.log("request count after req", requestCount);
   const requestId = await wamos.requestIds(requestCount - 1);
   console.log(`\nRequest Id: ${requestId}`);
 
@@ -50,8 +52,8 @@ async function main() {
   let isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
   while (!isRequestFulfilled) {
     currentBlock = await hre.network.block;
-    console.log(`[block ${currentBlock}] randomness not fulfillled...`);
     setTimeout(async () => {
+      console.log(`[block ${currentBlock}] randomness not fulfillled...`);
       isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
     }, 5000);
 
