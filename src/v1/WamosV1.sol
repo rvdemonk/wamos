@@ -178,10 +178,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      */
     function requestSpawnWamo() public payable returns (uint256 requestId) {
         require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
-        requestCount++;
-        // assign token id for new wamo
-        uint256 tokenId = tokenCount; // wamo #1 is first wamo
-        tokenCount++;
         // request randomness (from the gods)
         requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
@@ -190,8 +186,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             vrfCallbackGasLimit,
             vrfNumWords
         );
+        // assign token id for new wamo
+        uint256 tokenId = tokenCount; // wamo #1 is first wamo
+        tokenCount++;
         tokenIdToSpawnRequestId[tokenId] = requestId;
-
         // store request, including token id of requested wamo
         requestIdToSpawnRequest[requestId] = SpawnRequest({
             exists: true,
@@ -201,6 +199,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             sender: msg.sender,
             tokenId: tokenId
         });
+        requestCount++;
         // map req id to token id
         requestIdToTokenId[requestId] = tokenId;
         // store req id

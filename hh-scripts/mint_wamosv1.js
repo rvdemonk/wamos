@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 
-const WAMOS_ADDR = "0x5e723f9280c72BfC687142A389F88E0201Ed4dDE";
+const WAMOS_ADDR = "0x30991bF7E4C267F3De878559077723321E6A3E1b";
 
 async function displayTraits(wamosContract, wamoId) {
   let traits = await wamosContract.getWamoTraits(wamoId);
@@ -31,7 +31,8 @@ async function main() {
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });
   console.log(`Requested wamo spawn with tx ${requesttx.hash}`);
 
-  const requestId = await wamos.requestIds(tokenCountStart - 1);
+  const requestCount = await wamos.getRequestCount();
+  const requestId = await wamos.requestIds(requestCount - 1);
   console.log(`\nRequest Id: ${requestId}`);
 
   const tokenId = await wamos.getTokenIdFromRequestId(requestId);
