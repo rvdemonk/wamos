@@ -2,7 +2,7 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../../src/GridGame3.sol";
+import "../../src/v0/GridGame3.sol";
 
 contract GridGame3Test is Test {
     address achilles = 0x417622F534d5F30321CF78cB7355773f8BAC7621; //p1
