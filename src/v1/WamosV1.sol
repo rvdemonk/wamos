@@ -38,8 +38,7 @@ struct Ability {
     uint256 meeleeDamage; // 0 or 1
     uint256 magicDamage; // 0 or 1
     uint256 rangeDamage; // 0 or 1
-    // (de)buff effects
-
+    // insert (de)buff effects
     uint256 power;
     uint256 accuracy;
     uint256 range;
@@ -290,6 +289,35 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // accuracy
         // range
         // cost
+        for (uint i = 0; i < ABILITY_SLOTS; i++) {
+            // word segment starts at 2 - first 2 used in trait gen
+            Ability memory ability;
+            {
+                uint256 wordSegmentNum = i+2;
+                (
+                    uint256 a,
+                    uint256 b,
+                    uint256 c,
+                    uint256 d,
+                    uint256 e
+                ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
+
+                // determine move type
+                if (a < 34) {
+                    ability.meeleeDamage = 1;
+                } else if (a < 67) {
+                    ability.magicDamage = 1;
+                } else {
+                    ability.rangeDamage = 1;
+                }
+                ability.power = b;
+                ability.accuracy = c;
+                ability.range = d;
+                ability.cost = e % 33;
+            }
+            // store ability
+            wamoIdToAbilities[tokenId][i] = ability;
+        }
     }
 
     /**
