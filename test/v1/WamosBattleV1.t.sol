@@ -2,9 +2,9 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/test/VRFCoordinatorV2Mock.sol";
-import "../src/v1/WamosV1.sol";
-import "../src/v1/WamosBattleV1.sol";
+import "../../src/test/VRFCoordinatorV2Mock.sol";
+import "../../src/v1/WamosV1.sol";
+import "../../src/v1/WamosBattleV1.sol";
 
 abstract contract WamosTestHelper {
     // COORDINATOR CONFIG
@@ -239,7 +239,7 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         uint256 gameId = wamosBattle.createGame(player2);
         wamosBattle.connectWamo(gameId, 1);
         vm.expectRevert();
-        wamosBattle.connectWamo(gameId, 4); //unowned        
+        wamosBattle.connectWamo(gameId, 4); //unowned
     }
 
     function testCannotStakeSameWamoTwice() public {
@@ -267,7 +267,9 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         assertTrue(wamosBattle.getPlayerStakedCount(gameId, player1) == 2);
         assertTrue(wamosBattle.getPlayerStakedCount(gameId, player2) == 2);
         // stake status
-        StakingStatus memory stakingStatus = wamosBattle.getWamoStakingStatus(1);
+        StakingStatus memory stakingStatus = wamosBattle.getWamoStakingStatus(
+            1
+        );
         assertTrue(wamos.ownerOf(1) == address(wamosBattle));
         assertTrue(stakingStatus.stakeRequested);
         assertTrue(stakingStatus.gameId == gameId);
@@ -324,7 +326,7 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
     /** TEST GAME START */
 
     function testCannotTakeTurnBeforeGameOnfoot() public {}
-    
+
     /** TEST GAMEPLAY */
 
     function testCommitTurn() public {
@@ -343,18 +345,10 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         vm.stopPrank();
         // ^gas 989k
         vm.prank(player1);
-        wamosBattle.commitTurn(
-            gameId,
-            wamo1,
-            4,
-            0,
-            17,
-            true
-        );
+        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true);
         // gas^ 1121k
         // turn gas = ~130k
     }
-
 
     /** TEST VIEW FUNCTIONS */
 

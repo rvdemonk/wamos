@@ -2,8 +2,8 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/v0/WamosRandomnessV0.sol";
-import "../src/test/VRFCoordinatorV2Mock.sol";
+import "../../src/v0/WamosRandomnessV0.sol";
+import "../../src/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosRandomnessV0Test is Test {
     // Coordinator init args

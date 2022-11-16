@@ -3,7 +3,7 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/v1/lib/WamosMathV1.sol";
+import "../../src/v1/lib/WamosMathV1.sol";
 
 contract WamosMathV1Test is Test {
     uint256 word =

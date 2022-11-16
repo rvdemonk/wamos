@@ -9,4 +9,5 @@ def calc_tx_cost(gaspriceGwei, maticUsdPrice, gasUsed):
 def main():
     calc_tx_cost(60, 1, 150000)
 
-main()
+if __name__ == "__main__":
+    main()

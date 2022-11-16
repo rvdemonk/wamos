@@ -45,6 +45,9 @@ struct WamoStatus {
     // incomplete
     int16 positionIndex;
     uint256 health;
+    uint256 stamina;
+    uint256 mana;
+    // focus?
 }
 
 /** @notice Stores status, source and outcome of vrf requests */
@@ -197,10 +200,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     // TODO allow for connection of multiple wamos at once to save gas
-    function connectWamo(
-        uint256 gameId,
-        uint256 wamoId
-    ) external onlyPlayer(gameId) {
+    function connectWamo(uint256 gameId, uint256 wamoId)
+        external
+        onlyPlayer(gameId)
+    {
         // TODO custom errors
         // check wamo is not already staked
         require(
@@ -235,25 +238,21 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     function playerReady(uint256 gameId) external onlyPlayer(gameId) {
         // TODO custom errors
-        // require: game must be pregame
         require(
             gameIdToGameData[gameId].status == GameStatus.PREGAME,
             "Must be pregame to start"
         );
-        // require: sufficient wamos must be staked
         require(
             gameIdToPlayerToStakedCount[gameId][msg.sender] == PARTY_SIZE,
             "Player cannot be ready until sufficient wamos staked"
         );
-        // load wamos data
         _loadWamos(gameId, msg.sender);
         gameIdToPlayerIsReady[gameId][msg.sender] = true;
-        // if both players ready: game started?
-        // @dev TODO does this make gas ridik????
+
         // todo simply see if other player is ready -- this player is clearly ready
         address challenger = gameIdToGameData[gameId].challenger;
         address challengee = gameIdToGameData[gameId].challengee;
-        // if both players are ready set the game status to onfoot
+
         if (
             gameIdToPlayerIsReady[gameId][challenger] &&
             gameIdToPlayerIsReady[gameId][challengee]
@@ -266,23 +265,23 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
             player
         ];
-        // for each wamo in the party load wamo data
         for (uint256 i = 0; i < PARTY_SIZE; i++) {
             // TODO load full wamo stats when all traits are known
             uint256 wamoId = party[i];
+            WamoTraits memory traits = wamos.getWamoTraits(wamoId);
 
-            // starting position
             int16 startPosition;
             if (player == gameIdToGameData[gameId].challenger) {
-                startPosition = 0;
+                startPosition = 0 + int16(uint16(i));
             } else {
-                startPosition = 255;
+                startPosition = 255 - int16(uint16(i));
             }
 
-            WamoTraits memory traits = wamos.getWamoTraits(wamoId);
             gameIdToWamoIdToStatus[gameId][wamoId] = WamoStatus({
                 positionIndex: startPosition,
-                health: traits.health
+                health: traits.health,
+                stamina: traits.stamina,
+                mana: traits.mana
             });
         }
     }
@@ -382,6 +381,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
+
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
 
         // move first? adjust position
@@ -413,13 +413,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 wamoId,
         uint256 moveChoice,
         int16 actorPosition
-    )
-        internal
-        returns (
-            // ,int16 indexMutation
-            int16 newPosition
-        )
-    {
+    ) internal returns (int16 newPosition) {
         // old
         // gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
 
@@ -489,24 +483,28 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     ////////////////////     VIEW FUNCTIONS      ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function getPlayerStakedCount(
-        uint256 gameId,
-        address player
-    ) public view returns (uint256 wamosStaked) {
+    function getPlayerStakedCount(uint256 gameId, address player)
+        public
+        view
+        returns (uint256 wamosStaked)
+    {
         wamosStaked = gameIdToPlayerToStakedCount[gameId][player];
         return wamosStaked;
     }
 
-    function getWamoStakingStatus(
-        uint256 wamoId
-    ) public view returns (StakingStatus memory) {
+    function getWamoStakingStatus(uint256 wamoId)
+        public
+        view
+        returns (StakingStatus memory)
+    {
         return wamoIdToStakingStatus[wamoId];
     }
 
-    function isPlayerReady(
-        uint256 gameId,
-        address player
-    ) public view returns (bool) {
+    function isPlayerReady(uint256 gameId, address player)
+        public
+        view
+        returns (bool)
+    {
         return gameIdToPlayerIsReady[gameId][player];
     }
 
@@ -521,33 +519,39 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         return gameIdToGameData[gameId].status;
     }
 
-    function getPlayerParty(
-        uint256 gameId,
-        address player
-    ) public view returns (uint256[PARTY_SIZE] memory wamoIds) {
+    function getPlayerParty(uint256 gameId, address player)
+        public
+        view
+        returns (uint256[PARTY_SIZE] memory wamoIds)
+    {
         wamoIds = gameIdToPlayerToWamoPartyIds[gameId][player];
         return wamoIds;
     }
 
     // @notice TODO reconsider returning an array here? tooo gassy? how else though?
-    function getChallengesReceivedBy(
-        address player
-    ) public view returns (uint256[] memory) {
+    function getChallengesReceivedBy(address player)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return addrToChallengesReceived[player];
     }
 
-    function getChallengesSentBy(
-        address player
-    ) public view returns (uint256[] memory) {
+    function getChallengesSentBy(address player)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return addrToChallengesSent[player];
     }
 
     // TODO new mapping? wamoId => positionIndex.
     // no need for nested mapping as wamo could only be in one game at a time?
-    function getWamoPosition(
-        uint256 gameId,
-        uint256 wamoId
-    ) public view returns (int16 positionIndex) {
+    function getWamoPosition(uint256 gameId, uint256 wamoId)
+        public
+        view
+        returns (int16 positionIndex)
+    {
         positionIndex = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
         return positionIndex;
     }
@@ -556,18 +560,20 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
      * @notice Returns the wamoID of the wamo occupying the specified grid tile index
      * @notice If the tile is unnocupied, a 0 is returned.
      */
-    function getGridTileOccupant(
-        uint256 gameId,
-        int16 gridIndex
-    ) public view returns (uint256 wamoId) {
+    function getGridTileOccupant(uint256 gameId, int16 gridIndex)
+        public
+        view
+        returns (uint256 wamoId)
+    {
         wamoId = gameIdToGridIndexToWamoId[gameId][gridIndex];
         return wamoId;
     }
 
-    function getWamoStatus(
-        uint256 gameId,
-        uint256 wamoId
-    ) public view returns (WamoStatus memory status) {
+    function getWamoStatus(uint256 gameId, uint256 wamoId)
+        public
+        view
+        returns (WamoStatus memory status)
+    {
         return gameIdToWamoIdToStatus[gameId][wamoId];
     }
 

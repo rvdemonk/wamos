@@ -2,8 +2,8 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../src/v1/WamosV1.sol";
-import "../src/test/VRFCoordinatorV2Mock.sol";
+import "../../src/v1/WamosV1.sol";
+import "../../src/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosV1Test is Test {
     uint96 BASE_FEE = 10000;
