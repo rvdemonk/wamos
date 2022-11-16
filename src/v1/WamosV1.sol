@@ -172,7 +172,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         require(msg.value >= mintPrice, "Insufficient payment to mint Wam0.");
         requestCount++;
         // assign token id for new wamo
-        uint256 tokenId = tokenCount + 1; // wamo #1 is first wamo
+        uint256 tokenId = tokenCount; // wamo #1 is first wamo
+        tokenCount++;
         // request randomness (from the gods)
         requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
@@ -222,7 +223,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         // generate traits and abilities
         uint256 randomWord = requestIdToSpawnRequest[requestId].randomWord;
         _generateWamoTraits(tokenId, randomWord);
-        _generateAbilities(tokenId, randomWord);
+        // _generateAbilities(tokenId, randomWord);
         // toggle spawn request as complete
         requestIdToSpawnRequest[requestId].completed = true;
         // retrieve owner in case it is not msg.sender
