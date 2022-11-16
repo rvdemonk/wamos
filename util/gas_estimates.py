@@ -3,10 +3,10 @@
 def calc_tx_cost(gaspriceGwei, maticUsdPrice, gasUsed):
     gaspriceEth = gaspriceGwei / 10**9
     tx_cost = gaspriceEth * maticUsdPrice * gasUsed
-    print(tx_cost)
+    print(f"gas cost: {tx_cost} USD")
     return tx_cost
 
 def main():
-    calc_tx_cost(60, 0.91, 630000)
+    calc_tx_cost(60, 1, 150000)
 
 main()

@@ -272,6 +272,10 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         assertTrue(stakingStatus.stakeRequested);
         assertTrue(stakingStatus.gameId == gameId);
         assertTrue(stakingStatus.isStaked);
+        // party ids array
+        uint256[2] memory partyP1 = wamosBattle.getPlayerParty(gameId, player1);
+        assertTrue(partyP1[0] == 1);
+        assertTrue(partyP1[1] == 3);
     }
 
     /** TEST PLAYER READY */
@@ -337,17 +341,7 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.playerReady(gameId);
         assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
         vm.stopPrank();
-        // gass 655k///
-        //////
-        uint256[2] memory party1 = wamosBattle
-            .getPlayerParty(gameId, player1);
-        console.log(party1[0]);
-        console.log(party1[1]);
-
-        WamoStatus memory status = wamosBattle.getWamoStatus(gameId, wamo1);
-        ////// TODO wtf
-        console.log("health: %s", status.health);
-        ///////////////////////
+        // ^gas 989k
         vm.prank(player1);
         wamosBattle.commitTurn(
             gameId,
@@ -357,6 +351,8 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
             17,
             true
         );
+        // gas^ 1121k
+        // turn gas = ~130k
     }
 
 
