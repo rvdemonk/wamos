@@ -27,17 +27,16 @@ async function main() {
 
   // PHASE 1: REQUEST MINT
   console.log(`\n ** BEGINNING MINT\n`);
-
-  console.log("request count before req:", await wamos.getRequestCount())
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });
   console.log(`Requested wamo spawn with tx ${requesttx.hash}`);
 
-  const requestCount = await wamos.getRequestCount();
-  console.log("request count after req", requestCount);
-  const requestId = await wamos.requestIds(requestCount - 1);
-  console.log(`\nRequest Id: ${requestId}`);
+  const request = requesttx.wait();
+  const event = request.events.find(
+    (event) => event.event === "SpawnRequested"
+  );
+  const [requestId, tokenId, buyer] = event.args;
 
-  const tokenId = await wamos.getTokenIdFromRequestId(requestId);
+  console.log(`\nRequest Id: ${requestId}`);
   console.log(`-> Spawning Wamo #${tokenId}`);
 
   console.log(`\nGetting request status...`);
