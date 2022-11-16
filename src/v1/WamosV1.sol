@@ -392,8 +392,18 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     function getWamoAbilities(uint256 tokenId) 
         public 
         view 
-        returns (Ability[] memory abilities) {
+        returns (Ability[] memory abilities) 
+    {
         return wamoIdToAbilities[tokenId];
+    }
+
+    function getWamoAbility(uint256 tokenId, uint256 index) 
+        public
+        view
+        returns (Ability memory abilities)
+    {
+        require(index < ABILITY_SLOTS, "Ability index out of range (must be in [0,3])");
+        return wamoIdToAbilities[tokenId][index];
     }
 
     function getWamoRecord(uint256 tokenId)

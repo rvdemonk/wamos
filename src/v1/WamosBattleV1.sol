@@ -389,9 +389,13 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 && turnCount % 2 == 0 )) {
                 revert NotPlayersTurn(gameId, msg.sender);
             }
+        
         ////////////////// turn logic ///////////////////
+
         int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId].positionIndex;
+        uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][targetGridIndex];
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
+
         // move first? adjust position
         if (moveBeforeAbility) {
             // erase prev pos
@@ -402,28 +406,20 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;
             // store new position in wamo status
             gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = actorPosition;
-        } 
+        }
         // ensure target is within range 
         // todo
-        
-        // get occupant of target square
-        uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][targetGridIndex];
-        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId].health;
+        int16 targetDistance = (actorPosition - targetGridIndex) % GRID_SIZE;
 
-        // block time for randomness
-        // calculate damage
-            // calibrate for accuracy
-            // calibrate for luck
-            // net damage
-        uint256 pseudoRand = block.timestamp;
+        uint256 dmg = _calculateDamage(gameId, wamoId, targetWamoId, abilityChoice); 
 
         // subtract damage
 
-        if (!moveBeforeAbility) {
-            gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
-            actorPosition = actorPosition + actorTraits.movements[moveChoice];
-            gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;           
-        }
+        // if (!moveBeforeAbility) {
+        //     gameIdToGridIndexToWamoId[gameId][actorPosition] = 0;
+        //     actorPosition = actorPosition + actorTraits.movements[moveChoice];
+        //     gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;           
+        // }
     }
 
 
@@ -437,6 +433,38 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         int16 newIndex
     ) internal {
         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newIndex;
+    }
+
+    function _calculateDamage(uint256 gameId, uint256 actingWamoId, uint256 targetWamoId, uint256 abilityChoice) 
+        internal 
+        returns (uint256 damage) 
+    {
+        Ability memory ability = wamos.getWamoAbility(actingWamoId, abilityChoice);
+        WamoTraits memory targetTraits = wamos.getWamoTraits(targetWamoId);
+        WamoTraits memory actorTraits = wamos.getWamoTraits(actingWamoId);
+        // get occupant of target square
+        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId].health;
+
+        // block time for randomness
+        // calculate damage
+        // calibrate for accuracy
+        // calibrate for luck
+        // net damage
+
+        uint256 attack = ability.power * (
+            actorTraits.meeleeAttack * ability.meeleeDamage
+            + actorTraits.magicAttack * ability.magicDamage
+            + actorTraits.rangeAttack * ability.rangeDamage
+        );
+        uint256 defence = (
+              targetTraits.meeleeAttack * ability.meeleeDamage
+            + targetTraits.magicAttack * ability.magicDamage
+            + targetTraits.rangeAttack * ability.rangeDamage
+        );
+
+        uint256 pseudoRand = block.timestamp % 100;
+        // TODO CHANGE TO REAL DAMAGE CALC
+        return pseudoRand;
     }
 
     // TODO

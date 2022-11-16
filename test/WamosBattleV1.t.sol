@@ -301,8 +301,9 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
 
     function testCommitTurn() public {
         vm.startPrank(player1);
+        uint256 wamo1 = 1;
         uint256 gameId = wamosBattle.createGame(player2);
-        wamosBattle.connectWamo(gameId, 1);
+        wamosBattle.connectWamo(gameId, wamo1);
         wamosBattle.connectWamo(gameId, 3);
         wamosBattle.playerReady(gameId);
         vm.stopPrank();
@@ -310,20 +311,23 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.connectWamo(gameId, 2);
         wamosBattle.connectWamo(gameId, 4);
         wamosBattle.playerReady(gameId);
+        assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
         vm.stopPrank();
-        vm.startPrank(player1);
-        uint256[2] memory party = wamosBattle.getPlayerParty(gameId, player1);
-        console.log("wamos in party");
-        console.log(party[0]);
-        console.log(party[1]);
-        ( bool exists, bool stakeRequested, uint256 stakedGameId, bool isStaked) 
-            = wamosBattle.wamoIdToStakingStatus(1);
-        console.log("staking status of wamo #1");
-        console.log(isStaked);
-        uint256 p1StakedCount = wamosBattle.getPlayerStakedCount(gameId, player1);
-        console.log("player1 staked count");
-        console.log(p1StakedCount);
-        // TODO somehow staked count is 2, but staked wamo ids are 0,0
+        //
+        uint256[2] memory party1 = wamosBattle
+            .getPlayerParty(gameId, player1);
+        console.log(party1[0]);
+        console.log(party1[1]);
+        // gass 655k
+        vm.prank(player1);
+        wamosBattle.commitTurn(
+            gameId,
+            wamo1,
+            4,
+            0,
+            17,
+            true
+        );
     }
 
 
