@@ -76,6 +76,14 @@ error WamoNotInGame(uint256 gameId, uint256 wamoId);
 error NotPlayersTurn(uint256 gameId, address player);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
+    /** TEST VARIABLES */
+    address public thisContract;
+    address public tferOperator;
+    address public tferFrom;
+
+    bool public firstIfHit;
+    bool public secondIfHit;
+
     /** VRF CONSUMER CONFIG */
     bytes32 public vrfKeyHash;
     uint16 public vrfRequestConfirmations;
@@ -216,10 +224,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert PlayerDoesNotOwnThisWamo(wamoId, msg.sender);
         }
-        // prompt wamo transfer
-        wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
         // increment staked count
-        gameIdToPlayerToStakedCount[gameId][msg.sender]++;
         // register staking request
         if (wamoIdToStakingStatus[wamoId].exists) {
             wamoIdToStakingStatus[wamoId].stakeRequested = true;
@@ -233,6 +238,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 isStaked: false
             });
         }
+        // prompt wamo transfer
+        wamos.safeTransferFrom(msg.sender, address(this), wamoId); // from, to, tokenId, data(bytes)
     }
 
     function playerReady(uint256 gameId) external onlyPlayer(gameId) {
@@ -290,18 +297,27 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     function onERC721Received(
-        address operator, // should be wamos contract
+        address operator,
         address from,
         uint256 tokenId,
         bytes calldata data
     ) external override returns (bytes4) {
+        /** FOR TESTING */
+        thisContract = address(this);
+        tferOperator = operator;
+        tferFrom = from;
+        /*********************/
         // if a wamo has been received
-        if (operator == address(wamos)) {
+        if (operator == address(this)) {
+            firstIfHit = true;
             // match wamo with game and player (from)
             if (wamoIdToStakingStatus[tokenId].stakeRequested) {
+                secondIfHit = true;
                 // get game id from staking request struct
                 uint256 gameId = wamoIdToStakingStatus[tokenId].gameId;
                 uint256 stakedCount = gameIdToPlayerToStakedCount[gameId][from];
+                // increment staked count
+                gameIdToPlayerToStakedCount[gameId][msg.sender]++;
                 // toggle staked
                 wamoIdToStakingStatus[tokenId].isStaked = true;
                 // add wamo to players party in game
@@ -315,6 +331,27 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
         return IERC721Receiver.onERC721Received.selector;
     }
+
+    // function onERC721Received(
+    //     address operator,
+    //     address from,
+    //     uint256 tokenId,
+    //     bytes calldata data
+    // ) external override returns (bytes4) {
+    //     /** FOR TESTING */
+    //     thisContract = address(this);
+    //     tferOperator = operator;
+    //     tferFrom = from;
+    //     /*********************/
+    //     // Ensure erc721 received is  
+    //     if (operator == address(this)) {
+    //         uint256 gameId = wamoIdToStakingStatus[tokenId].gameId;
+    //         uint256 stakedCount = gameIdToPlayerToStakedCount[gameId][from];
+
+    //         }
+    //     }
+    //     return IERC721Receiver.onERC721Received.selector;
+    // }
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    GAMEPLAY FUNCTIONS   ////////////////////
