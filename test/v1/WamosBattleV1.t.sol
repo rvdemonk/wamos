@@ -343,10 +343,10 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.playerReady(gameId);
         assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
         vm.stopPrank();
-        // ^gas 989k
+        // ^gas 1_197k
         vm.prank(player1);
         wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true, true);
-        // gas^ 1121k
+        // gas^ 1_338k
         // turn gas = ~130k
     }
 
