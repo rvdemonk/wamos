@@ -36,12 +36,12 @@ abstract contract WamosTestHelper {
 
     function logAbility(uint256 wamoId, uint256 abilityIndex) public {
         Ability memory ability = wamos.getWamoAbility(wamoId, abilityIndex);
-        console.log("wamo #%s ability %s", wamoId, abilityIndex);
-        console.log(uint256(ability.damageType));
-        console.log(ability.power);
-        console.log(ability.accuracy);
+        console.log("\n *****Wamo #%s Ability %s", wamoId, abilityIndex);
+        console.log("damge type", uint256(ability.damageType));
+        console.log("power", ability.power);
+        console.log("accuracy", ability.accuracy);
         console.logInt(ability.range);
-        console.log(ability.cost);
+        console.log("cost", ability.cost);
     }
 
     function logAbility(Ability memory ability) public {
@@ -58,6 +58,24 @@ abstract contract WamosTestHelper {
         console.log("health %s", status.health);
         console.log("stamina %s", status.stamina);
         console.log("mana %s", status.mana);
+    }
+
+    function logHealth(uint256 gameId, uint256 wamoId) public {
+        WamoStatus memory status = battle.getWamoStatus(gameId, wamoId);
+        console.log("Wamo #%s health: %s", wamoId, status.health);
+    }
+
+    // todo
+    function logAllHealth(uint256 gameId) public {
+        GameData memory data = battle.getGameData(gameId);
+        address challenger = data.challenger;
+        address challengee = data.challengee;
+        // uint256[2] memory party1 = 
+    }
+
+    function logTurn(uint256 gameId) public {
+        GameData memory data = battle.getGameData(gameId);
+        console.log("\n|---> Turn %s", data.turnCount);        
     }
 }
 
@@ -253,11 +271,6 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 false
             ); 
         }
-        console.log('AFTER VERTICAL MOVES');
-        console.log('wamo 1 position');
-        console.logInt(battle.getWamoPosition(games[0], 1));
-        console.log('wamo 2 position');
-        console.logInt(battle.getWamoPosition(games[0], 2));
         while (true) {
             vm.prank(player2);
             battle.commitTurn(
@@ -285,37 +298,34 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 break;
             }            
         }
-        console.log('AFTER HORIZONTAL MOVES');
-        console.log('wamo 1 position');
-        console.logInt(battle.getWamoPosition(games[0], 1));
-        console.log('wamo 2 position');
-        console.logInt(battle.getWamoPosition(games[0], 2));
         // wamos now next o each other
-        // player 2s turn
+        int16 w1pos = battle.getWamoPosition(games[0], 1);
+        int16 w2pos = battle.getWamoPosition(games[0], 2);
+        assertTrue(w1pos == 136);
+        assertTrue(w2pos == 135);
+        // get abilities
         Ability[] memory w1Abilities = wamos.getWamoAbilities(1);
         Ability[] memory w2Abilities = wamos.getWamoAbilities(2);
-        console.log('wamo #2 ability 0');
-        Ability memory w2a0 = w2Abilities[0];
-        logAbility(w2a0);
-        int16 w1pos = battle.getWamoPosition(games[0], 1);
-        assertTrue(w1pos == 136);
-        // w2 use a0
-        console.log('BEFORE ATTACK');
-        logWamoStatus(games[0], 1);
-        logWamoStatus(games[0], 2);
+        
+        logTurn(games[0]);
+        logHealth(games[0], 1);
+        logHealth(games[0], 2);
+        
+        // player 2s turn
         vm.prank(player2);
         battle.commitTurn(
             games[0],
-            2,
-            0, // move 0 doesnt matter not moving
-            0, // ability 0
-            w1pos, // 136 next door
-            false, // not moving
-            false, // move before ability dnm
-            true // use ability
+            2, 
+            UP,
+            0, //ability
+            w1pos,
+            false,
+            false,
+            true
         );
-        console.log('AFTER ATTACK');
-        logWamoStatus(games[0], 1);
-        logWamoStatus(games[0], 2);
+
+        logTurn(games[0]);
+        logHealth(games[0], 1);
+        logHealth(games[0], 2);
     }
 }

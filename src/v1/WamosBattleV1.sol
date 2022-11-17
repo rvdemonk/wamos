@@ -392,7 +392,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         ];
 
         // move first? adjust position
-        if (moveBeforeAbility) {
+        if (moveBeforeAbility && isMoved) {
             attackerPosition = _setWamoPosition(
                 gameId,
                 wamoId,
@@ -400,7 +400,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 attackerPosition
             );
         }
-        if (useAbility) {
+        if (useAbility && targetWamoId != 0) {
             uint256 damage = _calculateDamage(
                 gameId,
                 wamoId,
@@ -409,7 +409,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             );
             _dealDamage(gameId, wamoId, targetWamoId, damage);
         }
-        if (!moveBeforeAbility) {
+        if (!moveBeforeAbility && isMoved) {
             _setWamoPosition(gameId, wamoId, moveChoice, attackerPosition);
         }
         gameIdToWamoIdToStatus[gameId][wamoId].stamina +
