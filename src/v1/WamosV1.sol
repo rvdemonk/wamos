@@ -309,14 +309,14 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 ability.range = 1;
             } else if (a < 67) {
                 ability.damageType = DamageType.MAGIC;
-                ability.range = int16(uint16(d));
+                ability.range = int16(uint16(d)) + 1;
             } else {
                 ability.damageType = DamageType.RANGE;
-                ability.range = int16(uint16(d));
+                ability.range = int16(uint16(d)) + 1;
             }
-            ability.power = b;
-            ability.accuracy = c;
-            ability.cost = e % 33;
+            ability.power = b + 1;
+            ability.accuracy = c + 1;
+            ability.cost = e % 33 + 1;
             // store ability
             wamoIdToAbilities[tokenId].push(ability);
         }

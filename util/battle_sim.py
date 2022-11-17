@@ -15,6 +15,8 @@ TRAITS = [
 ]
 
 SPECIAL_TRAITS = [
+    'dietyType',
+    'movements',
     'fecundity',
     'powerRegen'
 ]

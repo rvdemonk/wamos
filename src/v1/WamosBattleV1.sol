@@ -360,6 +360,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 gameId
     ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
         // other player wins
+        // TODO change so that this simply sets calls wamos health to zero
         address victor;
         address loser;
         if (msg.sender == gameIdToGameData[gameId].challenger) {

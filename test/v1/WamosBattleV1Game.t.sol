@@ -141,15 +141,48 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         assertTrue(party2[1] != 0);
     }
 
+    function testInitWamoStatus() public {
+        for (uint i = 1; i < 2*PARTY_SIZE + 1; i++) {
+            WamoTraits memory traits = wamos.getWamoTraits(i);
+            WamoStatus memory status = battle.getWamoStatus(games[0], i);
+            assertTrue(traits.health == status.health);
+            assertTrue(traits.mana == status.mana);
+            assertTrue(traits.stamina == status.stamina);
+        }
+    }
+
+    function testAbilitiesExist() public {
+        for (uint i = 1; i < 2*PARTY_SIZE + 1; i++) {
+            Ability[] memory abilities = wamos.getWamoAbilities(i);
+            console.log(abilities.length);
+            for (uint j=0; j<1; j++) {
+                assertFalse(abilities[i].power == 0);
+                assertFalse(abilities[i].dietyType == 0);
+                assertFalse(abilities[i].accuracy == 0);
+                assertFalse(abilities[i].range == 0);
+                assertFalse(abilities[i].cost == 0);
+            }
+        }   
+    }
+
     function testCommitTurnMoveOnly() public {
         // moving wamo #1
+        uint256 move = 2;
         int16[8] memory w1moves = wamos.getWamoMovements(1);
-        console.logInt(w1moves[2]); // +16
-        assertTrue(w1moves[2] == 16);
+        console.logInt(w1moves[move]); // +16
+        assertTrue(w1moves[move] == 16);
         int16 w1pos = battle.getWamoPosition(games[0], 1);
         assertTrue(w1pos == 0);
         vm.startPrank(player1);
-        
+        battle.commitTurn(
+            games[0],
+            1,
+            move,
+            0,
+            0,
+            true,
+            false
+        );
     }
 
 }
