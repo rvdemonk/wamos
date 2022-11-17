@@ -52,9 +52,13 @@ abstract contract WamosTestHelper {
         console.log("cost", ability.cost);
     }
 
-    function logWamoStatus(uint256 gameId, uint256 wamoId) public {
-        WamoStatus memory status = battle.getWamoStatus(gameId, wamoId);
-    }
+    // function logWamoStatus(uint256 gameId, uint256 wamoId) public {
+    //     WamoStatus memory status = battle.getWamoStatus(gameId, wamoId);
+    //     console.log("--- Status wamo #%s ---", wamoId);
+    //     console.log("health %s", status.health);
+    //     console.log("stamina %s", status.stamina);
+    //     console.log("mana %s", status.mana);
+    // }
 }
 
 contract WamosBattleV1GameTest is Test, WamosTestHelper {
@@ -296,6 +300,9 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         int16 w1pos = battle.getWamoPosition(games[0], 1);
         assertTrue(w1pos == 136);
         // w2 use a0
+        // console.log('BEFORE ATTACK');
+        // logWamoStatus(games[0], 1);
+        // logWamoStatus(games[0], 2);
         vm.prank(player2);
         battle.commitTurn(
             games[0],
@@ -307,6 +314,8 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             false, // move before ability dnm
             true // use ability
         );
-
+        // console.log('AFTER ATTACK');
+        // logWamoStatus(games[0], 1);
+        // logWamoStatus(games[0], 2);
     }
 }

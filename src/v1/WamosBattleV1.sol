@@ -216,7 +216,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert PlayerDoesNotOwnThisWamo(wamoId, msg.sender);
         }
-        if (wamos.isSpawnCompleted(wamoId)) {
+        if (!wamos.isSpawnCompleted(wamoId)) {
             revert CannotStakeIncompleteSpawn(wamoId, msg.sender);
         }
         // register staking request
