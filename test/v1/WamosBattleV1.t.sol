@@ -357,4 +357,13 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
     /** TEST POINTS OF FAILURE */
 
     // function testChallengesReceived() public {}
+
+    /** TEST LIBRARY FUNCTIONS */
+
+    function testSquareRootApprox() public {}
+
+    function testRet() public {
+        uint256 num = wamosBattle.ret();
+        console.log(num);
+    }
 }

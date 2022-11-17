@@ -7,11 +7,15 @@ import "openzeppelin/utils/Strings.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
+enum DamageType {
+    MEELEE,
+    MAGIC,
+    RANGE
+}
+
 struct Ability {
     uint256 dietyType;
-    uint256 meeleeDamage; // 0 or 1
-    uint256 magicDamage; // 0 or 1
-    uint256 rangeDamage; // 0 or 1
+    DamageType damageType;
     // -> insert (de)buff effects
     uint256 power;
     uint256 accuracy;
@@ -266,8 +270,8 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 -move2
             ];
             traits.powerRegen = m % 23;
+            traits.dietyType = n % 8;
         }
-        traits.dietyType = randomWord % 8;
         traits.fecundity = randomWord % 11;
         // traits.gearSlots = randomWord % 4;
         // store traits
@@ -275,22 +279,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     function _generateAbilities(uint256 tokenId, uint256 randomWord) internal {
-        // TODO generate four abilities to store in wamo ability array
-        // attack or buff?
-        // if attack:
-        // target: health
-        // damage type: meelee, range, magic?
-        // power
-        // accuracy
-        // range
-        // cost
-        // if buff:
-        // target: health, attacks, defences
-        // buff or debuff
-        // power
-        // accuracy
-        // range
-        // cost
         for (uint256 i = 0; i < ABILITY_SLOTS; i++) {
             // word segment starts at 3 - first 3 used in trait gen
             Ability memory ability;
@@ -305,19 +293,19 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
 
             // determine move type
             if (a < 34) {
-                ability.meeleeDamage = 1;
+                ability.damageType = DamageType.MEELEE;
                 ability.range = 1;
             } else if (a < 67) {
-                ability.magicDamage = 1;
+                ability.damageType = DamageType.MAGIC;
                 ability.range = int16(uint16(d));
             } else {
-                ability.rangeDamage = 1;
+                ability.damageType = DamageType.RANGE;
                 ability.range = int16(uint16(d));
             }
             ability.power = b;
             ability.accuracy = c;
             ability.cost = e % 33;
-            
+            // store ability
             wamoIdToAbilities[tokenId].push(ability);
         }
     }
@@ -409,6 +397,14 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return wamoIdToAbilities[tokenId][index];
     }
 
+    function getWamoMovements(uint256 tokenId)
+        public
+        view
+        returns (int16[8] memory)
+    {
+        return wamoIdToTraits[tokenId].movements;
+    }
+
     function getWamoRecord(uint256 tokenId)
         public
         view
@@ -416,14 +412,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     {
         record = tokenIdToRecord[tokenId];
         return record;
-    }
-
-    function getWamoMovements(uint256 tokenId)
-        public
-        view
-        returns (int16[8] memory)
-    {
-        return wamoIdToTraits[tokenId].movements;
     }
 
     function getWamoName(uint256 wamoId) public view returns (string memory) {
@@ -494,9 +482,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////      LIBRARY FUNCTIONS       //////////////////
     /////////////////////////////////////////////////////////////////
 
-    function abs(int8 number) public pure returns (int8) {
-        return number >= 0 ? number : -number;
-    }
+    // function abs(int8 number) public pure returns (int8) {
+    //     return number >= 0 ? number : -number;
+    // }
 
     /**
      * @notice internal library function to shave off random digits in sets of five from a 256bit randomWord

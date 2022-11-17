@@ -61,4 +61,14 @@ contract WamosMathV1Test is Test {
     function testMathGasBigExponent() public {
         uint256 number = 7 * 100_000**5;
     }
+
+    function testBlockHashConversion() public {
+        console.log(block.timestamp);
+        // bytes32 = block.hash;
+    }
+
+    function testNegPower() public {
+        int16 x = -5;
+        console.logInt(x**2);
+    }
 }

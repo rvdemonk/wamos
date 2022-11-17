@@ -385,7 +385,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
-
         // move first? adjust position
         if (moveBeforeAbility) {
             actorPosition = _setWamoPosition(
@@ -395,24 +394,27 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 actorPosition
             );
         }
-
         if (useAbility) {
             // todo ensure target is within range
+            // pythagoras
             int16 targetDistance = (actorPosition - targetGridIndex) %
                 GRID_SIZE;
 
-            uint256 dmg = _calculateDamage(
+            uint256 damage = _calculateDamage(
                 gameId,
                 wamoId,
                 targetWamoId,
                 abilityChoice
             );
-            // todo subtract damage from targets health
+            _dealDamage(gameId, targetWamoId, damage);
+            // todo subtract energy cost
+            // todo update energy cost regen
         }
-
         if (!moveBeforeAbility) {
             _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
         }
+        // todo emit damage event
+        // todo emit movement event
     }
 
     function _setWamoPosition(
@@ -440,39 +442,45 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 targetWamoId,
         uint256 abilityChoice
     ) internal returns (uint256 damage) {
-        Ability memory ability = wamos.getWamoAbility(
+        Ability memory a = wamos.getWamoAbility(
             actingWamoId,
             abilityChoice
         );
-        WamoTraits memory targetTraits = wamos.getWamoTraits(targetWamoId);
-        WamoTraits memory actorTraits = wamos.getWamoTraits(actingWamoId);
-        // get occupant of target square
-        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId]
-            .health;
+        WamoTraits memory attacker = wamos.getWamoTraits(actingWamoId);
+        WamoTraits memory defender = wamos.getWamoTraits(targetWamoId);
 
-        // block time for randomness
-        // calculate damage
-        // calibrate for accuracy
-        // calibrate for luck
-        // net damage
+        // determine if attack is a critical hit
+        uint256 crit = 1;
+        if ((attacker.luck / (block.timestamp%5) + a.accuracy) > 99) {
+            crit = 2;
+        }
+        // isolate attack and defend stat
+        uint256 att;
+        uint256 def;
+        if (a.damageType == DamageType.MEELEE) {
+            att = attacker.meeleeAttack;
+            def = defender.meeleeDefence;
+        } else if (a.damageType == DamageType.MAGIC) {
+            att = attacker.magicAttack;
+            def = defender.magicDefence;
+        } else {
+            att = attacker.rangeAttack;
+            def = defender.rangeDefence;
+        }
+        /////////////////    DAMAGE ALGORITHM    ////////////////////
+        damage = 
+            (((((2*a.accuracy/50)+10) * a.power * (att/def))/50)+2) * (80+block.timestamp%15);
+        /////////////////////////////////////////////////////////////
+        return damage;
+    }
 
-        uint256 attack = ability.power *
-            (actorTraits.meeleeAttack *
-                ability.meeleeDamage +
-                actorTraits.magicAttack *
-                ability.magicDamage +
-                actorTraits.rangeAttack *
-                ability.rangeDamage);
-        uint256 defence = (targetTraits.meeleeAttack *
-            ability.meeleeDamage +
-            targetTraits.magicAttack *
-            ability.magicDamage +
-            targetTraits.rangeAttack *
-            ability.rangeDamage);
-
-        uint256 pseudoRand = block.timestamp % 100;
-        // TODO CHANGE TO REAL DAMAGE CALC
-        return pseudoRand;
+    function _dealDamage(uint256 gameId, uint256 targetWamoId, uint256 damage) internal {
+        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId].health;
+        if (damage > targetHealth) {
+            gameIdToWamoIdToStatus[gameId][targetWamoId].health = 0;
+        } else {
+            gameIdToWamoIdToStatus[gameId][targetWamoId].health = targetHealth - damage;
+        }
     }
 
     // TODO
@@ -571,13 +579,12 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         returns (uint256 wamoId)
     {
         wamoId = gameIdToGridIndexToWamoId[gameId][gridIndex];
-        return wamoId;
     }
 
     function getWamoStatus(uint256 gameId, uint256 wamoId)
         public
         view
-        returns (WamoStatus memory status)
+        returns (WamoStatus memory)
     {
         return gameIdToWamoIdToStatus[gameId][wamoId];
     }
@@ -598,4 +605,35 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {}
-}
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////   LIBRARY  FUNCTIONS    ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function abs(int16 number) public pure returns (int16) {
+        return number >= 0 ? number : -number;
+    }
+
+    function euclideanDistance(int16 p1, int16 p2) public pure returns (int16 y) {
+        int16 dx =  p2%GRID_SIZE - p1%GRID_SIZE;
+        int16 dy = (p2/GRID_SIZE - p1/GRID_SIZE)+1;
+        // Heron's method for sqrt approximation
+        int16 a = (dx**2 + dy**2);
+        // begin method
+        int16 z = (a+1)/2;
+        y = a;
+        while (z<y) {
+            y = z;
+            z = (a/z + z)/2;
+        }
+    }
+
+    function sqrtApprox(int16 x) public pure returns (int16 y) {
+        int16 z = (x+1)/2;
+        y = x;
+        while (z<y) {
+            y = z;
+            z = (x/z + z)/2;
+        }      
+    }
+

@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const { assertHardhatInvariant } = require("hardhat/internal/core/errors");
 
-const WAMOS_ADDR = "0xCbE1061447B748CFD9E24509c8Ea5d15E2e8AbDc";
+const WAMOS_ADDR = "0x861da68934d8d64e154c6be02ce396f3034662ad";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
