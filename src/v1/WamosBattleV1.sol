@@ -407,6 +407,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 targetWamoId,
                 abilityChoice
             );
+            // deal damage to target wamo
             _dealDamage(gameId, wamoId, targetWamoId, damage);
         }
         if (!moveBeforeAbility && isMoved) {
@@ -488,10 +489,14 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 gameIdToWamoIdToStatus[gameId][actingWamoId].stamina - a.cost;
             }
             /////////////////    DAMAGE ALGORITHM    ////////////////////
+            // damage =
+            //     ((((((2 * a.accuracy) / 50) + 10) * a.power * (att / def)) /
+            //         50) + 2) *
+            //     (80 + (block.timestamp % 15));
             damage =
-                ((((((2 * a.accuracy) / 50) + 10) * a.power * (att / def)) /
-                    50) + 2) *
-                (80 + (block.timestamp % 15));
+                ((((((2 * a.accuracy) / 50) + 6) * a.power * (att / def)) /
+                    50)) *
+                ((block.timestamp % 15));
             /////////////////////////////////////////////////////////////
         }
     }

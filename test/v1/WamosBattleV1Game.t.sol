@@ -312,13 +312,15 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         logHealth(games[0], 2);
         
         // player 2s turn
-        vm.prank(player2);
+        vm.startPrank(player2);
+        uint256 abilityChoice = 0;
+        logAbility(2, abilityChoice);
         battle.commitTurn(
             games[0],
             2, 
             UP,
             0, //ability
-            w1pos,
+            battle.getWamoPosition(games[0], 1),
             false,
             false,
             true
