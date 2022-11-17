@@ -413,7 +413,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (!moveBeforeAbility && isMoved) {
             _setWamoPosition(gameId, actingWamoId, moveChoice, attackerPosition);
         }
-
+        // Regen mana and stamina only if they have fallen below max levels
         if (gameIdToWamoIdToStatus[gameId][actingWamoId].stamina < actorTraits.stamina) {
             gameIdToWamoIdToStatus[gameId][actingWamoId].stamina +=
                 actorTraits.energyRegen;
