@@ -34,6 +34,13 @@ abstract contract WamosTestHelper {
 }
 
 contract WamosBattleV1GameTest is Test, WamosTestHelper {
+
+    // MOVE INDICES
+    uint256 LEFT = 0;
+    uint256 RIGHT = 1;
+    uint256 UP = 2;
+    uint256 DOWN = 3;
+
     WamosBattleV1 battle;
     uint256[] games;
     uint256 PARTY_SIZE;
@@ -169,8 +176,8 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         int16[8] memory w1moves = wamos.getWamoMovements(1);
         console.logInt(w1moves[move]); // +16
         assertTrue(w1moves[move] == 16);
-        int16 w1pos = battle.getWamoPosition(games[0], 1);
-        assertTrue(w1pos == 0);
+        int16 w1posStart = battle.getWamoPosition(games[0], 1);
+        assertTrue(w1posStart == 0);
         vm.startPrank(player1);
         battle.commitTurn(
             games[0],
@@ -181,7 +188,43 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             true,
             false
         );
-        
+        assertTrue(battle.getWamoPosition(games[0], 1) == w1posStart + w1moves[move]);
+    }
+
+    function testTurnsMovingAlternating() public {
+        int16[8] memory w1moves = wamos.getWamoMovements(1);
+        int16[8] memory w3moves = wamos.getWamoMovements(2);
+        int16 w1Pos = battle.getWamoPosition(games[0], 1);
+        int16 w2Pos = battle.getWamoPosition(games[0], 2);
+        assertTrue(w1Pos == 0);
+        assertTrue(w2Pos == 255);
+        while (true) {
+            vm.prank(player1);
+            battle.commitTurn(
+                games[0],
+                1,
+                UP,
+                0,
+                0,
+                true,
+                false
+            ); 
+            vm.prank(player2);
+            battle.commitTurn(
+                games[0],
+                2,
+                DOWN,
+                0,
+                0,
+                true,
+                false
+            ); 
+            if (battle.getWamoPosition(games[0], 1) == 128) {
+                break;
+            }
+        }
+        console.logInt(battle.getWamoPosition(games[0], 1));
+        console.logInt(battle.getWamoPosition(games[0], 2));
     }
 
 }

@@ -64,6 +64,7 @@ error WamoHasNoHealth(uint256 gameId, uint256 wamoId);
 error WamoNotInGame(uint256 gameId, uint256 wamoId);
 error NotPlayersTurn(uint256 gameId, address player);
 error PlayerFalselyClaimsVictory(uint256 gameId, address claimant);
+error GameMustBeFinishedToRetrieveWamos(uint256 gameId);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** VRF CONSUMER CONFIG */
@@ -124,6 +125,8 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     event GameCreated();
     event WamoCreated();
     event GameStarted();
+    event WamoMoved();
+    event WamoUsedAbility();
 
     constructor(
         address _wamosAddr,
@@ -354,7 +357,13 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             moveBeforeAbility,
             useAbility
         );
+        // TODO INCREMENT TURN COUNT
+        gameIdToGameData[gameId].turnCount++;
     }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////    END GAME FUNCTIONS   ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function resign(
         uint256 gameId
@@ -373,6 +382,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         _endGame(gameId, victor, loser);
     }
 
+    /**
+     * @notice player claims victory when they believe all of their opponents
+     * wamos have had their health reduced to zero.
+     */
     function claimVictory(
         uint256 gameId
     ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
@@ -397,6 +410,26 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             _endGame(gameId, msg.sender, loser);
         } else {
             revert PlayerFalselyClaimsVictory(gameId, msg.sender);
+        }
+    }
+
+    /**
+     * @notice player prompts the unstaking of their wamos after a game has completed,
+     * prompting a transfer of the tokens from this contract back to the player.
+     */
+    function retrieveStakedWamos(uint256 gameId) external onlyPlayer(gameId) {
+        if (gameIdToGameData[gameId].status != GameStatus.FINISHED) {
+            revert GameMustBeFinishedToRetrieveWamos(gameId); 
+        }
+        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+            msg.sender
+        ]; 
+        // return wamos in party to msg.sender
+        for (uint i=0; i<PARTY_SIZE; i++) {
+            wamos.safeTransferFrom(address(this), msg.sender, party[i]);
+            wamoIdToStakingStatus[party[i]].isStaked = false;
+            wamoIdToStakingStatus[party[i]].stakeRequested = false;
+            wamoIdToStakingStatus[party[i]].gameId = 0;
         }
     }
 
@@ -443,12 +476,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (!moveBeforeAbility) {
             _setWamoPosition(gameId, wamoId, moveChoice, attackerPosition);
         }
-        // todo update energy cost regen
         gameIdToWamoIdToStatus[gameId][wamoId].stamina +
             actorTraits.energyRegen;
         gameIdToWamoIdToStatus[gameId][wamoId].mana + actorTraits.energyRegen;
-        // todo emit damage event
-        // todo emit movement event
+        emit WamoUsedAbility(); // todo
     }
 
     function _setWamoPosition(
@@ -467,7 +498,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         gameIdToGridIndexToWamoId[gameId][actorPosition] = wamoId;
         // store new position in wamo status
         gameIdToWamoIdToStatus[gameId][wamoId].positionIndex = newPosition;
-        return newPosition;
+        emit WamoMoved(); // todo
     }
 
     function _calculateDamage(
@@ -548,29 +579,21 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     // TODO
     function _endGame(uint256 gameId, address victor, address loser) internal {
         // alter wamos record
-        // distribute spoils
-        // return wamos to players
-        // toggle staking status to unstaked
-        // toggle game status to finished
-    }
-
-    function _recordVictories(uint256 gameId, address victor) internal {
-        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+        uint256[PARTY_SIZE] memory victorParty = gameIdToPlayerToWamoPartyIds[gameId][
             victor
         ];
-        for (uint i = 0; i < PARTY_SIZE; i++) {
-            wamos.recordWin(party[i]);
-        }
-    }
-
-    function _recordDefeats(uint256 gameId, address loser) internal {
-        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+        uint256[PARTY_SIZE] memory loserParty = gameIdToPlayerToWamoPartyIds[gameId][
             loser
         ];
         for (uint i = 0; i < PARTY_SIZE; i++) {
-            wamos.recordWin(party[i]);
+            wamos.recordWin(victorParty[i]);
+            wamos.recordLoss(loserParty[i]);
         }
+        // todo distribute spoils
+        // toggle game status to finished
+        gameIdToGameData[gameId].status = GameStatus.FINISHED;
     }
+
 
     /////////////////////////////////////////////////////////////////
     ////////////////////     VIEW FUNCTIONS      ////////////////////
