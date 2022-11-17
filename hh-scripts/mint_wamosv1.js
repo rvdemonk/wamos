@@ -48,23 +48,58 @@ async function main() {
 
   // PHASE 1: REQUEST MINT
   console.log(`\n ** BEGINNING MINT\n`);
+
+  console.log("request count before req:", await wamos.getRequestCount());
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });
   console.log(`Requested wamo spawn with tx ${requesttx.hash}`);
 
-  const request = requesttx.wait();
-  const event = request.events.find(
-    (event) => event.event === "SpawnRequested"
-  );
-  const [requestId, tokenId, buyer] = event.args;
-
+  const requestCount = await wamos.getRequestCount();
+  console.log("request count after req", requestCount);
+  const requestId = await wamos.requestIds(requestCount - 1);
   console.log(`\nRequest Id: ${requestId}`);
+
+  const tokenId = await wamos.getTokenIdFromRequestId(requestId);
   console.log(`-> Spawning Wamo #${tokenId}`);
 
-  console.log(`\nGetting request data...`);
+  console.log(`\nGetting request status...`);
   let requestData = await wamos.getSpawnRequest(requestId);
   console.log(requestData);
 
-  completeMint(wamos, requestId, tokenId);
+  // check every 5 seconds if randomness has been fulfilled for a max 20 blocks
+  const startBlock = hre.network.block;
+  const blocksToWait = 20;
+  let currentBlock;
+
+  let isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
+  while (!isRequestFulfilled) {
+    currentBlock = await hre.network.block;
+    setTimeout(async () => {
+      console.log(`[block ${currentBlock}] randomness not fulfillled...`);
+      isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
+    }, 5000);
+
+    if (currentBlock - startBlock > blocksToWait) {
+      console.log(
+        `-> exiting process: request unfulfilled after ${blocksToWait}`
+      );
+      break;
+    }
+  }
+
+  // if fulfilled show random word and complete mint
+  if (isRequestFulfilled) {
+    let requestData = await wamos.getSpawnRequest(requestId);
+    const word = requestData.randomWord;
+    console.log(`\nRequest for wamo #${tokenId} fulfilled!\n`);
+    console.log(`random word: ${word}`);
+
+    // PHASE 2: COMPLETE MINT
+    console.log(`\n ** COMPLETING MINT\n`);
+    const completeSpawntx = await wamos.completeSpawnWamo(tokenId);
+    // display traits
+    console.log(`Loading traits...`);
+    displayTraits(wamos, tokenId);
+  }
 }
 
 main().catch((error) => {
