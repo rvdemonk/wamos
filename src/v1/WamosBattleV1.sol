@@ -508,20 +508,17 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     function _dealDamage(
         uint256 gameId,
-        uint256 attackerId,
+        uint256 actingWamoId,
         uint256 targetWamoId,
         uint256 damage
     ) internal {
-        uint256 targetHealth = gameIdToWamoIdToStatus[gameId][targetWamoId]
-            .health;
+        uint256 targetHealth = getWamoHealth(gameId, targetWamoId);
         if (damage > targetHealth) {
             gameIdToWamoIdToStatus[gameId][targetWamoId].health = 0;
         } else {
-            gameIdToWamoIdToStatus[gameId][targetWamoId].health =
-                targetHealth -
-                damage;
+            gameIdToWamoIdToStatus[gameId][targetWamoId].health -= damage;
         }
-        emit DamageDealtBy(gameId, attackerId, gameIdToGameData[gameId].turnCount, damage);
+        emit DamageDealtBy(gameId, actingWamoId, gameIdToGameData[gameId].turnCount, damage);
     }
 
     // TODO
@@ -699,6 +696,13 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 wamoId
     ) public view returns (WamoStatus memory) {
         return gameIdToWamoIdToStatus[gameId][wamoId];
+    }
+
+    function getWamoHealth(
+        uint256 gameId,
+        uint256 wamoId
+    ) public view returns (uint256 health) {
+        health = gameIdToWamoIdToStatus[gameId][wamoId].health;
     }
 
     /////////////////////////////////////////////////////////////////
