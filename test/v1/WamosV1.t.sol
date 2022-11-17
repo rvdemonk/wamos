@@ -255,9 +255,7 @@ contract WamosV1Test is Test {
         Ability[] memory abilities = wamos.getWamoAbilities(tokenId);
         Ability memory a = abilities[0];
         console.log("Ability 1 of wam0 #0");
-        console.log("meelee?", a.meeleeDamage);
-        console.log("magic?", a.magicDamage);
-        console.log("range?", a.rangeDamage);
+        console.log("type?", uint256(a.damageType));
         console.log("power ", a.power);
         console.log("accuracy ", a.accuracy);
         console.logInt(a.range);

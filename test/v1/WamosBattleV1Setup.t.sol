@@ -33,7 +33,7 @@ abstract contract WamosTestHelper {
     WamosV1 wamos;
 }
 
-contract WamosBattleV1Test is Test, WamosTestHelper {
+contract WamosBattleV1SetupTest is Test, WamosTestHelper {
     WamosBattleV1 wamosBattle;
 
     function setUp() public {
@@ -343,10 +343,10 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
         wamosBattle.playerReady(gameId);
         assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
         vm.stopPrank();
-        // ^gas 989k
+        // ^gas 1_197k
         vm.prank(player1);
-        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true, true);
-        // gas^ 1121k
+        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true, true, true);
+        // gas^ 1_338k
         // turn gas = ~130k
     }
 
@@ -357,4 +357,18 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
     /** TEST POINTS OF FAILURE */
 
     // function testChallengesReceived() public {}
+
+    /** TEST LIBRARY FUNCTIONS */
+
+    function testSquareRootApprox() public {
+        int16 x = 25;
+        console.logInt(wamosBattle.sqrtApprox(90));
+    }
+
+    function testEuclidean() public {
+        int16 p1 = 0;
+        int16 p2 = 66;
+        console.logInt(wamosBattle.euclideanDistance(p1, p2));
+    }
+
 }

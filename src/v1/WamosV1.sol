@@ -7,11 +7,15 @@ import "openzeppelin/utils/Strings.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
+enum DamageType {
+    MEELEE,
+    MAGIC,
+    RANGE
+}
+
 struct Ability {
     uint256 dietyType;
-    uint256 meeleeDamage; // 0 or 1
-    uint256 magicDamage; // 0 or 1
-    uint256 rangeDamage; // 0 or 1
+    DamageType damageType;
     // -> insert (de)buff effects
     uint256 power;
     uint256 accuracy;
@@ -34,7 +38,8 @@ struct WamoTraits {
     uint256 luck;
     uint256 fecundity;
     // uint256 gearSlots;
-    uint256 powerRegen; // mana and stamina
+    uint256 energyRegen; // mana and stamina
+    // recover (hp regen)
     // hp regen per turn
 }
 
@@ -141,7 +146,18 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     modifier onlyWamoOwner(uint256 wamoId) {
-        require(msg.sender == ownerOf(wamoId));
+        require(
+            msg.sender == ownerOf(wamoId),
+            "Only the owner of this wamo can call"
+        );
+        _;
+    }
+
+    modifier onlyBattle() {
+        require(
+            msg.sender == wamosBattleAddr,
+            "Only WamosBattle can call this function."
+        );
         _;
     }
 
@@ -265,9 +281,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 move2,
                 -move2
             ];
-            traits.powerRegen = m % 23;
+            traits.energyRegen = m % 23;
+            traits.dietyType = n % 8;
         }
-        traits.dietyType = randomWord % 8;
         traits.fecundity = randomWord % 11;
         // traits.gearSlots = randomWord % 4;
         // store traits
@@ -275,22 +291,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     function _generateAbilities(uint256 tokenId, uint256 randomWord) internal {
-        // TODO generate four abilities to store in wamo ability array
-        // attack or buff?
-        // if attack:
-        // target: health
-        // damage type: meelee, range, magic?
-        // power
-        // accuracy
-        // range
-        // cost
-        // if buff:
-        // target: health, attacks, defences
-        // buff or debuff
-        // power
-        // accuracy
-        // range
-        // cost
         for (uint256 i = 0; i < ABILITY_SLOTS; i++) {
             // word segment starts at 3 - first 3 used in trait gen
             Ability memory ability;
@@ -301,23 +301,23 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 uint256 c,
                 uint256 d,
                 uint256 e
-            ) = shaveOffRandomIntegers(randomWord, 3, wordSegmentNum);
+            ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
 
             // determine move type
             if (a < 34) {
-                ability.meeleeDamage = 1;
+                ability.damageType = DamageType.MEELEE;
                 ability.range = 1;
             } else if (a < 67) {
-                ability.magicDamage = 1;
-                ability.range = int16(uint16(d));
+                ability.damageType = DamageType.MAGIC;
+                ability.range = int16(uint16(d)) + 1;
             } else {
-                ability.rangeDamage = 1;
-                ability.range = int16(uint16(d));
+                ability.damageType = DamageType.RANGE;
+                ability.range = int16(uint16(d)) + 1;
             }
-            ability.power = b;
-            ability.accuracy = c;
-            ability.cost = e % 33;
-            
+            ability.power = b + 1;
+            ability.accuracy = c + 1;
+            ability.cost = e % 33 + 1;
+            // store ability
             wamoIdToAbilities[tokenId].push(ability);
         }
     }
@@ -346,31 +346,29 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     ////////////////////     VIEW FUNCTIONS      ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function getSpawnRequest(uint256 requestId)
-        public
-        view
-        returns (SpawnRequest memory request)
-    {
+    function getSpawnRequest(
+        uint256 requestId
+    ) public view returns (SpawnRequest memory request) {
         request = requestIdToSpawnRequest[requestId];
         return request;
     }
 
     // Has the randomness request for requestId been fulfilled?
-    function getSpawnRequestStatus(uint256 requestId)
-        public
-        view
-        returns (bool requestIsFulfilled)
-    {
+    function getSpawnRequestStatus(
+        uint256 requestId
+    ) public view returns (bool requestIsFulfilled) {
         SpawnRequest memory request = requestIdToSpawnRequest[requestId];
         requestIsFulfilled = request.randomnessFulfilled;
         return requestIsFulfilled;
     }
 
-    function getTokenIdFromRequestId(uint256 requestId)
-        public
-        view
-        returns (uint256 tokenId)
-    {
+    function isSpawnCompleted(uint256 wamoId) public view returns (bool isCompleted) {
+        isCompleted = requestIdToSpawnRequest[tokenIdToSpawnRequestId[wamoId]].completed;
+    }
+
+    function getTokenIdFromRequestId(
+        uint256 requestId
+    ) public view returns (uint256 tokenId) {
         tokenId = requestIdToTokenId[requestId];
         return tokenId;
     }
@@ -380,28 +378,23 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return count;
     }
 
-    function getWamoTraits(uint256 tokenId)
-        public
-        view
-        returns (WamoTraits memory traits)
-    {
+    function getWamoTraits(
+        uint256 tokenId
+    ) public view returns (WamoTraits memory traits) {
         traits = wamoIdToTraits[tokenId];
         return traits;
     }
 
-    function getWamoAbilities(uint256 tokenId)
-        public
-        view
-        returns (Ability[] memory abilities)
-    {
+    function getWamoAbilities(
+        uint256 tokenId
+    ) public view returns (Ability[] memory abilities) {
         return wamoIdToAbilities[tokenId];
     }
 
-    function getWamoAbility(uint256 tokenId, uint256 index)
-        public
-        view
-        returns (Ability memory abilities)
-    {
+    function getWamoAbility(
+        uint256 tokenId,
+        uint256 index
+    ) public view returns (Ability memory abilities) {
         require(
             index < ABILITY_SLOTS,
             "Ability index out of range (must be in [0,3])"
@@ -409,21 +402,17 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return wamoIdToAbilities[tokenId][index];
     }
 
-    function getWamoRecord(uint256 tokenId)
-        public
-        view
-        returns (WamoRecord memory record)
-    {
-        record = tokenIdToRecord[tokenId];
-        return record;
+    function getWamoMovements(
+        uint256 tokenId
+    ) public view returns (int16[8] memory) {
+        return wamoIdToTraits[tokenId].movements;
     }
 
-    function getWamoMovements(uint256 tokenId)
-        public
-        view
-        returns (int16[8] memory)
-    {
-        return wamoIdToTraits[tokenId].movements;
+    function getWamoRecord(
+        uint256 tokenId
+    ) public view returns (WamoRecord memory record) {
+        record = tokenIdToRecord[tokenId];
+        return record;
     }
 
     function getWamoName(uint256 wamoId) public view returns (string memory) {
@@ -451,10 +440,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         vrfCallbackGasLimit = _gasLimit;
     }
 
-    function setVrfRequestConfirmations(uint16 _requestConfirmations)
-        public
-        onlyOwner
-    {
+    function setVrfRequestConfirmations(
+        uint16 _requestConfirmations
+    ) public onlyOwner {
         vrfRequestConfirmations = _requestConfirmations;
     }
 
@@ -462,10 +450,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////   BATTLE STAKING FUNCTIONS   //////////////////
     /////////////////////////////////////////////////////////////////
 
-    function setWamosBattleAddress(address _wamosBattleAddr)
-        external
-        onlyOwner
-    {
+    function setWamosBattleAddress(
+        address _wamosBattleAddr
+    ) external onlyOwner {
         wamosBattleAddr = _wamosBattleAddr;
     }
 
@@ -483,20 +470,28 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////       SETTER FUNCTIONS       //////////////////
     /////////////////////////////////////////////////////////////////
 
-    function setWamoName(uint256 wamoId, string memory name)
-        public
-        onlyWamoOwner(wamoId)
-    {
+    function setWamoName(
+        uint256 wamoId,
+        string memory name
+    ) public onlyWamoOwner(wamoId) {
         wamoIdToWamoName[wamoId] = name;
+    }
+
+    function recordWin(uint256 wamoId) external onlyBattle {
+        tokenIdToRecord[wamoId].wins++;
+    }
+
+    function recordLoss(uint256 wamoId) external onlyBattle {
+        tokenIdToRecord[wamoId].losses++;
     }
 
     /////////////////////////////////////////////////////////////////
     /////////////////      LIBRARY FUNCTIONS       //////////////////
     /////////////////////////////////////////////////////////////////
 
-    function abs(int8 number) public pure returns (int8) {
-        return number >= 0 ? number : -number;
-    }
+    // function abs(int8 number) public pure returns (int8) {
+    //     return number >= 0 ? number : -number;
+    // }
 
     /**
      * @notice internal library function to shave off random digits in sets of five from a 256bit randomWord
@@ -512,20 +507,16 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     )
         public
         pure
-        returns (
-            uint256 a,
-            uint256 b,
-            uint256 c,
-            uint256 d,
-            uint256 e
-        )
+        returns (uint256 a, uint256 b, uint256 c, uint256 d, uint256 e)
     {
-        uint256 base = 10**shavingSize;
-        a = (randomWord / (1**shavingSize * 100_000**segmentNum)) % base;
-        b = (randomWord / (10**shavingSize * 100_000**segmentNum)) % base;
-        c = (randomWord / (100**shavingSize * 100_000**segmentNum)) % base;
-        d = (randomWord / (1000**shavingSize * 100_000**segmentNum)) % base;
-        e = (randomWord / (10000**shavingSize * 100_000**segmentNum)) % base;
+        uint256 base = 10 ** shavingSize;
+        a = (randomWord / (1 ** shavingSize * 100_000 ** segmentNum)) % base;
+        b = (randomWord / (10 ** shavingSize * 100_000 ** segmentNum)) % base;
+        c = (randomWord / (100 ** shavingSize * 100_000 ** segmentNum)) % base;
+        d = (randomWord / (1000 ** shavingSize * 100_000 ** segmentNum)) % base;
+        e =
+            (randomWord / (10000 ** shavingSize * 100_000 ** segmentNum)) %
+            base;
         return (a, b, c, d, e);
     }
 }
