@@ -33,7 +33,7 @@ abstract contract WamosTestHelper {
     WamosV1 wamos;
 }
 
-contract WamosBattleV1Test is Test, WamosTestHelper {
+contract WamosBattleV1SetupTest is Test, WamosTestHelper {
     WamosBattleV1 wamosBattle;
 
     function setUp() public {
