@@ -474,12 +474,15 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             if (a.damageType == DamageType.MEELEE) {
                 att = attacker.meeleeAttack;
                 def = defender.meeleeDefence;
+                gameIdToWamoIdToStatus[gameId][actingWamoId].stamina - a.cost;
             } else if (a.damageType == DamageType.MAGIC) {
                 att = attacker.magicAttack;
                 def = defender.magicDefence;
+                gameIdToWamoIdToStatus[gameId][actingWamoId].mana - a.cost;
             } else {
                 att = attacker.rangeAttack;
                 def = defender.rangeDefence;
+                gameIdToWamoIdToStatus[gameId][actingWamoId].stamina - a.cost;
             }
             /////////////////    DAMAGE ALGORITHM    ////////////////////
             damage =
