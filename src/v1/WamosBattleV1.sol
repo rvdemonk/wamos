@@ -333,6 +333,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         bool useAbility
     ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
         require(targetGridIndex < 256, "Target square must be on the grid!");
+        require(gameIdToWamoIdToStatus[gameId][wamoId].health > 0, "Wamo has feinted!");
         if (abilityChoice >= wamos.ABILITY_SLOTS()) {
             revert InvalidAbilityIndex(gameId, msg.sender);
         }
@@ -368,78 +369,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     /////////////////////////////////////////////////////////////////
-    ////////////////////    END GAME FUNCTIONS   ////////////////////
-    /////////////////////////////////////////////////////////////////
-
-    function resign(
-        uint256 gameId
-    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
-        // other player wins
-        // TODO change so that this simply sets calls wamos health to zero
-        address victor;
-        address loser;
-        if (msg.sender == gameIdToGameData[gameId].challenger) {
-            victor = gameIdToGameData[gameId].challengee;
-            loser = gameIdToGameData[gameId].challenger;
-        } else {
-            victor = gameIdToGameData[gameId].challenger;
-            loser = gameIdToGameData[gameId].challengee;
-        }
-        _endGame(gameId, victor, loser);
-    }
-
-    /**
-     * @notice player claims victory when they believe all of their opponents
-     * wamos have had their health reduced to zero.
-     */
-    function claimVictory(
-        uint256 gameId
-    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
-        // get loser
-        address loser;
-        if (msg.sender == gameIdToGameData[gameId].challenger) {
-            loser = gameIdToGameData[gameId].challengee;
-        } else {
-            loser = gameIdToGameData[gameId].challenger;
-        }
-        // check losers wamos
-        uint256[PARTY_SIZE] memory loserParty = gameIdToPlayerToWamoPartyIds[
-            gameId
-        ][loser];
-        uint256 partyHealth;
-        for (uint i = 0; i < PARTY_SIZE; i++) {
-            partyHealth =
-                partyHealth +
-                gameIdToWamoIdToStatus[gameId][loserParty[i]].health;
-        }
-        if (partyHealth == 0) {
-            _endGame(gameId, msg.sender, loser);
-        } else {
-            revert PlayerFalselyClaimsVictory(gameId, msg.sender);
-        }
-    }
-
-    /**
-     * @notice player prompts the unstaking of their wamos after a game has completed,
-     * prompting a transfer of the tokens from this contract back to the player.
-     */
-    function retrieveStakedWamos(uint256 gameId) external onlyPlayer(gameId) {
-        if (gameIdToGameData[gameId].status != GameStatus.FINISHED) {
-            revert GameMustBeFinishedToRetrieveWamos(gameId); 
-        }
-        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
-            msg.sender
-        ]; 
-        // return wamos in party to msg.sender
-        for (uint i=0; i<PARTY_SIZE; i++) {
-            wamos.safeTransferFrom(address(this), msg.sender, party[i]);
-            wamoIdToStakingStatus[party[i]].isStaked = false;
-            wamoIdToStakingStatus[party[i]].stakeRequested = false;
-            wamoIdToStakingStatus[party[i]].gameId = 0;
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////
     //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
     /////////////////////////////////////////////////////////////////
 
@@ -453,14 +382,15 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         bool moveBeforeAbility,
         bool useAbility
     ) internal {
-        // get traits for attack and stamina/mana stats
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
 
         int16 attackerPosition = gameIdToWamoIdToStatus[gameId][wamoId]
             .positionIndex;
+
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
+
         // move first? adjust position
         if (moveBeforeAbility) {
             attackerPosition = _setWamoPosition(
@@ -600,6 +530,79 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // todo distribute spoils
         // toggle game status to finished
         gameIdToGameData[gameId].status = GameStatus.FINISHED;
+    }
+
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////    END GAME FUNCTIONS   ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function resign(
+        uint256 gameId
+    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
+        // other player wins
+        // TODO change so that this simply sets calls wamos health to zero
+        address victor;
+        address loser;
+        if (msg.sender == gameIdToGameData[gameId].challenger) {
+            victor = gameIdToGameData[gameId].challengee;
+            loser = gameIdToGameData[gameId].challenger;
+        } else {
+            victor = gameIdToGameData[gameId].challenger;
+            loser = gameIdToGameData[gameId].challengee;
+        }
+        _endGame(gameId, victor, loser);
+    }
+
+    /**
+     * @notice player claims victory when they believe all of their opponents
+     * wamos have had their health reduced to zero.
+     */
+    function claimVictory(
+        uint256 gameId
+    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
+        // get loser
+        address loser;
+        if (msg.sender == gameIdToGameData[gameId].challenger) {
+            loser = gameIdToGameData[gameId].challengee;
+        } else {
+            loser = gameIdToGameData[gameId].challenger;
+        }
+        // check losers wamos
+        uint256[PARTY_SIZE] memory loserParty = gameIdToPlayerToWamoPartyIds[
+            gameId
+        ][loser];
+        uint256 partyHealth;
+        for (uint i = 0; i < PARTY_SIZE; i++) {
+            partyHealth =
+                partyHealth +
+                gameIdToWamoIdToStatus[gameId][loserParty[i]].health;
+        }
+        if (partyHealth == 0) {
+            _endGame(gameId, msg.sender, loser);
+        } else {
+            revert PlayerFalselyClaimsVictory(gameId, msg.sender);
+        }
+    }
+
+    /**
+     * @notice player prompts the unstaking of their wamos after a game has completed,
+     * prompting a transfer of the tokens from this contract back to the player.
+     */
+    function retrieveStakedWamos(uint256 gameId) external onlyPlayer(gameId) {
+        if (gameIdToGameData[gameId].status != GameStatus.FINISHED) {
+            revert GameMustBeFinishedToRetrieveWamos(gameId); 
+        }
+        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+            msg.sender
+        ]; 
+        // return wamos in party to msg.sender
+        for (uint i=0; i<PARTY_SIZE; i++) {
+            wamos.safeTransferFrom(address(this), msg.sender, party[i]);
+            wamoIdToStakingStatus[party[i]].isStaked = false;
+            wamoIdToStakingStatus[party[i]].stakeRequested = false;
+            wamoIdToStakingStatus[party[i]].gameId = 0;
+        }
     }
 
 
