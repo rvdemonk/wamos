@@ -8,6 +8,7 @@ import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 struct Ability {
+    uint256 dietyType;
     uint256 meeleeDamage; // 0 or 1
     uint256 magicDamage; // 0 or 1
     uint256 rangeDamage; // 0 or 1
@@ -20,6 +21,7 @@ struct Ability {
 
 struct WamoTraits {
     int16[8] movements;
+    uint256 dietyType;
     uint256 health;
     uint256 meeleeAttack;
     uint256 meeleeDefence;
@@ -263,8 +265,9 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 move2,
                 -move2
             ];
-            traits.powerRegen = m % 25;
+            traits.powerRegen = m % 23;
         }
+        traits.dietyType = randomWord % 8;
         traits.fecundity = randomWord % 11;
         // traits.gearSlots = randomWord % 4;
         // store traits
@@ -314,7 +317,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             ability.power = b;
             ability.accuracy = c;
             ability.cost = e % 33;
-
+            
             wamoIdToAbilities[tokenId].push(ability);
         }
     }

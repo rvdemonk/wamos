@@ -72,6 +72,8 @@ def print_abilities(i):
         for stat, value in wamos[i]['abilities'][j].items():
             print(f"{stat}  {value}")
 
+def simulate_attack():
+    pass
 
 
 
