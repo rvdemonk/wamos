@@ -209,6 +209,9 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 true,
                 false
             ); 
+            if (battle.getWamoPosition(games[0], 1) == 128) {
+                break;
+            }
             vm.prank(player2);
             battle.commitTurn(
                 games[0],
@@ -219,12 +222,41 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 true,
                 false
             ); 
-            if (battle.getWamoPosition(games[0], 1) == 128) {
-                break;
-            }
         }
+        console.log('AFTER VERTICAL MOVES');
+        console.log('wamo 1 position');
         console.logInt(battle.getWamoPosition(games[0], 1));
+        console.log('wamo 2 position');
+        console.logInt(battle.getWamoPosition(games[0], 2));
+        while (true) {
+            vm.prank(player2);
+            battle.commitTurn(
+                games[0],
+                2,
+                LEFT,
+                0,
+                0,
+                true,
+                false
+            ); 
+            vm.prank(player1);
+            battle.commitTurn(
+                games[0],
+                1,
+                RIGHT,
+                0,
+                0,
+                true,
+                false
+            ); 
+            if (battle.getWamoPosition(games[0], 1) == 136) {
+                break;
+            }            
+        }
+        console.log('AFTER HORIZONTAL MOVES');
+        console.log('wamo 1 position');
+        console.logInt(battle.getWamoPosition(games[0], 1));
+        console.log('wamo 2 position');
         console.logInt(battle.getWamoPosition(games[0], 2));
     }
-
 }
