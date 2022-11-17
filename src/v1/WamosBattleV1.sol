@@ -1,18 +1,4 @@
 // SPDX-License-Identifier: MIT
-
-/**
- * @dev WAMOS BATTLE V1 SET UP
- * deploy wamos -> deploy wamos battle -> users approve battle staking in wamos
- *
- * @dev WAMOS BATTLE V1: USAGE
- * create game -> connect wamos -> players ready -> game starts -> take turns... -> conquest/resignation
- *
- * @dev CHANGES FROM V0
- *  - Games stored in mapping instead of array for efficiency (arrays must be iterated over
- *    in solidity to find the specified index).
- *
- */
-
 pragma solidity <0.9.0;
 
 import "openzeppelin/token/ERC721/IERC721Receiver.sol";
@@ -77,6 +63,7 @@ error InvalidMoveIndex(uint256 gameId, address player);
 error WamoHasNoHealth(uint256 gameId, uint256 wamoId);
 error WamoNotInGame(uint256 gameId, uint256 wamoId);
 error NotPlayersTurn(uint256 gameId, address player);
+error PlayerFalselyClaimsVictory(uint256 gameId, address claimant);
 
 contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     /** VRF CONSUMER CONFIG */
@@ -129,9 +116,14 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         public gameIdToPlayerToWamoPartyIds;
     // the state of wamo y in game x
     mapping(uint256 => mapping(uint256 => WamoStatus))
-        public gameIdToWamoIdToStatus;
+        public gameIdToWamoIdToStatus; // todo change to wamoIdToStatus
     // for game x, token id of wamo on index y, 0 if none
     mapping(uint256 => mapping(int16 => uint256)) gameIdToGridIndexToWamoId;
+
+    /** EVENTS */
+    event GameCreated();
+    event WamoCreated();
+    event GameStarted();
 
     constructor(
         address _wamosAddr,
@@ -167,7 +159,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     /** @notice Reverts function if game gameId is not onfoot */
-    modifier onlyOnfootGame(uint256 gameId) {
+    modifier onlyOnfoot(uint256 gameId) {
         if (gameIdToGameData[gameId].status != GameStatus.ONFOOT) {
             revert GameIsNotOnfoot(gameId);
         }
@@ -330,7 +322,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         int16 targetGridIndex,
         bool moveBeforeAbility,
         bool useAbility
-    ) external onlyPlayer(gameId) onlyOnfootGame(gameId) {
+    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
         require(targetGridIndex < 256, "Target square must be on the grid!");
         if (abilityChoice >= wamos.ABILITY_SLOTS()) {
             revert InvalidAbilityIndex(gameId, msg.sender);
@@ -362,6 +354,49 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             moveBeforeAbility,
             useAbility
         );
+    }
+
+    function resign(
+        uint256 gameId
+    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
+        // other player wins
+        address victor;
+        address loser;
+        if (msg.sender == gameIdToGameData[gameId].challenger) {
+            victor = gameIdToGameData[gameId].challengee;
+            loser = gameIdToGameData[gameId].challenger;
+        } else {
+            victor = gameIdToGameData[gameId].challenger;
+            loser = gameIdToGameData[gameId].challengee;
+        }
+        _endGame(gameId, victor, loser);
+    }
+
+    function claimVictory(
+        uint256 gameId
+    ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
+        // get loser
+        address loser;
+        if (msg.sender == gameIdToGameData[gameId].challenger) {
+            loser = gameIdToGameData[gameId].challengee;
+        } else {
+            loser = gameIdToGameData[gameId].challenger;
+        }
+        // check losers wamos
+        uint256[PARTY_SIZE] memory loserParty = gameIdToPlayerToWamoPartyIds[
+            gameId
+        ][loser];
+        uint256 partyHealth;
+        for (uint i = 0; i < PARTY_SIZE; i++) {
+            partyHealth =
+                partyHealth +
+                gameIdToWamoIdToStatus[gameId][loserParty[i]].health;
+        }
+        if (partyHealth == 0) {
+            _endGame(gameId, msg.sender, loser);
+        } else {
+            revert PlayerFalselyClaimsVictory(gameId, msg.sender);
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -510,12 +545,30 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     }
 
     // TODO
-    function _endGame(uint256 gameId) internal {
+    function _endGame(uint256 gameId, address victor, address loser) internal {
         // alter wamos record
         // distribute spoils
         // return wamos to players
         // toggle staking status to unstaked
         // toggle game status to finished
+    }
+
+    function _recordVictories(uint256 gameId, address victor) internal {
+        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+            victor
+        ];
+        for (uint i = 0; i < PARTY_SIZE; i++) {
+            wamos.recordWin(party[i]);
+        }
+    }
+
+    function _recordDefeats(uint256 gameId, address loser) internal {
+        uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
+            loser
+        ];
+        for (uint i = 0; i < PARTY_SIZE; i++) {
+            wamos.recordWin(party[i]);
+        }
     }
 
     /////////////////////////////////////////////////////////////////

@@ -146,7 +146,18 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     }
 
     modifier onlyWamoOwner(uint256 wamoId) {
-        require(msg.sender == ownerOf(wamoId));
+        require(
+            msg.sender == ownerOf(wamoId),
+            "Only the owner of this wamo can call"
+        );
+        _;
+    }
+
+    modifier onlyBattle() {
+        require(
+            msg.sender == wamosBattleAddr,
+            "Only WamosBattle can call this function."
+        );
         _;
     }
 
@@ -460,6 +471,14 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         string memory name
     ) public onlyWamoOwner(wamoId) {
         wamoIdToWamoName[wamoId] = name;
+    }
+
+    function recordWin(uint256 wamoId) external onlyBattle {
+        tokenIdToRecord[wamoId].wins++;
+    }
+
+    function recordLoss(uint256 wamoId) external onlyBattle {
+        tokenIdToRecord[wamoId].losses++;
     }
 
     /////////////////////////////////////////////////////////////////
