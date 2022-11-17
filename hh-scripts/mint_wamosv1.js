@@ -4,6 +4,7 @@ const WAMOS_ADDR = "0xEBbdA88ddb9f6CCAB03a2841Ff2Ea1F4b14A0E00";
 
 async function displayTraits(wamosContract, wamoId) {
   let traits = await wamosContract.getWamoTraits(wamoId);
+  let blockNum = (await hre.ethers.provider.getBlock("latest")).number;
   if (traits.health._hex !== "0x00") {
     console.log(`\n---- Wamo #${wamoId} Traits ----\n`);
     for (const property in traits) {
@@ -12,7 +13,27 @@ async function displayTraits(wamosContract, wamoId) {
       }
     }
   } else {
-    setTimeout(() => displayTraits(wamosContract, wamoId), 3000);
+    console.log(`[block ${blockNum}] request unfulfilled...`);
+    setTimeout(() => displayTraits(wamosContract, wamoId), 5000);
+  }
+}
+
+async function completeMint(wamos, requestId, tokenId) {
+  const currentBlock = (await hre.ethers.provider.getBlock("latest")).number;
+  const isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
+  if (!isRequestFulfilled) {
+    console.log(`[block ${currentBlock}] waiting for vrf fulfillemt...`);
+    setTimeout(() => completeMint(wamos, requestId), 4000);
+  } else {
+    console.log(`\n Request Fulfilled!`);
+    const completetx = await wamos.completeSpawnWamo(tokenId);
+    const traits = await wamos.getWamoTraits(tokenId);
+    console.log(`\n---- Wamo #${tokenId} Traits ----\n`);
+    for (const property in traits) {
+      if (isNaN(Number(property))) {
+        console.log(`${traits[property].toString()} | ${property}`);
+      }
+    }
   }
 }
 
@@ -39,45 +60,11 @@ async function main() {
   console.log(`\nRequest Id: ${requestId}`);
   console.log(`-> Spawning Wamo #${tokenId}`);
 
-  console.log(`\nGetting request status...`);
+  console.log(`\nGetting request data...`);
   let requestData = await wamos.getSpawnRequest(requestId);
   console.log(requestData);
 
-  // check every 5 seconds if randomness has been fulfilled for a max 20 blocks
-  const startBlock = hre.network.block;
-  const blocksToWait = 20;
-  let currentBlock;
-
-  let isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
-  while (!isRequestFulfilled) {
-    currentBlock = await hre.network.block;
-    setTimeout(async () => {
-      console.log(`[block ${currentBlock}] randomness not fulfillled...`);
-      isRequestFulfilled = await wamos.getSpawnRequestStatus(requestId);
-    }, 5000);
-
-    if (currentBlock - startBlock > blocksToWait) {
-      console.log(
-        `-> exiting process: request unfulfilled after ${blocksToWait}`
-      );
-      break;
-    }
-  }
-
-  // if fulfilled show random word and complete mint
-  if (isRequestFulfilled) {
-    let requestData = await wamos.getSpawnRequest(requestId);
-    const word = requestData.randomWord;
-    console.log(`\nRequest for wamo #${tokenId} fulfilled!\n`);
-    console.log(`random word: ${word}`);
-
-    // PHASE 2: COMPLETE MINT
-    console.log(`\n ** COMPLETING MINT\n`);
-    const completeSpawntx = await wamos.completeSpawnWamo(tokenId);
-    // display traits
-    console.log(`Loading traits...`);
-    displayTraits(wamos, tokenId);
-  }
+  completeMint(wamos, requestId, tokenId);
 }
 
 main().catch((error) => {
