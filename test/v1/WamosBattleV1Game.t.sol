@@ -31,6 +31,30 @@ abstract contract WamosTestHelper {
     // OUTSIDE CONTRACTS
     VRFCoordinatorV2Mock vrfCoordinator;
     WamosV1 wamos;
+    WamosBattleV1 battle;
+
+
+    function logAbility(uint256 wamoId, uint256 abilityIndex) public {
+        Ability memory ability = wamos.getWamoAbility(wamoId, abilityIndex);
+        console.log("wamo #%s ability %s", wamoId, abilityIndex);
+        console.log(uint256(ability.damageType));
+        console.log(ability.power);
+        console.log(ability.accuracy);
+        console.logInt(ability.range);
+        console.log(ability.cost);
+    }
+
+    function logAbility(Ability memory ability) public {
+        console.log("damge type", uint256(ability.damageType));
+        console.log("power", ability.power);
+        console.log("accuracy", ability.accuracy);
+        console.logInt(ability.range);
+        console.log("cost", ability.cost);
+    }
+
+    function logWamoStatus(uint256 gameId, uint256 wamoId) public {
+        WamoStatus memory status = battle.getWamoStatus(gameId, wamoId);
+    }
 }
 
 contract WamosBattleV1GameTest is Test, WamosTestHelper {
@@ -41,7 +65,6 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
     uint256 UP = 2;
     uint256 DOWN = 3;
 
-    WamosBattleV1 battle;
     uint256[] games;
     uint256 PARTY_SIZE;
     uint256[2] p1party;
@@ -186,6 +209,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             0,
             0,
             true,
+            true,
             false
         );
         assertTrue(battle.getWamoPosition(games[0], 1) == w1posStart + w1moves[move]);
@@ -207,6 +231,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 0,
                 0,
                 true,
+                true,
                 false
             ); 
             if (battle.getWamoPosition(games[0], 1) == 128) {
@@ -219,6 +244,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 DOWN,
                 0,
                 0,
+                true,
                 true,
                 false
             ); 
@@ -237,6 +263,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 0,
                 0,
                 true,
+                true,
                 false
             ); 
             vm.prank(player1);
@@ -246,6 +273,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
                 RIGHT,
                 0,
                 0,
+                true,
                 true,
                 false
             ); 
@@ -258,5 +286,27 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         console.logInt(battle.getWamoPosition(games[0], 1));
         console.log('wamo 2 position');
         console.logInt(battle.getWamoPosition(games[0], 2));
+        // wamos now next o each other
+        // player 2s turn
+        Ability[] memory w1Abilities = wamos.getWamoAbilities(1);
+        Ability[] memory w2Abilities = wamos.getWamoAbilities(2);
+        console.log('wamo #2 ability 0');
+        Ability memory w2a0 = w2Abilities[0];
+        logAbility(w2a0);
+        int16 w1pos = battle.getWamoPosition(games[0], 1);
+        assertTrue(w1pos == 136);
+        // w2 use a0
+        vm.prank(player2);
+        battle.commitTurn(
+            games[0],
+            2,
+            0, // move 0 doesnt matter not moving
+            0, // ability 0
+            w1pos, // 136 next door
+            false, // not moving
+            false, // move before ability dnm
+            true // use ability
+        );
+
     }
 }

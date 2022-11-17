@@ -1,5 +1,4 @@
 const hre = require("hardhat");
-const { assertHardhatInvariant } = require("hardhat/internal/core/errors");
 
 const WAMOS_ADDR = "0x81e0149229031dCdC1E873F4540a28A683A3267A";
 

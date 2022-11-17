@@ -56,6 +56,7 @@ struct StakingStatus {
 error GameDoesNotExist(uint256 gameId);
 error NotPlayerOfGame(uint256 gameId, address addr);
 error PlayerDoesNotOwnThisWamo(uint256 wamoId, address player);
+error CannotStakeIncompleteSpawn(uint256 wamoId, address player);
 error GameIsNotOnfoot(uint256 gameId);
 error WamoMovementNotFound(uint256 gameId, uint256 wamoId, int16 indexMutation);
 error InvalidAbilityIndex(uint256 gameId, address player);
@@ -127,6 +128,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     event GameStarted();
     event WamoMoved();
     event WamoUsedAbility();
+    event DamageDealtBy(uint256 gameId, uint256 wamoId, uint256 turn, uint256 damage);
 
     constructor(
         address _wamosAddr,
@@ -213,6 +215,9 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // check that sender owns wamo
         if (wamos.ownerOf(wamoId) != msg.sender) {
             revert PlayerDoesNotOwnThisWamo(wamoId, msg.sender);
+        }
+        if (wamos.isSpawnCompleted(wamoId)) {
+            revert CannotStakeIncompleteSpawn(wamoId, msg.sender);
         }
         // register staking request
         if (wamoIdToStakingStatus[wamoId].exists) {
@@ -323,6 +328,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 moveChoice,
         uint256 abilityChoice,
         int16 targetGridIndex,
+        bool isMoved,
         bool moveBeforeAbility,
         bool useAbility
     ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
@@ -354,10 +360,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             moveChoice,
             abilityChoice,
             targetGridIndex,
+            isMoved,
             moveBeforeAbility,
             useAbility
         );
-        // TODO INCREMENT TURN COUNT
         gameIdToGameData[gameId].turnCount++;
     }
 
@@ -443,6 +449,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 moveChoice,
         uint256 abilityChoice,
         int16 targetGridIndex,
+        bool isMoved,
         bool moveBeforeAbility,
         bool useAbility
     ) internal {
@@ -470,8 +477,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 targetWamoId,
                 abilityChoice
             );
-            _dealDamage(gameId, targetWamoId, damage);
-            // todo subtract energy cost
+            _dealDamage(gameId, wamoId, targetWamoId, damage);
         }
         if (!moveBeforeAbility) {
             _setWamoPosition(gameId, wamoId, moveChoice, attackerPosition);
@@ -562,6 +568,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
 
     function _dealDamage(
         uint256 gameId,
+        uint256 attackerId,
         uint256 targetWamoId,
         uint256 damage
     ) internal {
@@ -574,6 +581,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 targetHealth -
                 damage;
         }
+        emit DamageDealtBy(gameId, attackerId, gameIdToGameData[gameId].turnCount, damage);
     }
 
     // TODO

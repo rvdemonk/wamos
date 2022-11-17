@@ -362,6 +362,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         return requestIsFulfilled;
     }
 
+    function isSpawnCompleted(uint256 wamoId) public view returns (bool isCompleted) {
+        isCompleted = requestIdToSpawnRequest[tokenIdToSpawnRequestId[wamoId]].completed;
+    }
+
     function getTokenIdFromRequestId(
         uint256 requestId
     ) public view returns (uint256 tokenId) {
