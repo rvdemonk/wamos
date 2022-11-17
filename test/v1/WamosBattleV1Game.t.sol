@@ -154,13 +154,11 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
     function testAbilitiesExist() public {
         for (uint i = 1; i < 2*PARTY_SIZE + 1; i++) {
             Ability[] memory abilities = wamos.getWamoAbilities(i);
-            console.log(abilities.length);
             for (uint j=0; j<1; j++) {
-                assertFalse(abilities[i].power == 0);
-                assertFalse(abilities[i].dietyType == 0);
-                assertFalse(abilities[i].accuracy == 0);
-                assertFalse(abilities[i].range == 0);
-                assertFalse(abilities[i].cost == 0);
+                assertFalse(abilities[j].power == 0);
+                assertFalse(abilities[j].accuracy == 0);
+                assertFalse(abilities[j].range == 0);
+                assertFalse(abilities[j].cost == 0);
             }
         }   
     }
@@ -183,6 +181,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             true,
             false
         );
+        
     }
 
 }

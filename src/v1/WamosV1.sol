@@ -301,7 +301,7 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
                 uint256 c,
                 uint256 d,
                 uint256 e
-            ) = shaveOffRandomIntegers(randomWord, 3, wordSegmentNum);
+            ) = shaveOffRandomIntegers(randomWord, 2, wordSegmentNum);
 
             // determine move type
             if (a < 34) {
