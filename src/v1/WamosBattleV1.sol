@@ -380,26 +380,21 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // get traits for attack and stamina/mana stats
         WamoTraits memory actorTraits = wamos.getWamoTraits(wamoId);
 
-        int16 actorPosition = gameIdToWamoIdToStatus[gameId][wamoId]
+        int16 attackerPosition = gameIdToWamoIdToStatus[gameId][wamoId]
             .positionIndex;
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
         // move first? adjust position
         if (moveBeforeAbility) {
-            actorPosition = _setWamoPosition(
+            attackerPosition = _setWamoPosition(
                 gameId,
                 wamoId,
                 moveChoice,
-                actorPosition
+                attackerPosition
             );
         }
         if (useAbility) {
-            // todo ensure target is within range
-            // pythagoras
-            int16 targetDistance = (actorPosition - targetGridIndex) %
-                GRID_SIZE;
-
             uint256 damage = _calculateDamage(
                 gameId,
                 wamoId,
@@ -411,7 +406,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             // todo update energy cost regen
         }
         if (!moveBeforeAbility) {
-            _setWamoPosition(gameId, wamoId, moveChoice, actorPosition);
+            _setWamoPosition(gameId, wamoId, moveChoice, attackerPosition);
         }
         // todo emit damage event
         // todo emit movement event
@@ -446,32 +441,38 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             actingWamoId,
             abilityChoice
         );
-        WamoTraits memory attacker = wamos.getWamoTraits(actingWamoId);
-        WamoTraits memory defender = wamos.getWamoTraits(targetWamoId);
-
-        // determine if attack is a critical hit
-        uint256 crit = 1;
-        if ((attacker.luck / (block.timestamp%5) + a.accuracy) > 99) {
-            crit = 2;
-        }
-        // isolate attack and defend stat
-        uint256 att;
-        uint256 def;
-        if (a.damageType == DamageType.MEELEE) {
-            att = attacker.meeleeAttack;
-            def = defender.meeleeDefence;
-        } else if (a.damageType == DamageType.MAGIC) {
-            att = attacker.magicAttack;
-            def = defender.magicDefence;
+        // if target out of range the attack deals no damage
+        if (euclideanDistance(
+            gameIdToWamoIdToStatus[gameId][actingWamoId].positionIndex,
+            gameIdToWamoIdToStatus[gameId][targetWamoId].positionIndex 
+            ) > a.range) {
+            damage = 0;
         } else {
-            att = attacker.rangeAttack;
-            def = defender.rangeDefence;
+            WamoTraits memory attacker = wamos.getWamoTraits(actingWamoId);
+            WamoTraits memory defender = wamos.getWamoTraits(targetWamoId);
+            // determine if attack is a critical hit
+            uint256 crit = 1;
+            if ((attacker.luck / (block.timestamp%5) + a.accuracy) > 99) {
+                crit = 2;
+            }
+            // isolate attack and defend stat
+            uint256 att;
+            uint256 def;
+            if (a.damageType == DamageType.MEELEE) {
+                att = attacker.meeleeAttack;
+                def = defender.meeleeDefence;
+            } else if (a.damageType == DamageType.MAGIC) {
+                att = attacker.magicAttack;
+                def = defender.magicDefence;
+            } else {
+                att = attacker.rangeAttack;
+                def = defender.rangeDefence;
+            }
+            /////////////////    DAMAGE ALGORITHM    ////////////////////
+            damage = 
+                (((((2*a.accuracy/50)+10) * a.power * (att/def))/50)+2) * (80+block.timestamp%15);
+            /////////////////////////////////////////////////////////////
         }
-        /////////////////    DAMAGE ALGORITHM    ////////////////////
-        damage = 
-            (((((2*a.accuracy/50)+10) * a.power * (att/def))/50)+2) * (80+block.timestamp%15);
-        /////////////////////////////////////////////////////////////
-        return damage;
     }
 
     function _dealDamage(uint256 gameId, uint256 targetWamoId, uint256 damage) internal {
@@ -636,4 +637,4 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             z = (x/z + z)/2;
         }      
     }
-
+}

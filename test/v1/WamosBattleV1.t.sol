@@ -360,10 +360,15 @@ contract WamosBattleV1Test is Test, WamosTestHelper {
 
     /** TEST LIBRARY FUNCTIONS */
 
-    function testSquareRootApprox() public {}
-
-    function testRet() public {
-        uint256 num = wamosBattle.ret();
-        console.log(num);
+    function testSquareRootApprox() public {
+        int16 x = 25;
+        console.logInt(wamosBattle.sqrtApprox(90));
     }
+
+    function testEuclidean() public {
+        int16 p1 = 0;
+        int16 p2 = 66;
+        console.logInt(wamosBattle.euclideanDistance(p1, p2));
+    }
+
 }
