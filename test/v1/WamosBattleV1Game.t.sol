@@ -327,7 +327,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         );
 
         logTurn(games[0]);
-        logHealth(games[0], 1);
-        logHealth(games[0], 2);
+        logWamoStatus(games[0], 1);
+        logWamoStatus(games[0], 2);
     }
 }
