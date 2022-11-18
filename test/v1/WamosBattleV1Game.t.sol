@@ -255,8 +255,8 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             battle.commitTurn(
                 games[0],
                 1,
-                UP,
                 0,
+                UP,
                 0,
                 true,
                 true,
@@ -269,21 +269,26 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             battle.commitTurn(
                 games[0],
                 2,
-                DOWN,
                 0,
+                DOWN,
                 0,
                 true,
                 true,
                 false
             ); 
+            if (battle.getTurnCount(games[0]) > 50) {
+                break;
+            }
+            logPosition(games[0], 1);
+            logPosition(games[0], 2);        
         }
         while (true) {
             vm.prank(player2);
             battle.commitTurn(
                 games[0],
                 2,
-                LEFT,
                 0,
+                LEFT,
                 0,
                 true,
                 true,
@@ -293,8 +298,8 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             battle.commitTurn(
                 games[0],
                 1,
-                RIGHT,
                 0,
+                RIGHT,
                 0,
                 true,
                 true,
@@ -302,39 +307,43 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
             ); 
             if (battle.getWamoPosition(games[0], 1) == 136) {
                 break;
+            } 
+            if (battle.getTurnCount(games[0]) > 50) {
+                break;
             }            
         }
+        // get abilities
+        Ability[] memory w1Abilities = wamos.getWamoAbilities(1);
+        Ability[] memory w2Abilities = wamos.getWamoAbilities(2);
+
+        uint256 w1StartHealth = battle.getWamoStatus(games[0], 1).health;
+        uint256 w2StartHealth = battle.getWamoStatus(games[0], 2).health;
+
+        vm.startPrank(player2);
+
         // wamos now next o each other
         int16 w1pos = battle.getWamoPosition(games[0], 1);
         int16 w2pos = battle.getWamoPosition(games[0], 2);
         assertTrue(w1pos == 136);
         assertTrue(w2pos == 135);
-        // get abilities
-        Ability[] memory w1Abilities = wamos.getWamoAbilities(1);
-        Ability[] memory w2Abilities = wamos.getWamoAbilities(2);
-        // logTurn(games[0]);
-        // logHealth(games[0], 1);
-        // logHealth(games[0], 2);
-        
-        // player 2s turn
-        // logAbility(2, abilityChoice);
-        uint256 w1StartHealth = battle.getWamoStatus(games[0], 1).health;
-        uint256 w2StartHealth = battle.getWamoStatus(games[0], 2).health;
-
-        uint256 abilityChoice = 0;
-        vm.startPrank(player2);
-
         console.log("---POSITIONS BEFORE ATTACK");
         logPosition(games[0], 1);
         logPosition(games[0], 2);
         
-        console.log("wamo 2 attacking");
+
+        // battle.changeWamoHealth(games[0], 1, 1);
+
+        // WORKING UNTIL HERE
+
+        console.log("---WAMO #2 ATTACKING");
+        uint256 abilityChoice = 0;
+
         battle.commitTurn(
             games[0],
-            2, 
-            UP,
-            abilityChoice, //ability
-            136,
+            2,
+            1,
+            RIGHT,
+            abilityChoice,
             false,
             false,
             true
