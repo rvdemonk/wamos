@@ -503,33 +503,16 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             //         50) + 2) *
             //     (80 + (block.timestamp % 15));
             damage =
-                ((((((2 * a.accuracy) / 50) + 6) * a.power * (att / def)) /
+                ((((((2 * a.accuracy) / 50) + 2) * a.power * (att / def)) /
                     50)) *
                 ((block.timestamp % 15));
             /////////////////////////////////////////////////////////////
         }
     }
 
-    // works
     function changeWamoHealthTo(uint256 gameId, uint256 wamoId, uint256 health) public {
         gameIdToWamoIdToStatus[gameId][wamoId].health = health;
     }
-
-    function _dealDamage(
-        uint256 gameId,
-        uint256 actingWamoId,
-        uint256 targetWamoId,
-        uint256 damage
-    ) internal {
-        uint256 targetHealth = getWamoHealth(gameId, targetWamoId);
-        if (damage > targetHealth) {
-            gameIdToWamoIdToStatus[gameId][targetWamoId].health = 0;
-        } else {
-            gameIdToWamoIdToStatus[gameId][targetWamoId].health -= damage;
-        }
-        emit DamageDealtBy(gameId, actingWamoId, gameIdToGameData[gameId].turnCount, damage);
-    }
-
 
     function _endGame(uint256 gameId, address victor, address loser) internal {
         // alter wamos record

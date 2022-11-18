@@ -327,29 +327,6 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
 
     function testCannotTakeTurnBeforeGameOnfoot() public {}
 
-    /** TEST GAMEPLAY */
-
-    function testCommitTurn() public {
-        vm.startPrank(player1);
-        uint256 wamo1 = 1;
-        uint256 gameId = wamosBattle.createGame(player2);
-        wamosBattle.connectWamo(gameId, wamo1);
-        wamosBattle.connectWamo(gameId, 3);
-        wamosBattle.playerReady(gameId);
-        vm.stopPrank();
-        vm.startPrank(player2);
-        wamosBattle.connectWamo(gameId, 2);
-        wamosBattle.connectWamo(gameId, 4);
-        wamosBattle.playerReady(gameId);
-        assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
-        vm.stopPrank();
-        // ^gas 1_197k
-        vm.prank(player1);
-        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true, true, true);
-        // gas^ 1_338k
-        // turn gas = ~130k
-    }
-
     /** TEST VIEW FUNCTIONS */
 
     // function testGetGameData() public {}

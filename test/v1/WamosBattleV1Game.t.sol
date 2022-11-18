@@ -233,8 +233,8 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         battle.commitTurn(
             games[0],
             1,
-            move,
             0,
+            move,
             0,
             true,
             true,
@@ -336,8 +336,8 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         // WORKING UNTIL HERE
 
         console.log("---WAMO #2 ATTACKING");
-        uint256 abilityChoice = 0;
-
+        uint256 abilityChoice = 2;
+        logAbility(2, abilityChoice );
         battle.commitTurn(
             games[0],
             2,
