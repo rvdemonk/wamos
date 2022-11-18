@@ -1,6 +1,5 @@
 const hre = require("hardhat");
 
-const WAMOS_ADDR = "0x81e0149229031dCdC1E873F4540a28A683A3267A";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -24,15 +23,18 @@ async function displayTraits(wamosContract, wamoId) {
 }
 
 async function main() {
-  const wamos = await hre.ethers.getContractAt("WamosV1", WAMOS_ADDR);
+  const wamosAddress = hre.config.WAMOS_DEPLOY_ADDR;
+  const wamos = await hre.ethers.getContractAt("WamosV1", wamosAddress);
   const tokenCountStart = await wamos.tokenCount();
   const mintPrice = hre.config.WAMOSV1_PRICE;
   console.log("Working with WamosV1 at", wamos.address);
   console.log(`token count: ${tokenCountStart}`);
 
+  const minter = await hre.ethers.getSigner()
+
   // PHASE 1: REQUEST MINT
   console.log(`\n ** BEGINNING MINT\n`);
-
+  console.log(`Minting as ${minter.address}`);
   // make request
   const reqStartCount = await wamos.getRequestCount()
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });

@@ -120,7 +120,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     mapping(uint256 => mapping(int16 => uint256)) gameIdToGridIndexToWamoId;
 
     /** EVENTS */
-    event GameCreated();
+    event GameCreated(uint256 gameid, address challenger, address challengee);
     event WamoCreated();
     event GameStarted();
     event WamoMoved();
@@ -190,6 +190,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // store challenge
         addrToChallengesSent[challenger].push(game.id);
         addrToChallengesReceived[challengee].push(game.id);
+        emit GameCreated(game.id, challenger, challengee);
         return game.id;
     }
 
