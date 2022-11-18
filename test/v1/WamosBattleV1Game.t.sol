@@ -307,27 +307,35 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         Ability[] memory w1Abilities = wamos.getWamoAbilities(1);
         Ability[] memory w2Abilities = wamos.getWamoAbilities(2);
         
-        logTurn(games[0]);
-        logHealth(games[0], 1);
-        logHealth(games[0], 2);
+        // logTurn(games[0]);
+        // logHealth(games[0], 1);
+        // logHealth(games[0], 2);
         
         // player 2s turn
         vm.startPrank(player2);
         uint256 abilityChoice = 0;
-        logAbility(2, abilityChoice);
+        // logAbility(2, abilityChoice);
+        uint256 w1StartHealth = battle.getWamoStatus(games[0], 1).health;
+        uint256 w2StartHealth = battle.getWamoStatus(games[0], 2).health;
         battle.commitTurn(
             games[0],
             2, 
             UP,
-            0, //ability
+            abilityChoice, //ability
             battle.getWamoPosition(games[0], 1),
             false,
             false,
             true
         );
+        uint256 w1AfterHealth = battle.getWamoStatus(games[0], 1).health;
+        uint256 w2AfterHealth = battle.getWamoStatus(games[0], 2).health;
 
-        logTurn(games[0]);
-        logHealth(games[0], 1);
-        logHealth(games[0], 2);
+        // TODO FOR SOME REASON DAMAGE IS DEALT TO ATTACKING WAMO REGARDLESS
+        console.log("wamo 1 hp change: %s --> %s", w1StartHealth, w1AfterHealth);
+        console.log("wamo 2 hp change: %s --> %s", w2StartHealth, w2AfterHealth);
+
+        // logTurn(games[0]);
+        // logHealth(games[0], 1);
+        // logHealth(games[0], 2);
     }
 }
