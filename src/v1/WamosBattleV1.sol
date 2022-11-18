@@ -506,6 +506,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
+    // TODO FOR SOME REASON DAMAGE IS DEALT TO ATTACKING WAMO
     function _dealDamage(
         uint256 gameId,
         uint256 actingWamoId,
