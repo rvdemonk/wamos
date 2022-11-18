@@ -1,6 +1,6 @@
 [profile.default]
 src = 'src'
-out = 'client/artifacts'
+out = 'out'
 libs = ['lib']
 
 [rpc_endpoints]

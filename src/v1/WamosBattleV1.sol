@@ -5,7 +5,6 @@ import "openzeppelin/token/ERC721/IERC721Receiver.sol";
 import "openzeppelin/token/ERC721/IERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "src/v1/interfaces/WamosV1Interface.sol";
 import "src/v1/WamosV1.sol";
 
 enum GameStatus {

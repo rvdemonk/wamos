@@ -1,11 +1,6 @@
-# WAMOS
+# WAm0s: A Monster Battling Game Protocol
 
 At last...the Gods have awakened...
 
-foundry -> smart contract dev and testing\
-hardhat -> scripts and tasks\
-nextjs -> frontend
+## INSTRUCTIONS
 
-## Development
-
-Currently configured to be deployed onto the Polygon Mumbai test net.

@@ -8,7 +8,7 @@ async function main() {
   const wamos = await hre.ethers.getContractAt(NAME, ADDR);
 //   console.log(`\nLoaded ${NAME} at ${wamos.address}`);
 
-  const traits = await wamos.getWamoTraits(10);
+  const traits = await wamos.getWamoTraits(WAMOID);
 
   console.log(Object.keys(traits));
 
