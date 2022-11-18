@@ -17,8 +17,8 @@ function getRemappings() {
 }
 
 module.exports = {
-  WAMOS_DEPLOY_ADDR: "0x8d865E040279be1BEeaa45937B5824227891a372",
-  WAMOS_BATTLE_ADDR: "0x841A8EBcF5f29b2a8cbf61cB7bC2De99a703EdcF",
+  WAMOS_DEPLOY_ADDR: "0x5c4980F343F2726aDe2bCe1D45c93d46B660d1B5",
+  WAMOS_BATTLE_ADDR: "0x82398ABcd2Fd713a21d9eD799486c1Ba65c101DA",
   defaultNetwork: "mumbai",
   networks: {
     hardhat: {
@@ -47,7 +47,7 @@ module.exports = {
     },
     mumbai: {
       chainId: 80001,
-      accounts: [process.env.PRIVATE_KEY2, process.env.PRIVATE_KEY],
+      accounts: [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY2],
       linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
       url: "https://polygon-mumbai.g.alchemy.com/v2/eYgXsBSOPz9oR2j30eumjxLssbFSvo6i",
       gas: 2100000,
