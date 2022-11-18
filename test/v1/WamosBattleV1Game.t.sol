@@ -65,17 +65,23 @@ abstract contract WamosTestHelper {
         console.log("Wamo #%s health: %s", wamoId, status.health);
     }
 
-    // todo
-    function logAllHealth(uint256 gameId) public {
-        GameData memory data = battle.getGameData(gameId);
-        address challenger = data.challenger;
-        address challengee = data.challengee;
-        // uint256[2] memory party1 = 
-    }
+    // // todo
+    // function logAllHealth(uint256 gameId) public {
+    //     GameData memory data = battle.getGameData(gameId);
+    //     address challenger = data.challenger;
+    //     address challengee = data.challengee;
+    //     // uint256[2] memory party1 = 
+    // }
 
     function logTurn(uint256 gameId) public {
         GameData memory data = battle.getGameData(gameId);
         console.log("\n|---> Turn %s", data.turnCount);        
+    }
+
+    function logPosition(uint256 gameId, uint256 wamoId) public {
+        int16 pos = battle.getWamoPosition(gameId, wamoId);
+        console.log("Position of Wamo #%s", wamoId);
+        console.logInt(pos);
     }
 }
 
@@ -237,7 +243,7 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         assertTrue(battle.getWamoPosition(games[0], 1) == w1posStart + w1moves[move]);
     }
 
-    function testTurnsMovingAlternating() public {
+    function testTurnsMoving() public {
         int16[8] memory w1moves = wamos.getWamoMovements(1);
         int16[8] memory w3moves = wamos.getWamoMovements(2);
         int16 w1Pos = battle.getWamoPosition(games[0], 1);
@@ -312,21 +318,29 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         // logHealth(games[0], 2);
         
         // player 2s turn
-        vm.startPrank(player2);
-        uint256 abilityChoice = 0;
         // logAbility(2, abilityChoice);
         uint256 w1StartHealth = battle.getWamoStatus(games[0], 1).health;
         uint256 w2StartHealth = battle.getWamoStatus(games[0], 2).health;
+
+        uint256 abilityChoice = 0;
+        vm.startPrank(player2);
+
+        console.log("---POSITIONS BEFORE ATTACK");
+        logPosition(games[0], 1);
+        logPosition(games[0], 2);
+        
+        console.log("wamo 2 attacking");
         battle.commitTurn(
             games[0],
             2, 
             UP,
             abilityChoice, //ability
-            battle.getWamoPosition(games[0], 1),
+            136,
             false,
             false,
             true
         );
+
         uint256 w1AfterHealth = battle.getWamoStatus(games[0], 1).health;
         uint256 w2AfterHealth = battle.getWamoStatus(games[0], 2).health;
 
@@ -334,8 +348,5 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         console.log("wamo 1 hp change: %s --> %s", w1StartHealth, w1AfterHealth);
         console.log("wamo 2 hp change: %s --> %s", w2StartHealth, w2AfterHealth);
 
-        // logTurn(games[0]);
-        // logHealth(games[0], 1);
-        // logHealth(games[0], 2);
     }
 }

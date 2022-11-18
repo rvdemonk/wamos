@@ -28,12 +28,10 @@ struct GameData {
 
 /** @notice Stores and tracks state of a single Wamo during a battle  */
 struct WamoStatus {
-    // incomplete
     int16 positionIndex;
     uint256 health;
     uint256 stamina;
     uint256 mana;
-    // focus?
 }
 
 /** @notice Stores status, source and outcome of vrf requests */
@@ -387,6 +385,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         int16 attackerPosition = gameIdToWamoIdToStatus[gameId][actingWamoId]
             .positionIndex;
 
+        // same as acting wamo id
         uint256 targetWamoId = gameIdToGridIndexToWamoId[gameId][
             targetGridIndex
         ];
@@ -403,8 +402,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         if (useAbility && targetWamoId != 0) {
             uint256 damage = _calculateDamage(
                 gameId,
+
                 actingWamoId,
                 targetWamoId,
+                
                 abilityChoice
             );
             // deal damage to target wamo
@@ -450,6 +451,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         uint256 abilityChoice
     ) internal view returns (uint256 damage) {
         Ability memory a = wamos.getWamoAbility(actingWamoId, abilityChoice);
+        require(actingWamoId != targetWamoId, "Wamo cannot attack itself!");
         // if target out of range the attack deals no damage
         if (
             euclideanDistance(
@@ -506,7 +508,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         }
     }
 
-    // TODO FOR SOME REASON DAMAGE IS DEALT TO ATTACKING WAMO
     function _dealDamage(
         uint256 gameId,
         uint256 actingWamoId,
@@ -522,7 +523,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         emit DamageDealtBy(gameId, actingWamoId, gameIdToGameData[gameId].turnCount, damage);
     }
 
-    // TODO
+
     function _endGame(uint256 gameId, address victor, address loser) internal {
         // alter wamos record
         uint256[PARTY_SIZE] memory victorParty = gameIdToPlayerToWamoPartyIds[gameId][
@@ -536,7 +537,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             wamos.recordLoss(loserParty[i]);
         }
         // todo distribute spoils
-        // toggle game status to finished
         gameIdToGameData[gameId].status = GameStatus.FINISHED;
     }
 
@@ -737,6 +737,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     ) public pure returns (int16 y) {
         int16 dx = (p2 % GRID_SIZE) - (p1 % GRID_SIZE);
         int16 dy = (p2 / GRID_SIZE - p1 / GRID_SIZE) + 1;
+
         // Heron's method for sqrt approximation
         int16 a = (dx ** 2 + dy ** 2);
         // begin method

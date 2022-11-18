@@ -16,7 +16,6 @@ enum DamageType {
 struct Ability {
     uint256 dietyType;
     DamageType damageType;
-    // -> insert (de)buff effects
     uint256 power;
     uint256 accuracy;
     int16 range;
@@ -33,14 +32,11 @@ struct WamoTraits {
     uint256 rangeDefence;
     uint256 magicAttack;
     uint256 magicDefence;
+    uint256 luck;
     uint256 stamina;
     uint256 mana;
-    uint256 luck;
+    uint256 energyRegen;
     uint256 fecundity;
-    // uint256 gearSlots;
-    uint256 energyRegen; // mana and stamina
-    // recover (hp regen)
-    // hp regen per turn
 }
 
 struct WamoRecord {
@@ -231,8 +227,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
      */
     function _generateWamoTraits(uint256 tokenId, uint256 randomWord) internal {
         WamoTraits memory traits;
-        // hardcoded king movement for testing
-        // traits.movements = [int16(-1), 1, 15, 16, 17, -15, -16, -17];
         {
             (
                 uint256 a,
@@ -285,7 +279,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
             traits.dietyType = n % 8;
         }
         traits.fecundity = randomWord % 11;
-        // traits.gearSlots = randomWord % 4;
         // store traits
         wamoIdToTraits[tokenId] = traits;
     }
@@ -488,10 +481,6 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
     /////////////////////////////////////////////////////////////////
     /////////////////      LIBRARY FUNCTIONS       //////////////////
     /////////////////////////////////////////////////////////////////
-
-    // function abs(int8 number) public pure returns (int8) {
-    //     return number >= 0 ? number : -number;
-    // }
 
     /**
      * @notice internal library function to shave off random digits in sets of five from a 256bit randomWord
