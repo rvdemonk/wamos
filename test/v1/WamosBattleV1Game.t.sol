@@ -312,7 +312,6 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         // get abilities
         Ability[] memory w1Abilities = wamos.getWamoAbilities(1);
         Ability[] memory w2Abilities = wamos.getWamoAbilities(2);
-        
         // logTurn(games[0]);
         // logHealth(games[0], 1);
         // logHealth(games[0], 2);
