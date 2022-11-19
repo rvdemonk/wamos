@@ -63,10 +63,10 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
         wamos.setWamosBattleAddress(address(wamosBattle));
 
         // approve staking in wamos for wamos battle
-        vm.prank(player1);
-        wamos.approveBattleStaking();
-        vm.prank(player2);
-        wamos.approveBattleStaking();
+        // vm.prank(player1);
+        // wamos.approveBattleStaking();
+        // vm.prank(player2);
+        // wamos.approveBattleStaking();
         // vm.prank(badActor);
         // wamos.approveBattleStaking();
 
@@ -347,5 +347,4 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
         int16 p2 = 66;
         console.logInt(wamosBattle.euclideanDistance(p1, p2));
     }
-
 }
