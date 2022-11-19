@@ -63,10 +63,11 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
         wamos.setWamosBattleAddress(address(wamosBattle));
 
         // approve staking in wamos for wamos battle
-        // vm.prank(player1);
-        // wamos.approveBattleStaking();
-        // vm.prank(player2);
-        // wamos.approveBattleStaking();
+        vm.prank(player1);
+        wamos.approveBattleStaking();
+        vm.prank(player2);
+        wamos.approveBattleStaking();
+        // keep bad actor unapproved for testing
         // vm.prank(badActor);
         // wamos.approveBattleStaking();
 
@@ -169,6 +170,10 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
     }
 
     /** TEST WAMO CONNECTION */
+
+    function testSetBattleAddress() public {
+        assertTrue(wamos.wamosBattleAddr() == address(wamosBattle));
+    }
 
     function testBattleIsTransferApproved() public {
         assertTrue(wamos.isApprovedForAll(player1, address(wamosBattle)));

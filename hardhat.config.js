@@ -84,7 +84,7 @@ module.exports = {
   paths: {
     sources: "./src",
     cache: "./cache_hardhat",
-    artifacts: "./client/artifacts",
+    artifacts: "./out",
   },
   solidity: {
     version: "0.8.17",
