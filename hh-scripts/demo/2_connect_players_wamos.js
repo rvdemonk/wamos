@@ -13,6 +13,9 @@ async function main() {
   const gameData = await battle.getGameData(gameid);
   console.log(gameData);
 
+  const p1Wamos = [2, 3];
+  const p2Wamos = [4, 5];
+
   // who owns what wamos?
   // for wamos of p1
   // connect

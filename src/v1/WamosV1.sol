@@ -177,8 +177,10 @@ contract WamosV1 is ERC721, VRFConsumerBaseV2 {
         lastRequestId = requestId;
         requestCount++;
         // map to token id
+        
         uint256 tokenId = tokenCount;
         tokenCount++;
+
         tokenIdToSpawnRequestId[tokenId] = requestId;
         requestIdToTokenId[requestId] = tokenId;
         // create request struct
