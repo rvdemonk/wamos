@@ -10,17 +10,12 @@ async function main() {
 
   const gameid = getLastChallengeBy(p1.address);
 
-  const gameData = await battle.getGameData(gameid);
-  console.log(gameData);
+  // ready up p1
+  // ready up 2
 
-  // who owns what wamos?
-  // for wamos of p1
-  // connect
-  // for wamos of p2
-  //connect
+  const data = await wamos.getGameData(gameid);
 
-  // players ready up
-  //   await battle.connect(p1).
+  console.log(`Game ONFOOT? ${data.status === 1}`);
 }
 
 main().catch((error) => {
