@@ -13,7 +13,7 @@ struct Request {
     bool completed;
     uint256 requestId;
     address sender;
-    uint256 word;
+    uint256[] randomWords;
 }
 
 struct Traits {
@@ -52,6 +52,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     address arenaAddress;
 
     //// WAMO SPAWN DATA
+    mapping(uint256 => uint256) requestIdToWamoId;
     mapping(uint256 => Request) wamoIdToRequest;
     uint256[] public requestIds;
     uint256 public lastRequestId;
@@ -63,6 +64,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
 
     //// EVENTS
     event SpawnRequested(address sender, uint256 wamoId, uint256 requestId);
+    event SpawnCompleted(address owner, uint256 wamoId);
 
     constructor(
         address _vrfCoordinatorAddr,
@@ -107,9 +109,13 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
-    ) internal override {}
+    ) internal override {
+        uint256 wamoId = requestIdToWamoId[_requestId];
+        wamoIdToRequest[wamoId].randomWords = _randomWords;
+        wamoIdToRequest[wamoId].fulfilled = true;
+    }
 
-    function requestSpawn() external payable returns (uint256 wamoId) {
+    function requestSpawn(uint32 amount) external payable returns (uint256 wamoId) {
         require( msg.value >= mintPrice, "Insufficient msg.value to mint!");
         wamoId = ++wamoCount; // wamoIds start at 1
         uint256 requestId = vrfCoordinator.requestRandomWords(
@@ -117,7 +123,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
             vrfSubscriptionId,
             vrfRequestConfirmations,
             vrfCallbackGasLimit,
-            1 // one word for spawn
+            amount
         );
         wamoIdToRequest[wamoId] = Request({
             exists: true,
@@ -125,7 +131,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
             completed: false,
             requestId: requestId,
             sender: msg.sender,
-            word: 0
+            randomWords: new uint256[](amount)
         });
         emit SpawnRequested(msg.sender, wamoId, requestId);
         return wamoId;
@@ -137,12 +143,17 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         uint256 requestId = wamoIdToRequest[wamoId].requestId;
         
         require(!wamoIdToRequest[wamoId].completed, "Spawn of this Wamo has already completed.");
-        // require()
+        require(wamoIdToRequest[wamoId].fulfilled, "Randomness has not been fulfilled yet.");
+    
+        uint256 seed = wamoIdToRequest[wamoId].word;
+        _generateAbilities(wamoId, seed);
+        _generateTraits(wamoId, seed);
+        emit SpawnCompleted(wamoIdToRequest[wamoId].sender, wamoId);
     }   
 
 
-    function _generateTraits() internal {}
-    function _generateAbilities() internal {}
+    function _generateTraits(uint256 wamoId, uint256 seed) internal {}
+    function _generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
     //// VIEWS ////
 
