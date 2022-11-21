@@ -10,10 +10,10 @@ import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 struct Request {
     bool exists;
     bool fulfilled;
-    bool compeleted;
+    bool completed;
+    uint256 requestId;
     address sender;
     uint256 word;
-    uint256 wamoId;
 }
 
 struct Traits {
@@ -39,7 +39,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
 
     //// CONTRACT DATA
     address public contractOwner;
-    uint256 public tokenCount;
+    uint256 public wamoCount;
     uint256 public mintPrice;
 
     //// VRF CONFIG
@@ -52,7 +52,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     address arenaAddress;
 
     //// WAMO SPAWN DATA
-    mapping(uint256 => Request) tokenIdToRequest;
+    mapping(uint256 => Request) wamoIdToRequest;
     uint256[] public requestIds;
     uint256 public lastRequestId;
 
@@ -60,6 +60,9 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     // trait mapping
     // ability mapping
     // name mapping
+
+    //// EVENTS
+    event SpawnRequested(address sender, uint256 wamoId, uint256 requestId);
 
     constructor(
         address _vrfCoordinatorAddr,
@@ -106,8 +109,38 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         uint256[] memory _randomWords
     ) internal override {}
 
-    function requestSpawn() external payable {}
-    function completeSpawn() external {}
+    function requestSpawn() external payable returns (uint256 wamoId) {
+        require( msg.value >= mintPrice, "Insufficient msg.value to mint!");
+        wamoId = ++wamoCount; // wamoIds start at 1
+        uint256 requestId = vrfCoordinator.requestRandomWords(
+            vrfKeyHash,
+            vrfSubscriptionId,
+            vrfRequestConfirmations,
+            vrfCallbackGasLimit,
+            1 // one word for spawn
+        );
+        wamoIdToRequest[wamoId] = Request({
+            exists: true,
+            fulfilled: false,
+            completed: false,
+            requestId: requestId,
+            sender: msg.sender,
+            word: 0
+        });
+        emit SpawnRequested(msg.sender, wamoId, requestId);
+        return wamoId;
+    }
+
+    function completeSpawn(uint256 wamoId) external {
+        require(wamoId <= wamoCount, "This Wamo has not yet been minted!");
+        
+        uint256 requestId = wamoIdToRequest[wamoId].requestId;
+        
+        require(!wamoIdToRequest[wamoId].completed, "Spawn of this Wamo has already completed.");
+        // require()
+    }   
+
+
     function _generateTraits() internal {}
     function _generateAbilities() internal {}
 
