@@ -11,8 +11,10 @@ struct Request {
     bool exists;
     bool fulfilled;
     bool completed;
-    uint256 requestId;
     address sender;
+    uint256 requestId;
+    uint256 firstWamoId;
+    uint256 numWamos;
     uint256[] randomWords;
 }
 
@@ -39,8 +41,8 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
 
     //// CONTRACT DATA
     address public contractOwner;
-    uint256 public wamoCount;
     uint256 public mintPrice;
+    uint256 public nextWamoId = 1;
 
     //// VRF CONFIG
     bytes32 public vrfKeyHash;
@@ -52,10 +54,10 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     address arenaAddress;
 
     //// WAMO SPAWN DATA
-    mapping(uint256 => uint256) requestIdToWamoId;
-    mapping(uint256 => Request) wamoIdToRequest;
     uint256[] public requestIds;
     uint256 public lastRequestId;
+    mapping(uint256 => Request) requestIdToRequest;
+    mapping(uint256 => uint256) wamoIdToRequestId;
 
     //// WAMO DATA
     // trait mapping
@@ -63,8 +65,8 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     // name mapping
 
     //// EVENTS
-    event SpawnRequested(address sender, uint256 wamoId, uint256 requestId);
-    event SpawnCompleted(address owner, uint256 wamoId);
+    event SpawnRequested(address sender, uint256 requestId, uint256 startWamoId, uint256 numWamos);
+    event SpawnCompleted(address sender, uint256 requestId);
 
     constructor(
         address _vrfCoordinatorAddr,
@@ -88,6 +90,14 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         _;
     }
 
+    modifier onlyArena() {
+        require(
+            msg.sender == arenaAddress,
+            "Only WamosBattle can call this function."
+        );
+        _;
+    }  
+
     modifier onlyWamoOwner(uint256 wamoId) {
         require(
             msg.sender == ownerOf(wamoId),
@@ -96,59 +106,59 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         _;
     }
 
-    modifier onlyBattle() {
-        require(
-            msg.sender == arenaAddress,
-            "Only WamosBattle can call this function."
-        );
-        _;
-    }  
-
     //// SPAWNING ////
+
+    function requestSpawn(uint32 number) external payable returns (uint256 requestId) {
+        require(msg.value >= mintPrice, "Insufficient msg.value to mint!");        
+        requestId = vrfCoordinator.requestRandomWords(
+            vrfKeyHash,
+            vrfSubscriptionId,
+            vrfRequestConfirmations,
+            vrfCallbackGasLimit,
+            number
+        );
+        uint256 startWamoId = nextWamoId;
+        nextWamoId += number;
+        requestIdToRequest[requestId] = Request({
+            exists: true,
+            fulfilled: false,
+            completed: false,
+            sender: msg.sender,
+            requestId: requestId,
+            firstWamoId: startWamoId,
+            numWamos: number,
+            randomWords: new uint256[](number)
+        });
+        emit SpawnRequested(msg.sender, requestId, startWamoId, number);
+        return requestId;
+    }
 
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {
-        uint256 wamoId = requestIdToWamoId[_requestId];
-        wamoIdToRequest[wamoId].randomWords = _randomWords;
-        wamoIdToRequest[wamoId].fulfilled = true;
+        requestIdToRequest[_requestId].fulfilled = true;
+        requestIdToRequest[_requestId].randomWords = _randomWords;
+        address owner = requestIdToRequest[_requestId].sender;
+        uint256 id = requestIdToRequest[_requestId].firstWamoId;
+        uint256 idCap = id + requestIdToRequest[_requestId].numWamos;
+        for (id; id < idCap; id++) {
+            _safeMint(owner, id);
+        }
     }
 
-    function requestSpawn(uint32 amount) external payable returns (uint256 wamoId) {
-        require( msg.value >= mintPrice, "Insufficient msg.value to mint!");
-        wamoId = ++wamoCount; // wamoIds start at 1
-        uint256 requestId = vrfCoordinator.requestRandomWords(
-            vrfKeyHash,
-            vrfSubscriptionId,
-            vrfRequestConfirmations,
-            vrfCallbackGasLimit,
-            amount
-        );
-        wamoIdToRequest[wamoId] = Request({
-            exists: true,
-            fulfilled: false,
-            completed: false,
-            requestId: requestId,
-            sender: msg.sender,
-            randomWords: new uint256[](amount)
-        });
-        emit SpawnRequested(msg.sender, wamoId, requestId);
-        return wamoId;
-    }
-
-    function completeSpawn(uint256 wamoId) external {
-        require(wamoId <= wamoCount, "This Wamo has not yet been minted!");
-        
-        uint256 requestId = wamoIdToRequest[wamoId].requestId;
-        
-        require(!wamoIdToRequest[wamoId].completed, "Spawn of this Wamo has already completed.");
-        require(wamoIdToRequest[wamoId].fulfilled, "Randomness has not been fulfilled yet.");
-    
-        uint256 seed = wamoIdToRequest[wamoId].word;
-        _generateAbilities(wamoId, seed);
-        _generateTraits(wamoId, seed);
-        emit SpawnCompleted(wamoIdToRequest[wamoId].sender, wamoId);
+    function completeSpawn(uint256 requestId) external {
+        Request memory request = requestIdToRequest[requestId];
+        require(request.exists, "Request does not exist");
+        require(request.completed, "Spawn of this Wamo has already completed.");
+        require(request.fulfilled, "Randomness has not been fulfilled yet.");
+        uint256 firstWamoId = request.firstWamoId;
+        for (uint i=0; i < request.numWamos; i++) {
+            uint256 seed = request.randomWords[i];
+            _generateAbilities(firstWamoId + i, seed);
+            _generateTraits(firstWamoId + i, seed);
+        }
+        emit SpawnCompleted(request.sender, requestId);
     }   
 
 
