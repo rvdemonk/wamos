@@ -1,8 +1,5 @@
-const hre = require("hardhat");
-
 async function main() {
-  const account = await hre.ethers.getSigner();
-//   const 
+  const [p1, p2] = await hre.ethers.getSigners();
 }
 
 main().catch((error) => {

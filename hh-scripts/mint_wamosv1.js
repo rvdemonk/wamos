@@ -1,12 +1,10 @@
 const hre = require("hardhat");
 
-const WAMOS_ADDR = "0x81e0149229031dCdC1E873F4540a28A683A3267A";
-
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function displayTraits(wamosContract, wamoId) {
+const displayTraits = async (wamosContract, wamoId) => {
   let traits = await wamosContract.getWamoTraits(wamoId);
   let blockNum = (await hre.ethers.provider.getBlock("latest")).number;
   // check that traits are loaded
@@ -21,26 +19,31 @@ async function displayTraits(wamosContract, wamoId) {
     console.log(`[block ${blockNum}] waiting for traits to load...`);
     setTimeout(() => displayTraits(wamosContract, wamoId), 5000);
   }
-}
+};
 
 async function main() {
-  const wamos = await hre.ethers.getContractAt("WamosV1", WAMOS_ADDR);
+  const wamosAddress = hre.config.WAMOS_DEPLOY_ADDR;
+  const wamos = await hre.ethers.getContractAt("WamosV1", wamosAddress);
   const tokenCountStart = await wamos.tokenCount();
   const mintPrice = hre.config.WAMOSV1_PRICE;
   console.log("Working with WamosV1 at", wamos.address);
   console.log(`token count: ${tokenCountStart}`);
 
+  const minter = await hre.ethers.getSigner();
+
   // PHASE 1: REQUEST MINT
   console.log(`\n ** BEGINNING MINT\n`);
-
+  console.log(`Minting as ${minter.address}`);
   // make request
-  const reqStartCount = await wamos.getRequestCount()
+  const reqStartCount = await wamos.getRequestCount();
   const requesttx = await wamos.requestSpawnWamo({ value: mintPrice });
   console.log(`Requested wamo spawn with tx ${requesttx.hash}`);
 
-  console.log(`\nGetting request receipt`)
+  console.log(`\nGetting request receipt`);
   const requestReceipt = await requesttx.wait();
-  const requestEvent = requestReceipt.events.find((event) => event.event === "SpawnRequested");
+  const requestEvent = requestReceipt.events.find(
+    (event) => event.event === "SpawnRequested"
+  );
   const [requestId, tokenId, buyer] = requestEvent.args;
 
   console.log(`\n-> Spawning Wamo #${tokenId}`);
@@ -55,7 +58,7 @@ async function main() {
   const blocksToWait = 20;
   const sleepTime = 3000; // 3 seconds
   let currentBlock;
-  
+
   let vrfFulfilled = await wamos.getSpawnRequestStatus(requestId);
 
   // wait for request to be fulfilled

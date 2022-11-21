@@ -67,6 +67,7 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
         wamos.approveBattleStaking();
         vm.prank(player2);
         wamos.approveBattleStaking();
+        // keep bad actor unapproved for testing
         // vm.prank(badActor);
         // wamos.approveBattleStaking();
 
@@ -169,6 +170,10 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
     }
 
     /** TEST WAMO CONNECTION */
+
+    function testSetBattleAddress() public {
+        assertTrue(wamos.wamosBattleAddr() == address(wamosBattle));
+    }
 
     function testBattleIsTransferApproved() public {
         assertTrue(wamos.isApprovedForAll(player1, address(wamosBattle)));
@@ -327,29 +332,6 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
 
     function testCannotTakeTurnBeforeGameOnfoot() public {}
 
-    /** TEST GAMEPLAY */
-
-    function testCommitTurn() public {
-        vm.startPrank(player1);
-        uint256 wamo1 = 1;
-        uint256 gameId = wamosBattle.createGame(player2);
-        wamosBattle.connectWamo(gameId, wamo1);
-        wamosBattle.connectWamo(gameId, 3);
-        wamosBattle.playerReady(gameId);
-        vm.stopPrank();
-        vm.startPrank(player2);
-        wamosBattle.connectWamo(gameId, 2);
-        wamosBattle.connectWamo(gameId, 4);
-        wamosBattle.playerReady(gameId);
-        assertTrue(wamosBattle.getGameStatus(gameId) == GameStatus.ONFOOT);
-        vm.stopPrank();
-        // ^gas 1_197k
-        vm.prank(player1);
-        wamosBattle.commitTurn(gameId, wamo1, 4, 0, 17, true, true, true);
-        // gas^ 1_338k
-        // turn gas = ~130k
-    }
-
     /** TEST VIEW FUNCTIONS */
 
     // function testGetGameData() public {}
@@ -370,5 +352,4 @@ contract WamosBattleV1SetupTest is Test, WamosTestHelper {
         int16 p2 = 66;
         console.logInt(wamosBattle.euclideanDistance(p1, p2));
     }
-
 }
