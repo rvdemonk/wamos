@@ -160,6 +160,10 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
             uint256 seed = request.randomWords[i];
             // _generateAbilities(firstWamoId + i, seed);
             // _generateTraits(firstWamoId + i, seed);
+            Traits memory traits;
+            traits.wamoId = firstWamoId + i;
+            traits.seed = seed;
+            wamoIdToTraits[firstWamoId+i] = traits;
         }
         emit SpawnCompleted(request.sender, requestId);
     }   
