@@ -38,7 +38,7 @@ struct Ability {
     uint256 abilityId;
 }
 
-struct BattleRecord {
+struct ArenaRecord {
     uint256 wins;
     uint256 losses;
 }
@@ -74,6 +74,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
 
     //// WAMO DATA
     mapping(uint256 => string) wamoIdToName;
+    mapping(uint256 => ArenaRecord) wamoIdToRecord;
     // trait mapping
     // ability mapping
 
@@ -230,5 +231,19 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     function approveArenaStaking() public {
         // sets approval for msg.sender
         super.setApprovalForAll(arenaAddress, true);
+    }
+
+    //// SETTER FUNCTIONS ////
+
+    function setWamoName(uint256 wamoId, string memory name) public onlyWamoOwner(wamoId) {
+        wamoIdToName[wamoId] = name;
+    }
+
+    function recordWin(uint256 wamoId) external onlyArena {
+        wamoIdToRecord[wamoId].wins++;
+    }
+
+    function recordLoss(uint256 wamoId) external onlyArena {
+        wamoIdToRecord[wamoId].losses ++;
     }
 }
