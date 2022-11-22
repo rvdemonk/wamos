@@ -9,18 +9,29 @@ import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 struct Request {
     bool exists;
-    bool fulfilled;
-    bool completed;
+    bool isFulfilled;
+    bool isCompleted;
     address sender;
     uint256 requestId;
     uint256 firstWamoId;
     uint256 numWamos;
-    uint256[] randomWords;
+    uint256[] seeds;
 }
 
 struct Traits {
     uint256 wamoId;
     uint256 seed;
+    uint256 diety;
+    uint256 health;
+    uint256 meeleeAttack;
+    uint256 meeleeDefence;
+    uint256 magicAttack;
+    uint256 magicDefence;
+    uint256 luck;
+    uint256 stamina;
+    uint256 mana;
+    uint256 regen;
+    uint256 fecundity;
 }
 
 struct Ability {
@@ -123,13 +134,13 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         nextWamoId += number;
         requestIdToRequest[requestId] = Request({
             exists: true,
-            fulfilled: false,
-            completed: false,
+            isFulfilled: false,
+            isCompleted: false,
             sender: msg.sender,
             requestId: requestId,
             firstWamoId: startWamoId,
             numWamos: number,
-            randomWords: new uint256[](number)
+            seeds: new uint256[](number)
         });
         emit SpawnRequested(msg.sender, requestId, startWamoId, number);
         return requestId;
@@ -139,8 +150,8 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {
-        requestIdToRequest[_requestId].fulfilled = true;
-        requestIdToRequest[_requestId].randomWords = _randomWords;
+        requestIdToRequest[_requestId].isFulfilled = true;
+        requestIdToRequest[_requestId].seeds = _randomWords;
         address owner = requestIdToRequest[_requestId].sender;
         uint256 id = requestIdToRequest[_requestId].firstWamoId;
         uint256 idCap = id + requestIdToRequest[_requestId].numWamos;
@@ -153,11 +164,11 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     function completeSpawn(uint256 requestId) external {
         Request memory request = requestIdToRequest[requestId];
         require(request.exists, "Request does not exist");
-        require(request.completed, "Spawn of this Wamo has already completed.");
-        require(request.fulfilled, "Randomness has not been fulfilled yet.");
+        require(request.isCompleted, "Spawn of this Wamo has already completed.");
+        require(request.isFulfilled, "Randomness has not been fulfilled yet.");
         uint256 firstWamoId = request.firstWamoId;
         for (uint i=0; i < request.numWamos; i++) {
-            uint256 seed = request.randomWords[i];
+            uint256 seed = request.seeds[i];
             // _generateAbilities(firstWamoId + i, seed);
             // _generateTraits(firstWamoId + i, seed);
             Traits memory traits;
@@ -174,7 +185,41 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
 
     //// VIEWS ////
 
+    function getRequestStatus(uint256 requestId) public view returns (bool fulfilled, bool completed) {
+        fulfilled = requestIdToRequest[requestId].isFulfilled;
+        completed = requestIdToRequest[requestId].isCompleted;
+    }
+
+    // todo necessary?
+    function getRequestData(uint256 requestId) 
+        public 
+        view
+        returns (
+            address sender,
+            uint256 firstWamoId,
+            uint256 numWamos
+        )
+        {}
+
+    //// VRF CONFIG ////
+
+    function setVrfCallbackGasLimit(uint32 _gasLimit) public onlyOwner {
+        vrfCallbackGasLimit = _gasLimit;
+    }
+
+    function setVrfRequestConfirmations(uint16 _numConfirmations) public onlyOwner {
+        vrfRequestConfirmations = _numConfirmations;
+    }
+
     //// MINT CONFIG ////
+
+    function setMintPrice(uint256 _mintPrice) public onlyOwner {
+        mintPrice = _mintPrice;
+    }
+
+    function withdrawFunds() public payable onlyOwner {
+        payable(contractOwner).transfer(address(this).balance);
+    }  
 
     //// ARENA CONFIG ////
 
