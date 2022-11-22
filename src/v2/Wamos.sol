@@ -20,6 +20,7 @@ struct Request {
 
 struct Traits {
     uint256 wamoId;
+    uint256 seed;
 }
 
 struct Ability {
@@ -58,6 +59,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     uint256 public lastRequestId;
     mapping(uint256 => Request) requestIdToRequest;
     mapping(uint256 => uint256) wamoIdToRequestId;
+    mapping(uint256 => Traits) wamoIdToTraits;
 
     //// WAMO DATA
     // trait mapping
@@ -144,6 +146,7 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         uint256 idCap = id + requestIdToRequest[_requestId].numWamos;
         for (id; id < idCap; id++) {
             _safeMint(owner, id);
+
         }
     }
 
@@ -155,8 +158,8 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         uint256 firstWamoId = request.firstWamoId;
         for (uint i=0; i < request.numWamos; i++) {
             uint256 seed = request.randomWords[i];
-            _generateAbilities(firstWamoId + i, seed);
-            _generateTraits(firstWamoId + i, seed);
+            // _generateAbilities(firstWamoId + i, seed);
+            // _generateTraits(firstWamoId + i, seed);
         }
         emit SpawnCompleted(request.sender, requestId);
     }   
