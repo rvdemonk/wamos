@@ -73,9 +73,9 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => Traits) wamoIdToTraits;
 
     //// WAMO DATA
+    mapping(uint256 => string) wamoIdToName;
     // trait mapping
     // ability mapping
-    // name mapping
 
     //// EVENTS
     event SpawnRequested(address sender, uint256 requestId, uint256 startWamoId, uint256 numWamos);
@@ -223,5 +223,12 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
 
     //// ARENA CONFIG ////
 
+    function setWamosArenaAddress(address _arenaAddress) external onlyOwner {
+        arenaAddress = _arenaAddress;
+    }
 
+    function approveArenaStaking() public {
+        // sets approval for msg.sender
+        super.setApprovalForAll(arenaAddress, true);
+    }
 }
