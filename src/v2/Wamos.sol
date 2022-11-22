@@ -162,8 +162,8 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     }   
 
 
-    function _generateTraits(uint256 wamoId, uint256 seed) internal {}
-    function _generateAbilities(uint256 wamoId, uint256 seed) internal {}
+    // function _generateTraits(uint256 wamoId, uint256 seed) internal {}
+    // function _generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
     //// VIEWS ////
 
