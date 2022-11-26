@@ -199,10 +199,11 @@ contract WamosBattleV1GameTest is Test, WamosTestHelper {
         assertTrue(party2[1] != 0);
     }
 
-    function testInitWamoStatus() public {
+    function testTraitsLoaded() public {
         for (uint i = 1; i < 2*PARTY_SIZE + 1; i++) {
             WamoTraits memory traits = wamos.getWamoTraits(i);
             WamoStatus memory status = battle.getWamoStatus(games[0], i);
+            assertFalse(status.health == 0);
             assertTrue(traits.health == status.health);
             assertTrue(traits.mana == status.mana);
             assertTrue(traits.stamina == status.stamina);

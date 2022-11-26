@@ -19,8 +19,8 @@ struct Request {
 }
 
 struct Traits {
-    uint256 wamoId;
     uint256 seed;
+    int16[8] movements;
     uint256 diety;
     uint256 health;
     uint256 meeleeAttack;
@@ -173,7 +173,6 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
             // _generateAbilities(firstWamoId + i, seed);
             // _generateTraits(firstWamoId + i, seed);
             Traits memory traits;
-            traits.wamoId = firstWamoId + i;
             traits.seed = seed;
             wamoIdToTraits[firstWamoId+i] = traits;
         }
@@ -191,7 +190,6 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
         completed = requestIdToRequest[requestId].isCompleted;
     }
 
-    // todo necessary?
     function getRequestData(uint256 requestId) 
         public 
         view
@@ -200,7 +198,11 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
             uint256 firstWamoId,
             uint256 numWamos
         )
-        {}
+        {
+            sender = requestIdToRequest[requestId].sender;
+            firstWamoId = requestIdToRequest[requestId].firstWamoId;
+            numWamos = requestIdToRequest[requestId].numWamos;
+        }
 
     //// VRF CONFIG ////
 
