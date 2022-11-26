@@ -319,6 +319,7 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
      *  Design choice would save time (ie one transaction instead of two), however
      *  would likely increase gas, due to the number of require statements needed to
      *  confirm permissibility of move + ability combo.
+     * @notice @dev BROKEN DAMAGE INFLICTION
      */
     function commitTurn(
         uint256 gameId,
