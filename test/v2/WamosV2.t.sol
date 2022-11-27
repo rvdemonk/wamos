@@ -17,7 +17,19 @@ contract WamosV2Test is Test, WamosV2TestHelper {
             subscriptionId,
             MINT_PRICE
         );
+        vrfCoordinator.addConsumer(subscriptionId, address(wamos));
+        vrfCoordinator.fundSubscription(subscriptionId, SUB_FUNDING);
+        // fund players
+        vm.deal(player1, ACTOR_STARTING_BAL);
+        vm.deal(player2, ACTOR_STARTING_BAL);
+        vm.deal(badActor, ACTOR_STARTING_BAL);
     }
 
-    function testDeployed() public {}
+    function testSpawnSingleRequest() public {
+        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE }(1);
+        // request status
+        (bool isFulfilled, bool isCompleted) = wamos.getRequestStatus(requestId);
+        assertFalse(isFulfilled);
+        assertFalse(isCompleted);
+    }
 }

@@ -77,13 +77,17 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     uint256 public lastRequestId;
     mapping(uint256 => Request) requestIdToRequest;
     mapping(uint256 => uint256) wamoIdToRequestId;
-    mapping(uint256 => Traits) wamoIdToTraits;
 
     //// WAMO DATA
     mapping(uint256 => string) wamoIdToName;
     mapping(uint256 => ArenaRecord) wamoIdToRecord;
-    // trait mapping
-    // ability mapping
+    // traits
+    mapping(uint256 => uint256) wamoIdToTraits;
+    // movements
+    mapping(uint256 => int16[8]) wamoIdToMovements;
+    // abilities
+    mapping(uint256 => uint256[]) wamoIdToAbilities;
+
 
     //// EVENTS
     event SpawnRequested(address sender, uint256 requestId, uint256 startWamoId, uint256 numWamos);
@@ -177,19 +181,19 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 firstWamoId = request.firstWamoId;
         for (uint i=0; i < request.numWamos; i++) {
             uint256 seed = request.seeds[i];
-            // _generateAbilities(firstWamoId + i, seed);
-            // _generateTraits(firstWamoId + i, seed);
-            Traits memory traits;
-            traits.seed = seed;
-            wamoIdToTraits[firstWamoId+i] = traits;
+            // generateAbilities(firstWamoId + i, seed);
+            // generateTraits(firstWamoId + i, seed);
+            // Traits memory traits;
+            // traits.seed = seed;
+            // wamoIdToTraits[firstWamoId+i] = traits;
         }
         emit SpawnCompleted(request.sender, requestId);
     }   
 
 
-    function _generateTraits(uint256 wamoId, uint256 seed) internal {}
+    function generateTraits(uint256 wamoId, uint256 seed) internal {}
 
-    function _generateAbilities(uint256 wamoId, uint256 seed) internal {}
+    function generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
     //// VIEWS ////
 
@@ -211,7 +215,33 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             firstWamoId = requestIdToRequest[requestId].firstWamoId;
             numWamos = requestIdToRequest[requestId].numWamos;
         }
+    
 
+    // TODO cull request viewing functions; 
+    //  i) return entire request, such as here, or
+    //  ii) split view into two functions, as above
+    function getRequest(uint256 requestId)
+        public
+        view
+        returns (
+            bool exists,
+            bool isFulfilled,
+            bool isCompleted,
+            address sender,
+            uint256 firstWamoId,
+            uint256 numWamos,
+            uint256[] memory seeds
+        )
+        {
+            exists = requestIdToRequest[requestId].exists;
+            isFulfilled = requestIdToRequest[requestId].isFulfilled;
+            isCompleted = requestIdToRequest[requestId].isCompleted;
+            sender = requestIdToRequest[requestId].sender;
+            firstWamoId = requestIdToRequest[requestId].firstWamoId;
+            numWamos = requestIdToRequest[requestId].numWamos;
+            seeds = requestIdToRequest[requestId].seeds;
+        }
+    
     //// VRF CONFIG ////
 
     function setVrfCallbackGasLimit(uint32 _gasLimit) public onlyOwner {

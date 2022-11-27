@@ -31,6 +31,7 @@ abstract contract WamosV2TestHelper {
     VRFCoordinatorV2Mock vrfCoordinator;
 
     constructor() {
+        // set up mock coordinator
         vrfCoordinator = new VRFCoordinatorV2Mock(BASE_FEE, GAS_PRICE_LINK);
         subscriptionId = vrfCoordinator.createSubscription();
     }
