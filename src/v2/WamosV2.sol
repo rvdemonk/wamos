@@ -61,7 +61,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     //// CONTRACT DATA
     address public contractOwner;
     uint256 public mintPrice;
-    uint256 public nextWamoId = 1;
+    uint256 public nextWamoId;
 
     //// VRF CONFIG
     bytes32 public vrfKeyHash;
@@ -101,11 +101,13 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     ) ERC721(NAME, SYMBOL) VRFConsumerBaseV2(_vrfCoordinatorAddr) {
         contractOwner = msg.sender;
         mintPrice = _mintPrice;
+        nextWamoId = 1;
+
         vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorAddr);
         vrfKeyHash = _vrfKeyHash;
         vrfSubscriptionId = _vrfSubscriptionId;
         vrfRequestConfirmations = 3;
-        vrfCallbackGasLimit = 200000;
+        vrfCallbackGasLimit = 500000;
     }
 
     //// MODIFIERS ////
@@ -162,22 +164,26 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 _requestId,
         uint256[] memory _randomWords
     ) internal override {
+        // store request data
         requestIdToRequest[_requestId].isFulfilled = true;
         requestIdToRequest[_requestId].seeds = _randomWords;
+        // mint erc721 tokens
         address owner = requestIdToRequest[_requestId].sender;
-        uint256 id = requestIdToRequest[_requestId].firstWamoId;
-        uint256 idCap = id + requestIdToRequest[_requestId].numWamos;
-        for (id; id < idCap; id++) {
-            _safeMint(owner, id);
-
+        uint256 startingId = requestIdToRequest[_requestId].firstWamoId;
+        uint256 numToMint = requestIdToRequest[_requestId].numWamos;
+        for (uint256 i=0; i<numToMint; i++) {
+            _safeMint(
+                owner,
+                startingId + i
+            );
         }
     }
 
     function completeSpawn(uint256 requestId) external {
         Request memory request = requestIdToRequest[requestId];
         require(request.exists, "Request does not exist");
-        require(request.isCompleted, "Spawn of this Wamo has already completed.");
         require(request.isFulfilled, "Randomness has not been fulfilled yet.");
+        require(!request.isCompleted, "Spawn of this Wamo is already completed.");
         uint256 firstWamoId = request.firstWamoId;
         for (uint i=0; i < request.numWamos; i++) {
             uint256 seed = request.seeds[i];
@@ -187,6 +193,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             // traits.seed = seed;
             // wamoIdToTraits[firstWamoId+i] = traits;
         }
+        requestIdToRequest[requestId].isCompleted = true;
         emit SpawnCompleted(request.sender, requestId);
     }   
 

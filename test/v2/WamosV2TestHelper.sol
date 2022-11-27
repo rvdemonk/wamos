@@ -22,17 +22,4 @@ abstract contract WamosV2TestHelper {
     address player1 = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;
     address player2 = 0x417622F534d5F30321CF78cB7355773f8BAC7621;
     address badActor = 0xA5cd5af52b504895c8525B5A5677859Fb04F8907;
-
-    // VRF STORAGE
-    uint256[] requestIds;
-    
-    // VRF COORD
-    uint64 subscriptionId;
-    VRFCoordinatorV2Mock vrfCoordinator;
-
-    constructor() {
-        // set up mock coordinator
-        vrfCoordinator = new VRFCoordinatorV2Mock(BASE_FEE, GAS_PRICE_LINK);
-        subscriptionId = vrfCoordinator.createSubscription();
-    }
 }
