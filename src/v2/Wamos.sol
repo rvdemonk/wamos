@@ -7,6 +7,13 @@ import "openzeppelin/utils/Strings.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
+
+enum DamageType {
+    MEELEE,
+    MAGIC,
+    RANGE
+}
+
 struct Request {
     bool exists;
     bool isFulfilled;
@@ -180,8 +187,9 @@ contract Wamos is ERC721, VRFConsumerBaseV2 {
     }   
 
 
-    // function _generateTraits(uint256 wamoId, uint256 seed) internal {}
-    // function _generateAbilities(uint256 wamoId, uint256 seed) internal {}
+    function _generateTraits(uint256 wamoId, uint256 seed) internal {}
+
+    function _generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
     //// VIEWS ////
 
