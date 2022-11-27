@@ -10,3 +10,6 @@
 [submodule "lib/chainlink"]
 	path = lib/chainlink
 	url = https://github.com/smartcontractkit/chainlink
+[submodule "lib/OnChainRNG"]
+	path = lib/OnChainRNG
+	url = https://github.com/simontianx/OnChainRNG/
