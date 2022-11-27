@@ -50,7 +50,7 @@ struct ArenaRecord {
     uint256 losses;
 }
 
-contract Wamos is ERC721, VRFConsumerBaseV2 {
+contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     //// META CONSTANTS
     string public constant NAME = "WamosV2";
     string public constant SYMBOL = "WAMOS";
