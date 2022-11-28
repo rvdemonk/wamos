@@ -19,10 +19,16 @@ function getRemappings() {
 module.exports = {
   WAMOS_DEPLOY_ADDR: "0x20c446Ea4bfF241a0388B987351103c56683ED1F",
   WAMOS_BATTLE_ADDR: "0xeC61b2B437Db3ccf1a96a1a9011ED12f13Cc9d98",
+  WAMOS_ADDR: "",
+  ARENA_ADDR: "",
   defaultNetwork: "mumbai",
   networks: {
     hardhat: {
       chainId: 31337,
+      subscriptionId: 0,
+      vrfCoordinator: "0x0000000000000000000000000000000000000000",
+      gasLane:
+        "0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15", //arbitrary atm
     },
     mainnet: {
       chainId: 1,
