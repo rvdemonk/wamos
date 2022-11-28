@@ -93,6 +93,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     event SpawnRequested(address sender, uint256 requestId, uint256 startWamoId, uint256 numWamos);
     event SpawnCompleted(address sender, uint256 requestId);
 
+    //// TEST EVENTS
+    event GaussianRNGOutput(int256[] results);
+
     constructor(
         address _vrfCoordinatorAddr,
         bytes32 _vrfKeyHash,
@@ -300,7 +303,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 n,
         int256 mu,
         uint256 sigma
-    ) public pure returns (int256[] memory) {
+    ) public returns (int256[] memory) {
         uint256 _num = uint256(keccak256(abi.encodePacked(seed)));
         int256[] memory results_array = new int256[](n);
         uint256 gaussianRV;
@@ -310,6 +313,8 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             // transform and store
             results_array[i] = int256(int(gaussianRV) * int(sigma)/8)- 128*int(sigma)/8 + mu;
         }
+        // event for testing
+        emit GaussianRNGOutput(results_array);
         return results_array;
     }   
 
