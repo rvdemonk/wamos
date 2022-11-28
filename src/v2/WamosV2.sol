@@ -291,4 +291,34 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     function recordLoss(uint256 wamoId) external onlyArena {
         wamoIdToRecord[wamoId].losses ++;
     }
+
+    //// LIBRARY FUNCTIONS ////
+
+    /** @dev TODO change return to uint256 array - no need for negatives */
+    function gaussianRNG(
+        uint256 seed,
+        uint256 n,
+        int256 mu,
+        uint256 sigma
+    ) public pure returns (int256[] memory) {
+        uint256 _num = uint256(keccak256(abi.encodePacked(seed)));
+        int256[] memory results_array = new int256[](n);
+        uint256 gaussianRV;
+        for (uint256 i=0; i<n; i++) {
+            // count 1s for gaussian random variable
+            gaussianRV = countOnes(_num);
+            // transform and store
+            results_array[i] = int256(int(gaussianRV) * int(sigma)/8)- 128*int(sigma)/8 + mu;
+        }
+        return results_array;
+    }   
+
+    function countOnes(uint256 n) private pure returns (uint256 count) {
+        assembly {
+            for { } gt(n, 0) { } {
+                n := and(n, sub(n, 1))
+                count := add(count, 1)
+            }
+        }
+    }
 }
