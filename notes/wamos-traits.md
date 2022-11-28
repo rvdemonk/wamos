@@ -25,9 +25,13 @@ or gain levels and glory only from battles?
 
 separate contract to allow people to loan and borrow wamos
 
-# WAMOS TRAITS GAUSSIAN
+# WAMOSV2
+
+## WAMOS TRAITS GAUSSIAN
 
 Input of the mu and sigma parameters opens the door for dynamic wamo spawning dependent on supply conditions and user-specified preference.
 
 User wants a magic wamo? Increase prob of higher magic stats.
 Feeling lucky? Increase sigma spread of distribution.
+
+## Trait generation and encoding

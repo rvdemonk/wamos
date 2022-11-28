@@ -125,7 +125,12 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
     event GameStarted();
     event WamoMoved();
     event WamoUsedAbility();
-    event DamageDealtBy(uint256 gameId, uint256 wamoId, uint256 turn, uint256 damage);
+    event DamageDealtBy(
+        uint256 gameId,
+        uint256 wamoId,
+        uint256 turn,
+        uint256 damage
+    );
 
     constructor(
         address _wamosAddr,
@@ -331,7 +336,10 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         bool moveBeforeAbility,
         bool useAbility
     ) external onlyPlayer(gameId) onlyOnfoot(gameId) {
-        require(gameIdToWamoIdToStatus[gameId][actingWamoId].health > 0, "Wamo has feinted!");
+        require(
+            gameIdToWamoIdToStatus[gameId][actingWamoId].health > 0,
+            "Wamo has feinted!"
+        );
         if (abilityChoice >= wamos.ABILITY_SLOTS()) {
             revert InvalidAbilityIndex(gameId, msg.sender);
         }
@@ -403,26 +411,36 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
                 abilityChoice
             );
             // _dealDamage(gameId, actingWamoId, targetWamoId, damage);
-            
+
             // uint256 damage = 1;
             uint256 targetHealth = getWamoStatus(gameId, targetWamoId).health;
             if (damage > targetHealth) {
                 changeWamoHealthTo(gameId, 1, 0);
             } else {
-                changeWamoHealthTo(gameId, 1, targetHealth-damage);
+                changeWamoHealthTo(gameId, 1, targetHealth - damage);
             }
-            
         }
         if (!moveBeforeAbility && isMoved) {
-            _setWamoPosition(gameId, actingWamoId, moveChoice, attackerPosition);
+            _setWamoPosition(
+                gameId,
+                actingWamoId,
+                moveChoice,
+                attackerPosition
+            );
         }
         // Regen mana and stamina only if they have fallen below max levels
-        if (gameIdToWamoIdToStatus[gameId][actingWamoId].stamina < actorTraits.stamina) {
-            gameIdToWamoIdToStatus[gameId][actingWamoId].stamina +=
-                actorTraits.energyRegen;
+        if (
+            gameIdToWamoIdToStatus[gameId][actingWamoId].stamina <
+            actorTraits.stamina
+        ) {
+            gameIdToWamoIdToStatus[gameId][actingWamoId].stamina += actorTraits
+                .energyRegen;
         }
-        if (gameIdToWamoIdToStatus[gameId][actingWamoId].mana < actorTraits.mana) {
-            gameIdToWamoIdToStatus[gameId][actingWamoId].mana += actorTraits.energyRegen;
+        if (
+            gameIdToWamoIdToStatus[gameId][actingWamoId].mana < actorTraits.mana
+        ) {
+            gameIdToWamoIdToStatus[gameId][actingWamoId].mana += actorTraits
+                .energyRegen;
         }
         emit WamoUsedAbility(); // todo
     }
@@ -504,25 +522,31 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
             //         50) + 2) *
             //     (80 + (block.timestamp % 15));
             damage =
-                ((((((2 * a.accuracy) / 50) + 2) * a.power * (att / def)) /
-                    50)) *
+                (
+                    (((((2 * a.accuracy) / 50) + 2) * a.power * (att / def)) /
+                        50)
+                ) *
                 ((block.timestamp % 15));
             /////////////////////////////////////////////////////////////
         }
     }
 
-    function changeWamoHealthTo(uint256 gameId, uint256 wamoId, uint256 health) public {
+    function changeWamoHealthTo(
+        uint256 gameId,
+        uint256 wamoId,
+        uint256 health
+    ) public {
         gameIdToWamoIdToStatus[gameId][wamoId].health = health;
     }
 
     function _endGame(uint256 gameId, address victor, address loser) internal {
         // alter wamos record
-        uint256[PARTY_SIZE] memory victorParty = gameIdToPlayerToWamoPartyIds[gameId][
-            victor
-        ];
-        uint256[PARTY_SIZE] memory loserParty = gameIdToPlayerToWamoPartyIds[gameId][
-            loser
-        ];
+        uint256[PARTY_SIZE] memory victorParty = gameIdToPlayerToWamoPartyIds[
+            gameId
+        ][victor];
+        uint256[PARTY_SIZE] memory loserParty = gameIdToPlayerToWamoPartyIds[
+            gameId
+        ][loser];
         for (uint i = 0; i < PARTY_SIZE; i++) {
             wamos.recordWin(victorParty[i]);
             wamos.recordLoss(loserParty[i]);
@@ -530,7 +554,6 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
         // todo distribute spoils
         gameIdToGameData[gameId].status = GameStatus.FINISHED;
     }
-
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    END GAME FUNCTIONS   ////////////////////
@@ -590,20 +613,19 @@ contract WamosBattleV1 is IERC721Receiver, VRFConsumerBaseV2 {
      */
     function retrieveStakedWamos(uint256 gameId) external onlyPlayer(gameId) {
         if (gameIdToGameData[gameId].status != GameStatus.FINISHED) {
-            revert GameMustBeFinishedToRetrieveWamos(gameId); 
+            revert GameMustBeFinishedToRetrieveWamos(gameId);
         }
         uint256[PARTY_SIZE] memory party = gameIdToPlayerToWamoPartyIds[gameId][
             msg.sender
-        ]; 
+        ];
         // return wamos in party to msg.sender
-        for (uint i=0; i<PARTY_SIZE; i++) {
+        for (uint i = 0; i < PARTY_SIZE; i++) {
             wamos.safeTransferFrom(address(this), msg.sender, party[i]);
             wamoIdToStakingStatus[party[i]].isStaked = false;
             wamoIdToStakingStatus[party[i]].stakeRequested = false;
             wamoIdToStakingStatus[party[i]].gameId = 0;
         }
     }
-
 
     /////////////////////////////////////////////////////////////////
     ////////////////////     VIEW FUNCTIONS      ////////////////////

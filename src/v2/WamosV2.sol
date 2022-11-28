@@ -7,7 +7,6 @@ import "openzeppelin/utils/Strings.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
-
 enum DamageType {
     MEELEE,
     MAGIC,
@@ -88,9 +87,13 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     // abilities
     mapping(uint256 => uint256[]) wamoIdToAbilities;
 
-
     //// EVENTS
-    event SpawnRequested(address sender, uint256 requestId, uint256 startWamoId, uint256 numWamos);
+    event SpawnRequested(
+        address sender,
+        uint256 requestId,
+        uint256 startWamoId,
+        uint256 numWamos
+    );
     event SpawnCompleted(address sender, uint256 requestId);
 
     //// TEST EVENTS
@@ -126,7 +129,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             "Only WamosBattle can call this function."
         );
         _;
-    }  
+    }
 
     modifier onlyWamoOwner(uint256 wamoId) {
         require(
@@ -138,8 +141,10 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
     //// SPAWNING ////
 
-    function requestSpawn(uint32 number) external payable returns (uint256 requestId) {
-        require(msg.value >= mintPrice, "Insufficient msg.value to mint!");        
+    function requestSpawn(
+        uint32 number
+    ) external payable returns (uint256 requestId) {
+        require(msg.value >= mintPrice, "Insufficient msg.value to mint!");
         requestId = vrfCoordinator.requestRandomWords(
             vrfKeyHash,
             vrfSubscriptionId,
@@ -174,7 +179,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         address owner = requestIdToRequest[_requestId].sender;
         uint256 startingId = requestIdToRequest[_requestId].firstWamoId;
         uint256 numToMint = requestIdToRequest[_requestId].numWamos;
-        for (uint256 i=0; i<numToMint; i++) {
+        for (uint256 i = 0; i < numToMint; i++) {
             _safeMint(owner, startingId + i);
         }
     }
@@ -183,10 +188,13 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         Request memory request = requestIdToRequest[requestId];
         require(request.exists, "Request does not exist");
         require(request.isFulfilled, "Randomness has not been fulfilled yet.");
-        require(!request.isCompleted, "Spawn of this Wamo is already completed.");
+        require(
+            !request.isCompleted,
+            "Spawn of this Wamo is already completed."
+        );
 
         uint256 firstWamoId = request.firstWamoId;
-        for (uint i=0; i < request.numWamos; i++) {
+        for (uint i = 0; i < request.numWamos; i++) {
             uint256 seed = request.seeds[i];
             // generate traits
             // generate movements
@@ -194,8 +202,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         }
         requestIdToRequest[requestId].isCompleted = true;
         emit SpawnCompleted(request.sender, requestId);
-    }   
-
+    }
 
     function generateTraits(uint256 wamoId, uint256 seed) internal {}
 
@@ -203,30 +210,31 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
     //// VIEWS ////
 
-    function getRequestStatus(uint256 requestId) public view returns (bool fulfilled, bool completed) {
+    function getRequestStatus(
+        uint256 requestId
+    ) public view returns (bool fulfilled, bool completed) {
         fulfilled = requestIdToRequest[requestId].isFulfilled;
         completed = requestIdToRequest[requestId].isCompleted;
     }
 
-    function getRequestData(uint256 requestId) 
-        public 
+    function getRequestData(
+        uint256 requestId
+    )
+        public
         view
-        returns (
-            address sender,
-            uint256 firstWamoId,
-            uint256 numWamos
-        )
-        {
-            sender = requestIdToRequest[requestId].sender;
-            firstWamoId = requestIdToRequest[requestId].firstWamoId;
-            numWamos = requestIdToRequest[requestId].numWamos;
-        }
-    
+        returns (address sender, uint256 firstWamoId, uint256 numWamos)
+    {
+        sender = requestIdToRequest[requestId].sender;
+        firstWamoId = requestIdToRequest[requestId].firstWamoId;
+        numWamos = requestIdToRequest[requestId].numWamos;
+    }
 
-    // TODO cull request viewing functions; 
+    // TODO cull request viewing functions;
     //  i) return entire request, such as here, or
     //  ii) split view into two functions, as above
-    function getRequest(uint256 requestId)
+    function getRequest(
+        uint256 requestId
+    )
         public
         view
         returns (
@@ -238,23 +246,25 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             uint256 numWamos,
             uint256[] memory seeds
         )
-        {
-            exists = requestIdToRequest[requestId].exists;
-            isFulfilled = requestIdToRequest[requestId].isFulfilled;
-            isCompleted = requestIdToRequest[requestId].isCompleted;
-            sender = requestIdToRequest[requestId].sender;
-            firstWamoId = requestIdToRequest[requestId].firstWamoId;
-            numWamos = requestIdToRequest[requestId].numWamos;
-            seeds = requestIdToRequest[requestId].seeds;
-        }
-    
+    {
+        exists = requestIdToRequest[requestId].exists;
+        isFulfilled = requestIdToRequest[requestId].isFulfilled;
+        isCompleted = requestIdToRequest[requestId].isCompleted;
+        sender = requestIdToRequest[requestId].sender;
+        firstWamoId = requestIdToRequest[requestId].firstWamoId;
+        numWamos = requestIdToRequest[requestId].numWamos;
+        seeds = requestIdToRequest[requestId].seeds;
+    }
+
     //// VRF CONFIG ////
 
     function setVrfCallbackGasLimit(uint32 _gasLimit) public onlyOwner {
         vrfCallbackGasLimit = _gasLimit;
     }
 
-    function setVrfRequestConfirmations(uint16 _numConfirmations) public onlyOwner {
+    function setVrfRequestConfirmations(
+        uint16 _numConfirmations
+    ) public onlyOwner {
         vrfRequestConfirmations = _numConfirmations;
     }
 
@@ -266,7 +276,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
     function withdrawFunds() public payable onlyOwner {
         payable(contractOwner).transfer(address(this).balance);
-    }  
+    }
 
     //// ARENA CONFIG ////
 
@@ -281,7 +291,10 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
     //// SETTER FUNCTIONS ////
 
-    function setWamoName(uint256 wamoId, string memory name) public onlyWamoOwner(wamoId) {
+    function setWamoName(
+        uint256 wamoId,
+        string memory name
+    ) public onlyWamoOwner(wamoId) {
         wamoIdToName[wamoId] = name;
     }
 
@@ -290,7 +303,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     }
 
     function recordLoss(uint256 wamoId) external onlyArena {
-        wamoIdToRecord[wamoId].losses ++;
+        wamoIdToRecord[wamoId].losses++;
     }
 
     //// LIBRARY FUNCTIONS ////
@@ -305,21 +318,29 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 _num = uint256(keccak256(abi.encodePacked(seed)));
         int256[] memory results_array = new int256[](n);
         uint256 gaussianRV;
-        for (uint256 i=0; i<n; i++) {
+        for (uint256 i = 0; i < n; i++) {
             // count 1s for gaussian random variable
             gaussianRV = countOnes(_num);
             // transform and store
-            results_array[i] = int256(int(gaussianRV) * int(sigma)/8)- 128*int(sigma)/8 + mu;
+            results_array[i] =
+                int256((int(gaussianRV) * int(sigma)) / 8) -
+                (128 * int(sigma)) /
+                8 +
+                mu;
             _num = uint256(keccak256(abi.encodePacked(_num)));
         }
         // event for testing
         emit GaussianRNGOutput(results_array);
         return results_array;
-    }   
+    }
 
     function countOnes(uint256 n) private pure returns (uint256 count) {
         assembly {
-            for { } gt(n, 0) { } {
+            for {
+
+            } gt(n, 0) {
+
+            } {
                 n := and(n, sub(n, 1))
                 count := add(count, 1)
             }

@@ -5,8 +5,8 @@ import "forge-std/Test.sol";
 import "lib/OnChainRNG/GaussianRNG/contracts/GaussianRNG.sol";
 
 contract GaussianRNGTest is Test {
-
-    uint256 seed = 78541660797044910968829902406342334108369226379826116161446442989268089806461;
+    uint256 seed =
+        78541660797044910968829902406342334108369226379826116161446442989268089806461;
 
     GaussianRNG rng;
 

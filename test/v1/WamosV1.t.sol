@@ -185,9 +185,9 @@ contract WamosV1Test is Test {
         assertTrue(wamos.ownerOf(tokenId) == address(0));
     }
 
-    function testMultipleIncompleteSpawnsCanComplete(address[5] memory players)
-        public
-    {
+    function testMultipleIncompleteSpawnsCanComplete(
+        address[5] memory players
+    ) public {
         uint256 beforeReqCount = requestIds.length;
         for (uint256 i = 0; i < 5; i++) {
             vm.deal(players[i], 1 ether);
@@ -271,11 +271,11 @@ contract WamosV1Test is Test {
         assertTrue(wamos.ownerOf(0) == player1);
         //
         int16[8] memory movements = wamos.getWamoMovements(tokenId);
-        console.log("movments");  
-        console.logInt(movements[4]);  
-        console.logInt(movements[5]);  
-        console.logInt(movements[6]);  
-        console.logInt(movements[7]);  
+        console.log("movments");
+        console.logInt(movements[4]);
+        console.logInt(movements[5]);
+        console.logInt(movements[6]);
+        console.logInt(movements[7]);
     }
 
     /** LIBRARY FUNCTION TESTS */
@@ -357,6 +357,6 @@ contract WamosV1Test is Test {
 
     function testBitShift() public {
         uint256 testNum = 987654321;
-        console.log(testNum<<1);
+        console.log(testNum << 1);
     }
 }

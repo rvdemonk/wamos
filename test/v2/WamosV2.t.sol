@@ -7,9 +7,8 @@ import "~/v2/WamosV2.sol";
 import "~/test/VRFCoordinatorV2Mock.sol";
 
 contract WamosV2Test is Test, WamosV2TestHelper {
-
     WamosV2 wamos;
-    
+
     // VRF COORD
     VRFCoordinatorV2Mock vrfCoordinator;
     uint64 subscriptionId;
@@ -30,7 +29,7 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         );
         vrfCoordinator.addConsumer(subscriptionId, address(wamos));
         vrfCoordinator.fundSubscription(subscriptionId, SUB_FUNDING);
-        
+
         // fund players
         vm.deal(player1, ACTOR_STARTING_BAL);
         vm.deal(player2, ACTOR_STARTING_BAL);
@@ -67,26 +66,35 @@ contract WamosV2Test is Test, WamosV2TestHelper {
 
     function testRequestExists() public {
         vm.prank(player1);
-        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE }(1);
-        (bool exists, bool isFulfilled, bool isCompleted,,,,) = wamos.getRequest(requestId);
+        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE}(1);
+        (bool exists, bool isFulfilled, bool isCompleted, , , , ) = wamos
+            .getRequest(requestId);
         assertTrue(exists);
         assertFalse(isFulfilled);
-        assertFalse(isCompleted);   
+        assertFalse(isCompleted);
     }
 
     function testRequestIsFulfilled() public {
         vm.prank(player1);
         uint32 num = 4;
-        uint256 requestId = wamos.requestSpawn{value: num*MINT_PRICE }(num);
+        uint256 requestId = wamos.requestSpawn{value: num * MINT_PRICE}(num);
         vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
-        (bool exists, bool isFulfilled, bool isCompleted,,,,uint256[] memory seeds) = wamos.getRequest(requestId);
+        (
+            bool exists,
+            bool isFulfilled,
+            bool isCompleted,
+            ,
+            ,
+            ,
+            uint256[] memory seeds
+        ) = wamos.getRequest(requestId);
         assertTrue(isFulfilled);
     }
 
     function testTestSpawnCompleted() public {
         vm.prank(player1);
         uint32 num = 5;
-        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE*num }(num);
+        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE * num}(num);
         vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
         wamos.completeSpawn(requestId);
         (
@@ -111,5 +119,4 @@ contract WamosV2Test is Test, WamosV2TestHelper {
     }
 
     function testGRNGSingleOutput() public {}
-
 }
