@@ -110,4 +110,6 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         console.log(seeds[3]);
     }
 
+    function testGRNGSingleOutput() public {}
+
 }

@@ -312,6 +312,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             gaussianRV = countOnes(_num);
             // transform and store
             results_array[i] = int256(int(gaussianRV) * int(sigma)/8)- 128*int(sigma)/8 + mu;
+            _num = uint256(keccak256(abi.encodePacked(_num)));
         }
         // event for testing
         emit GaussianRNGOutput(results_array);

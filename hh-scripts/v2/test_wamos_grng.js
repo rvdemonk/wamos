@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const { deployWamos } = require("./helpers");
 
-const TEST_SEED = 72984518589826227531578991903372844090998219903258077796093728159832249402700;
+const TEST_SEED = 123456789;
 
 async function main() {
   if (hre.network.name !== "hardhat") {
@@ -13,16 +13,16 @@ async function main() {
 
   // rng config
   const mu = 128;
-  const sigma = 96;
-  const n = 100;
+  const sigma = 48;
+  const n = 1000;
 
   const tx = await wamos.gaussianRNG(TEST_SEED, n, mu, sigma);
 
   const receipt = await tx.wait();
-  const event = requestReceipt.events.find(
+  const event = receipt.events.find(
     (event) => event.event === "GaussianRNGOutput"
   );
-  const [results] = requestEvent.args;
+  const [results] = event.args;
 
   console.log(results);
 }
