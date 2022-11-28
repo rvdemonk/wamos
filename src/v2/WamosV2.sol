@@ -25,9 +25,6 @@ struct Request {
 }
 
 struct Traits {
-    uint256 seed;
-    int16[8] movements;
-    uint256 diety;
     uint256 health;
     uint256 meeleeAttack;
     uint256 meeleeDefence;
@@ -36,7 +33,10 @@ struct Traits {
     uint256 luck;
     uint256 stamina;
     uint256 mana;
-    uint256 regen;
+    // special
+    uint256 diety;
+    uint256 manaRegen;
+    uint256 staminaRegen;
     uint256 fecundity;
 }
 
@@ -53,6 +53,10 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     //// META CONSTANTS
     string public constant NAME = "WamosV2";
     string public constant SYMBOL = "WAMOS";
+
+    //// WAMO CONSTANTS
+    uint256 public constant NUMBER_OF_GODS = 8;
+    uint256 public constant MAX_FECUNDITY = 16;
 
     //// VRF COORDINATOR
     VRFCoordinatorV2Interface public vrfCoordinator;
@@ -81,7 +85,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     mapping(uint256 => string) wamoIdToName;
     mapping(uint256 => ArenaRecord) wamoIdToRecord;
     // traits
-    mapping(uint256 => uint256) wamoIdToTraits;
+    mapping(uint256 => int256) wamoIdToTraits;
     // movements
     mapping(uint256 => int16[8]) wamoIdToMovements;
     // abilities
@@ -204,13 +208,45 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         emit SpawnCompleted(request.sender, requestId);
     }
 
-    function generateTraits(uint256 wamoId, uint256 seed) internal {}
+    function generateTraits(uint256 wamoId, uint256 seed) internal {
+        int256 encodedTraits;
+        // number of [0,256] traits: 8
+        // special traits: 3
+        uint256 n = 12;
+        int256 mu = 128;
+        uint256 sigma = 48;
+        // generate GRVs
+        int256[] memory gaussianRVs = gaussianRNG(seed, n, mu, sigma);
+        for (uint256 i=0; i<n; i++) {
+            encodedTraits |= gaussianRVs[i]<<(i*8);
+        }
+        
+        wamoIdToTraits[wamoId] = encodedTraits;
+    }
 
     function generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
     function generateMovements(uint256 wamoId, uint256 seed) internal {}
 
     //// VIEWS ////
+
+    function getTraits(uint256 wamoId) public view returns (Traits memory traits) {
+        int256 encodedTraits = wamoIdToTraits[wamoId];
+        traits.health = uint256(uint8(int8(encodedTraits>>8)));
+        traits.meeleeAttack = uint256(uint8(int8(encodedTraits>>16)));
+        traits.meeleeDefence = uint256(uint8(int8(encodedTraits>>24)));
+        traits.magicAttack = uint256(uint8(int8(encodedTraits>>32)));
+        traits.magicDefence = uint256(uint8(int8(encodedTraits>>40)));
+        traits.luck = uint256(uint8(int8(encodedTraits>>48)));
+        traits.stamina = uint256(uint8(int8(encodedTraits>>56)));
+        traits.mana = uint256(uint8(int8(encodedTraits>>64)));
+        // special
+        traits.diety = uint256(uint8(int8(encodedTraits>>72))) % NUMBER_OF_GODS;
+        traits.manaRegen = uint256(uint8(int8(encodedTraits>>80))) % traits.mana;
+        traits.staminaRegen = uint256(uint8(int8(encodedTraits>>88))) % traits.stamina;
+        traits.fecundity = uint256(uint8(int8(encodedTraits>>96))) % MAX_FECUNDITY;
+        return traits;
+    }    
 
     function getRequestStatus(
         uint256 requestId
@@ -234,6 +270,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     // TODO cull request viewing functions;
     //  i) return entire request, such as here, or
     //  ii) split view into two functions, as above
+    // TODO Test gas for 2 request view combinations
     function getRequest(
         uint256 requestId
     )
