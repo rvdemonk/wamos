@@ -208,6 +208,8 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
     function generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
+    function generateMovements(uint256 wamoId, uint256 seed) internal {}
+
     //// VIEWS ////
 
     function getRequestStatus(
@@ -308,7 +310,6 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
     //// LIBRARY FUNCTIONS ////
 
-    /** @dev TODO change return to uint256 array - no need for negatives */
     function gaussianRNG(
         uint256 seed,
         uint256 n,

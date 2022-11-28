@@ -27,6 +27,23 @@ separate contract to allow people to loan and borrow wamos
 
 # WAMOSV2
 
+## traits
+
+diety [0,8]
+fecundity [0,16]
+manaRegen [0, 0.5mana]
+staminaRegen [0, 0.5mana]
+
+- all [0,255]
+  health
+  mana
+  stamina
+  luck
+  meeleeAttack
+  meeleeDefence
+  magicAttack
+  magicDefence
+
 ## WAMOS TRAITS GAUSSIAN
 
 Input of the mu and sigma parameters opens the door for dynamic wamo spawning dependent on supply conditions and user-specified preference.

@@ -34,13 +34,6 @@ contract EncodingTest is Test {
         });
     }
 
-    function testEncoding1() public {
-        console.log(seed);
-        for (uint i = 2; i < 16; i = i + 2) {
-            console.log(uint8(seed >> i));
-        }
-    }
-
     function testEncodedSeed() public {
         uint256 hashed = uint256(keccak256(abi.encodePacked(seed)));
         console.log(seed);
@@ -50,7 +43,7 @@ contract EncodingTest is Test {
     }
 
     function encodeWamo(testTraits memory _traits) private pure returns (uint256 wamo) {
-        // wamo = uint256( _traits.owner);
+        wamo = uint256(uint160( _traits.owner));
         return wamo;
     }
 
@@ -64,5 +57,6 @@ contract EncodingTest is Test {
         console.logBytes(encnum);
         console.logBytes(encfullnum);
         console.logBytes(encfullNumShifted);
+        assertTrue(num == uint8(fullNum));
     }
 }
