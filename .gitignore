@@ -14,5 +14,4 @@ cache_hardhat/
 
 # Dependencies
 node_modules/
-
-
+wamos-venv/
