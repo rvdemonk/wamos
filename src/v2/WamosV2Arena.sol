@@ -8,4 +8,4 @@ import "chainlink-v0.8/VRFConsumerBaseV2.sol";
 import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "~/v2/WamosV2.sol";
 
-contract WamosArena {}
+contract WamosV2Arena {}
