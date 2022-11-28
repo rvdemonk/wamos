@@ -172,10 +172,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 startingId = requestIdToRequest[_requestId].firstWamoId;
         uint256 numToMint = requestIdToRequest[_requestId].numWamos;
         for (uint256 i=0; i<numToMint; i++) {
-            _safeMint(
-                owner,
-                startingId + i
-            );
+            _safeMint(owner, startingId + i);
         }
     }
 
@@ -184,6 +181,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         require(request.exists, "Request does not exist");
         require(request.isFulfilled, "Randomness has not been fulfilled yet.");
         require(!request.isCompleted, "Spawn of this Wamo is already completed.");
+
         uint256 firstWamoId = request.firstWamoId;
         for (uint i=0; i < request.numWamos; i++) {
             uint256 seed = request.seeds[i];
@@ -291,4 +289,14 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     function recordLoss(uint256 wamoId) external onlyArena {
         wamoIdToRecord[wamoId].losses ++;
     }
+
+    //// LIB FUNCTIONS ////
+
+    function gaussianRNG(uint256 seed, uint256 n, int256 mu, uint256 sigma) 
+        public
+        pure 
+        returns (int256[] memory)
+    {
+        uint256 lol = 2;
+    } 
 }

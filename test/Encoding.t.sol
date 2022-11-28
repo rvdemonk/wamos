@@ -13,4 +13,12 @@ contract EncodingTest is Test {
             console.log(uint8(seed>>i));
         }
     }
+
+    function testEncodedSeed() public {
+        uint256 hashed = uint256(keccak256(abi.encodePacked(seed)));
+        console.log(seed);
+        console.log(hashed);
+        uint256 hashedAgain = uint256(keccak256(abi.encodePacked(hashed)));
+        console.log(hashedAgain);
+    }
 }
