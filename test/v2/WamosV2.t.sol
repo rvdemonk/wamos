@@ -36,6 +36,14 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         vm.deal(badActor, ACTOR_STARTING_BAL);
     }
 
+    function spawnWamoAs(address sender) private returns (uint256 wamoId) {
+        vm.prank(sender);
+        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE}(1);
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        wamos.completeSpawn(requestId);
+        (,,,, wamoId,,) = wamos.getRequest(requestId);
+    }
+
     // DEPLOYMENT AND SUBSCRIPTION
 
     function testWamosIsDeployed() public {
@@ -112,11 +120,22 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         assertTrue(firstWamoId == 1);
         assertFalse(seeds[0] == 0);
         assertTrue(seeds.length == num);
-        console.log(seeds[0]);
-        console.log(seeds[1]);
-        console.log(seeds[2]);
-        console.log(seeds[3]);
     }
 
-    function testGRNGSingleOutput() public {}
+    function testTraitsNonZero() public {
+        uint256 wamoId = spawnWamoAs(player1);
+        assertTrue(wamos.ownerOf(wamoId) == player1);
+        Traits memory traits = wamos.getTraits(wamoId);
+        assertFalse(traits.health == 0);
+        assertFalse(traits.luck == 0);
+        assertFalse(traits.stamina == 0);
+        assertFalse(traits.mana == 0);
+    }
+
+    function testFirstMovementNonZero() public {
+        uint256 wamoId = spawnWamoAs(player1);
+        int16[8] memory moves = wamos.getMovements(wamoId);
+        assertFalse(moves[0] == 0);
+        assertFalse(moves[1] == 0);
+    }
 }

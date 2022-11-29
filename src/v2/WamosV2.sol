@@ -57,6 +57,8 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     //// WAMO CONSTANTS
     uint256 public constant NUMBER_OF_GODS = 8;
     uint256 public constant MAX_FECUNDITY = 16;
+    uint256 public constant MAX_ABILITIES = 4;
+    int16 public constant MAX_INDEX_MUTATION = 64;
 
     //// VRF COORDINATOR
     VRFCoordinatorV2Interface public vrfCoordinator;
@@ -199,9 +201,11 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
 
         uint256 firstWamoId = request.firstWamoId;
         for (uint i = 0; i < request.numWamos; i++) {
+            uint256 wamoId = firstWamoId + i;
             uint256 seed = request.seeds[i];
-            // generate traits
+            generateTraits(wamoId, seed);
             // generate movements
+            generateMovements(wamoId, seed);
             // generate abilities
         }
         requestIdToRequest[requestId].isCompleted = true;
@@ -220,26 +224,38 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         for (uint256 i=0; i<n; i++) {
             encodedTraits |= gaussianRVs[i]<<(i*8);
         }
-        
         wamoIdToTraits[wamoId] = encodedTraits;
     }
 
     function generateAbilities(uint256 wamoId, uint256 seed) internal {}
 
-    function generateMovements(uint256 wamoId, uint256 seed) internal {}
+    function generateMovements(uint256 wamoId, uint256 seed) internal {
+        // test moves
+        int16[8] memory moves = [int16(-1),1,-16,16,3,-3,48,-48];
+        wamoIdToMovements[wamoId] = moves;
+    }
 
     //// VIEWS ////
 
+    function getAbilities(uint256 wamoId) public view returns (Ability[4] memory abilities) {
+        // abilities = wamoIdToAbilities[wamoId];
+
+    }
+
+    function getMovements(uint256 wamoId) public view returns (int16[8] memory movements) {
+        movements = wamoIdToMovements[wamoId];
+    }
+
     function getTraits(uint256 wamoId) public view returns (Traits memory traits) {
         int256 encodedTraits = wamoIdToTraits[wamoId];
-        traits.health = uint256(uint8(int8(encodedTraits>>8)));
-        traits.meeleeAttack = uint256(uint8(int8(encodedTraits>>16)));
-        traits.meeleeDefence = uint256(uint8(int8(encodedTraits>>24)));
-        traits.magicAttack = uint256(uint8(int8(encodedTraits>>32)));
-        traits.magicDefence = uint256(uint8(int8(encodedTraits>>40)));
-        traits.luck = uint256(uint8(int8(encodedTraits>>48)));
-        traits.stamina = uint256(uint8(int8(encodedTraits>>56)));
-        traits.mana = uint256(uint8(int8(encodedTraits>>64)));
+        traits.health = uint256(uint8(int8(encodedTraits>>8))) + 1;
+        traits.meeleeAttack = uint256(uint8(int8(encodedTraits>>16))) + 1;
+        traits.meeleeDefence = uint256(uint8(int8(encodedTraits>>24))) + 1;
+        traits.magicAttack = uint256(uint8(int8(encodedTraits>>32))) + 1;
+        traits.magicDefence = uint256(uint8(int8(encodedTraits>>40))) + 1;
+        traits.luck = uint256(uint8(int8(encodedTraits>>48))) + 1;
+        traits.stamina = uint256(uint8(int8(encodedTraits>>56))) + 1;
+        traits.mana = uint256(uint8(int8(encodedTraits>>64))) + 1;
         // special
         traits.diety = uint256(uint8(int8(encodedTraits>>72))) % NUMBER_OF_GODS;
         traits.manaRegen = uint256(uint8(int8(encodedTraits>>80))) % traits.mana;
