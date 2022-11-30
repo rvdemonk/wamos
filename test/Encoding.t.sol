@@ -42,17 +42,19 @@ contract EncodingTest is Test {
         console.log(hashedAgain);
     }
 
-    function encodeWamo(testTraits memory _traits) private pure returns (uint256 wamo) {
-        wamo = uint256(uint160( _traits.owner));
+    function encodeWamo(
+        testTraits memory _traits
+    ) private pure returns (uint256 wamo) {
+        wamo = uint256(uint160(_traits.owner));
         return wamo;
     }
 
     function testWamoEncoding() public {
         uint8 num = 170;
         uint256 fullNum = uint256(num);
-        uint256 fullNumShifted = fullNum<<160;
+        uint256 fullNumShifted = fullNum << 160;
         bytes memory encnum = abi.encodePacked(num);
-        bytes memory encfullnum =  abi.encodePacked(fullNum);
+        bytes memory encfullnum = abi.encodePacked(fullNum);
         bytes memory encfullNumShifted = abi.encodePacked(fullNumShifted);
         console.logBytes(encnum);
         console.logBytes(encfullnum);

@@ -13,6 +13,15 @@ enum DamageType {
     RANGE
 }
 
+struct Ability {
+    uint256 dietyType;
+    DamageType damageType;
+    uint256 power;
+    uint256 accuracy;
+    int16 range;
+    uint256 cost;
+}
+
 struct Request {
     bool exists;
     bool isFulfilled;
@@ -38,10 +47,6 @@ struct Traits {
     uint256 manaRegen;
     uint256 staminaRegen;
     uint256 fecundity;
-}
-
-struct Ability {
-    uint256 abilityId;
 }
 
 struct ArenaRecord {
@@ -91,7 +96,8 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     // movements
     mapping(uint256 => int16[8]) wamoIdToMovements;
     // abilities
-    mapping(uint256 => uint256[]) wamoIdToAbilities;
+    // mapping(uint256 => uint256[]) wamoIdToAbilities;
+    mapping(uint256 => Ability[]) wamoIdToAbilities;
 
     //// EVENTS
     event SpawnRequested(
@@ -145,7 +151,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         _;
     }
 
-    //// SPAWNING ////
+    /////////////////////////////////////////////////////////////////
+    ////////////////////      WAMO SPAWNING      ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function requestSpawn(
         uint32 number
@@ -204,13 +212,16 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             uint256 wamoId = firstWamoId + i;
             uint256 seed = request.seeds[i];
             generateTraits(wamoId, seed);
-            // generate movements
             generateMovements(wamoId, seed);
-            // generate abilities
+            generateAbilities(wamoId, seed);
         }
         requestIdToRequest[requestId].isCompleted = true;
         emit SpawnCompleted(request.sender, requestId);
     }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////     WAMO GENERATION     ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function generateTraits(uint256 wamoId, uint256 seed) internal {
         int256 encodedTraits;
@@ -221,48 +232,98 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 sigma = 48;
         // generate GRVs
         int256[] memory gaussianRVs = gaussianRNG(seed, n, mu, sigma);
-        for (uint256 i=0; i<n; i++) {
-            encodedTraits |= gaussianRVs[i]<<(i*8);
+        for (uint256 i = 0; i < n; i++) {
+            encodedTraits |= gaussianRVs[i] << (i * 8);
         }
         wamoIdToTraits[wamoId] = encodedTraits;
     }
 
-    function generateAbilities(uint256 wamoId, uint256 seed) internal {}
+    /**
+     * @dev sample abilities for testing
+     * todo
+     */
+    function generateAbilities(uint256 wamoId, uint256 seed) internal {
+        Ability[4] memory abilities;
+        // @dev two meelee attacks, two magic attacks
+        for (uint256 i = 0; i < 2; i++) {
+            wamoIdToAbilities[wamoId].push(
+                Ability({
+                    dietyType: seed % NUMBER_OF_GODS,
+                    damageType: DamageType.MEELEE,
+                    power: 60,
+                    accuracy: 60,
+                    range: 2,
+                    cost: 10
+                })
+            );
+        }
+        for (uint256 i = 0; i < 2; i++) {
+            wamoIdToAbilities[wamoId].push(
+                Ability({
+                    dietyType: seed % NUMBER_OF_GODS,
+                    damageType: DamageType.MAGIC,
+                    power: 60,
+                    accuracy: 60,
+                    range: 5,
+                    cost: 10
+                })
+            );
+        }
+    }
 
+    /**
+     * @dev kingmove r=1 and r=3 for testing
+     * todo
+     */
     function generateMovements(uint256 wamoId, uint256 seed) internal {
         // test moves
-        int16[8] memory moves = [int16(-1),1,-16,16,3,-3,48,-48];
+        int16[8] memory moves = [int16(-1), 1, -16, 16, 3, -3, 48, -48];
         wamoIdToMovements[wamoId] = moves;
     }
 
-    //// VIEWS ////
+    /////////////////////////////////////////////////////////////////
+    ////////////////////     VIEW FUNCTIONS      ////////////////////
+    /////////////////////////////////////////////////////////////////
 
-    function getAbilities(uint256 wamoId) public view returns (Ability[4] memory abilities) {
-        // abilities = wamoIdToAbilities[wamoId];
-
+    function getAbilities(
+        uint256 wamoId
+    ) public view returns (Ability[] memory abilities) {
+        abilities = wamoIdToAbilities[wamoId];
     }
 
-    function getMovements(uint256 wamoId) public view returns (int16[8] memory movements) {
+    function getMovements(
+        uint256 wamoId
+    ) public view returns (int16[8] memory movements) {
         movements = wamoIdToMovements[wamoId];
     }
 
-    function getTraits(uint256 wamoId) public view returns (Traits memory traits) {
+    function getTraits(
+        uint256 wamoId
+    ) public view returns (Traits memory traits) {
         int256 encodedTraits = wamoIdToTraits[wamoId];
-        traits.health = uint256(uint8(int8(encodedTraits>>8))) + 1;
-        traits.meeleeAttack = uint256(uint8(int8(encodedTraits>>16))) + 1;
-        traits.meeleeDefence = uint256(uint8(int8(encodedTraits>>24))) + 1;
-        traits.magicAttack = uint256(uint8(int8(encodedTraits>>32))) + 1;
-        traits.magicDefence = uint256(uint8(int8(encodedTraits>>40))) + 1;
-        traits.luck = uint256(uint8(int8(encodedTraits>>48))) + 1;
-        traits.stamina = uint256(uint8(int8(encodedTraits>>56))) + 1;
-        traits.mana = uint256(uint8(int8(encodedTraits>>64))) + 1;
+        traits.health = uint256(uint8(int8(encodedTraits >> 8))) + 1;
+        traits.meeleeAttack = uint256(uint8(int8(encodedTraits >> 16))) + 1;
+        traits.meeleeDefence = uint256(uint8(int8(encodedTraits >> 24))) + 1;
+        traits.magicAttack = uint256(uint8(int8(encodedTraits >> 32))) + 1;
+        traits.magicDefence = uint256(uint8(int8(encodedTraits >> 40))) + 1;
+        traits.luck = uint256(uint8(int8(encodedTraits >> 48))) + 1;
+        traits.stamina = uint256(uint8(int8(encodedTraits >> 56))) + 1;
+        traits.mana = uint256(uint8(int8(encodedTraits >> 64))) + 1;
         // special
-        traits.diety = uint256(uint8(int8(encodedTraits>>72))) % NUMBER_OF_GODS;
-        traits.manaRegen = uint256(uint8(int8(encodedTraits>>80))) % traits.mana;
-        traits.staminaRegen = uint256(uint8(int8(encodedTraits>>88))) % traits.stamina;
-        traits.fecundity = uint256(uint8(int8(encodedTraits>>96))) % MAX_FECUNDITY;
+        traits.diety =
+            uint256(uint8(int8(encodedTraits >> 72))) %
+            NUMBER_OF_GODS;
+        traits.manaRegen =
+            uint256(uint8(int8(encodedTraits >> 80))) %
+            traits.mana;
+        traits.staminaRegen =
+            uint256(uint8(int8(encodedTraits >> 88))) %
+            traits.stamina;
+        traits.fecundity =
+            uint256(uint8(int8(encodedTraits >> 96))) %
+            MAX_FECUNDITY;
         return traits;
-    }    
+    }
 
     function getRequestStatus(
         uint256 requestId
@@ -311,7 +372,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         seeds = requestIdToRequest[requestId].seeds;
     }
 
-    //// VRF CONFIG ////
+    /////////////////////////////////////////////////////////////////
+    ////////////////////  VRF CONFIG FUNCTIONS   ////////////////////
+    /////////////////////////////////////////////////////////////////
 
     function setVrfCallbackGasLimit(uint32 _gasLimit) public onlyOwner {
         vrfCallbackGasLimit = _gasLimit;
@@ -323,7 +386,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         vrfRequestConfirmations = _numConfirmations;
     }
 
-    //// MINT CONFIG ////
+    /////////////////////////////////////////////////////////////////
+    /////////////////     META MINT FUNCTIONS      //////////////////
+    /////////////////////////////////////////////////////////////////
 
     function setMintPrice(uint256 _mintPrice) public onlyOwner {
         mintPrice = _mintPrice;
@@ -333,7 +398,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         payable(contractOwner).transfer(address(this).balance);
     }
 
-    //// ARENA CONFIG ////
+    /////////////////////////////////////////////////////////////////
+    /////////////////    ARENA STAKING FUNCTIONS   //////////////////
+    /////////////////////////////////////////////////////////////////
 
     function setWamosArenaAddress(address _arenaAddress) external onlyOwner {
         arenaAddress = _arenaAddress;
@@ -344,7 +411,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         super.setApprovalForAll(arenaAddress, true);
     }
 
-    //// SETTER FUNCTIONS ////
+    /////////////////////////////////////////////////////////////////
+    /////////////////       SETTER FUNCTIONS       //////////////////
+    /////////////////////////////////////////////////////////////////
 
     function setWamoName(
         uint256 wamoId,
@@ -361,7 +430,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         wamoIdToRecord[wamoId].losses++;
     }
 
-    //// LIBRARY FUNCTIONS ////
+    /////////////////////////////////////////////////////////////////
+    /////////////////      LIBRARY FUNCTIONS       //////////////////
+    /////////////////////////////////////////////////////////////////
 
     function gaussianRNG(
         uint256 seed,
@@ -389,12 +460,9 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     }
 
     function countOnes(uint256 n) private pure returns (uint256 count) {
+        // prettier-ignore
         assembly {
-            for {
-
-            } gt(n, 0) {
-
-            } {
+            for {} gt(n, 0) {} {
                 n := and(n, sub(n, 1))
                 count := add(count, 1)
             }

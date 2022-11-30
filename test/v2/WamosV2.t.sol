@@ -41,7 +41,7 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         uint256 requestId = wamos.requestSpawn{value: MINT_PRICE}(1);
         vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
         wamos.completeSpawn(requestId);
-        (,,,, wamoId,,) = wamos.getRequest(requestId);
+        (, , , , wamoId, , ) = wamos.getRequest(requestId);
     }
 
     // DEPLOYMENT AND SUBSCRIPTION
@@ -132,10 +132,19 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         assertFalse(traits.mana == 0);
     }
 
-    function testFirstMovementNonZero() public {
+    function testMovementsNonZero() public {
         uint256 wamoId = spawnWamoAs(player1);
         int16[8] memory moves = wamos.getMovements(wamoId);
-        assertFalse(moves[0] == 0);
-        assertFalse(moves[1] == 0);
+        for (uint256 i = 0; i < 8; i++) {
+            assertFalse(moves[i] == 0);
+        }
+    }
+
+    function testAbilitiesNonZero() public {
+        uint256 wamoId = spawnWamoAs(player1);
+        Ability[] memory abilities = wamos.getAbilities(wamoId);
+        for (uint256 i = 0; i < 4; i++) {
+            assertFalse(abilities[i].power == 0);
+        }
     }
 }
