@@ -90,6 +90,16 @@ contract WamosV2Arena is IERC721Receiver {
 
     function commitTurn() external {}
 
+    function resign() external {}
+
+    function claimVictory() external {}
+
+    function retrieveWamos() external {}
+
+    /////////////////////////////////////////////////////////////////
+    //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
+    /////////////////////////////////////////////////////////////////
+
     function _commitTurn() internal {}
 
     function _changeWamoPosition() internal {}
@@ -98,5 +108,18 @@ contract WamosV2Arena is IERC721Receiver {
 
     function _changeWamoHealth() internal {}
 
-    // function 
+    function _moveWamo() internal {}
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////    CONTRACT SETTERS     ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function setPlayerTag(string calldata newPlayerTag) public {
+        addrToPlayerTag[msg.sender] = newPlayerTag;
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////   LIBRARY  FUNCTIONS    ////////////////////
+    /////////////////////////////////////////////////////////////////
+
 }

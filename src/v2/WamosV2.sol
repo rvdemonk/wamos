@@ -233,7 +233,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         // generate GRVs
         int256[] memory gaussianRVs = gaussianRNG(seed, n, mu, sigma);
         for (uint256 i = 0; i < n; i++) {
-            encodedTraits |= gaussianRVs[i] << (i * 8);
+            encodedTraits |= (gaussianRVs[i] + 1) << (i * 8);
         }
         wamoIdToTraits[wamoId] = encodedTraits;
     }
@@ -301,14 +301,14 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 wamoId
     ) public view returns (Traits memory traits) {
         int256 encodedTraits = wamoIdToTraits[wamoId];
-        traits.health = uint256(uint8(int8(encodedTraits >> 8))) + 1;
-        traits.meeleeAttack = uint256(uint8(int8(encodedTraits >> 16))) + 1;
-        traits.meeleeDefence = uint256(uint8(int8(encodedTraits >> 24))) + 1;
-        traits.magicAttack = uint256(uint8(int8(encodedTraits >> 32))) + 1;
-        traits.magicDefence = uint256(uint8(int8(encodedTraits >> 40))) + 1;
-        traits.luck = uint256(uint8(int8(encodedTraits >> 48))) + 1;
-        traits.stamina = uint256(uint8(int8(encodedTraits >> 56))) + 1;
-        traits.mana = uint256(uint8(int8(encodedTraits >> 64))) + 1;
+        traits.health = uint256(uint8(int8(encodedTraits >> 8)));
+        traits.meeleeAttack = uint256(uint8(int8(encodedTraits >> 16)));
+        traits.meeleeDefence = uint256(uint8(int8(encodedTraits >> 24)));
+        traits.magicAttack = uint256(uint8(int8(encodedTraits >> 32)));
+        traits.magicDefence = uint256(uint8(int8(encodedTraits >> 40)));
+        traits.luck = uint256(uint8(int8(encodedTraits >> 48)));
+        traits.stamina = uint256(uint8(int8(encodedTraits >> 56)));
+        traits.mana = uint256(uint8(int8(encodedTraits >> 64)));
         // special
         traits.diety =
             uint256(uint8(int8(encodedTraits >> 72))) %
