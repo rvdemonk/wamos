@@ -4,6 +4,7 @@ A project by team 3_RiGBY
 ## Inspiration
 
 Could the genre of monster battling game be implemented as an open source protocol? Could the monsters be tradeable and sellable, allowing the time that players invest into their monsters to be reflected by a price? Could monster battling games be commodified?
+
 With the alignment of new technologies blazing in our vision, we started to believe that a new kind of game can exist: a living, independent, perpetuating game, decentralised - bestowed with infinity.
 
 ## What It Does
