@@ -14,4 +14,9 @@ enum GameStatus {
     FINISHED
 }
 
-contract WamosV2Arena {}
+contract WamosV2Arena {
+    //// GAME CONSTANTS
+    int16 public constant GRID_SIZE = 16;
+    uint256 public constant MAX_PLAYERS = 2;
+    uint256 public constant PARTY_SIZE = 2; 
+}
