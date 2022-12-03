@@ -106,7 +106,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 startWamoId,
         uint256 numWamos
     );
-    event SpawnCompleted(address sender, uint256 requestId);
+    event SpawnCompleted(address sender, uint256 requestId, uint256 firstWamoId, uint256 lastWamoId);
 
     //// TEST EVENTS
     event GaussianRNGOutput(int256[] results);
@@ -208,7 +208,8 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         );
 
         uint256 firstWamoId = request.firstWamoId;
-        for (uint i = 0; i < request.numWamos; i++) {
+        uint256 numWamos = request.numWamos;
+        for (uint i = 0; i < numWamos; i++) {
             uint256 wamoId = firstWamoId + i;
             uint256 seed = request.seeds[i];
             generateTraits(wamoId, seed);
@@ -216,7 +217,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             generateAbilities(wamoId, seed);
         }
         requestIdToRequest[requestId].isCompleted = true;
-        emit SpawnCompleted(request.sender, requestId);
+        emit SpawnCompleted(request.sender, requestId, firstWamoId, firstWamoId+numWamos-1);
     }
 
     /////////////////////////////////////////////////////////////////

@@ -14,6 +14,22 @@ enum GameStatus {
     FINISHED
 }
 
+// Tracks each game
+struct GameData {
+    uint256 createTime;
+    uint256 lastMoveTime;
+    uint256 turnCount;
+    address[2] players; // 0-> challenger, 1-> challengee
+}
+
+// Tracks the status of a single wamo during a game
+struct WamoStatus {
+    int16 position;
+    uint256 health;
+    uint256 stamina;
+    uint256 mana;
+}
+
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
     int16 public constant GRID_SIZE = 16;
@@ -66,7 +82,9 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////       GAME SET UP       ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function createGame(address challengee) external returns (uint256) {}
+    function createGame(address challengee) external returns (uint256) {
+
+    }
 
     function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
 
