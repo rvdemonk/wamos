@@ -30,6 +30,13 @@ struct WamoStatus {
     uint256 mana;
 }
 
+struct StakingStatus {
+    bool exists;
+    bool stakeRequested;
+    bool isStaked;
+    uint256 gameId;
+}
+
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
     int16 public constant GRID_SIZE = 16;
@@ -49,15 +56,16 @@ contract WamosV2Arena is IERC721Receiver {
     //// PLAYER TAGS
     mapping(address => string) public addrToPlayerTag;
 
+    //// GAME DATA
+    // todo
+    // game status data
+    mapping(uint256 => uint256) gameIdToGameData;
+    // wamo status data (if in game)
+
     //// WAMO STAKING
     // todo
     // wamo staking status
     // wamos taked by players in game
-
-    //// GAME DATA
-    // todo
-    // game status data
-    // wamo status data (if in game)
 
     //// EVENTS
     // todo
@@ -82,9 +90,7 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////       GAME SET UP       ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function createGame(address challengee) external returns (uint256) {
-
-    }
+    function createGame(address challengee) external returns (uint256) {}
 
     function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
 

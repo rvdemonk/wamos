@@ -326,6 +326,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         return traits;
     }
 
+    // split get request data functions for smart contract use
     function getRequestStatus(
         uint256 requestId
     ) public view returns (bool fulfilled, bool completed) {
@@ -345,10 +346,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         numWamos = requestIdToRequest[requestId].numWamos;
     }
 
-    // TODO cull request viewing functions;
-    //  i) return entire request, such as here, or
-    //  ii) split view into two functions, as above
-    // TODO Test gas for 2 request view combinations
+    // single request view function for external use
     function getRequest(
         uint256 requestId
     )
