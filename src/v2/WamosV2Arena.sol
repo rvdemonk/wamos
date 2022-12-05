@@ -14,6 +14,21 @@ enum GameStatus {
     FINISHED
 }
 
+/** 
+    note GAME DATA STRUCT PLAN
+    split game data struct into two:
+    1) game data which remains constant for the entire game
+        - players, timestamp, party size
+    2) game data that will mutate each turn
+        - turn count, last turn time, wamo status
+
+    note mappings
+    No reason not to have a mapping wamoId => status
+        - only one wamo status will be updated each turn, thus no extra
+        gas overhead for wamo status being stored individually
+
+ */
+
 // Tracks each game
 struct GameData {
     GameStatus status;
@@ -27,7 +42,6 @@ struct GameData {
     uint256 party2;
 }
 
-// Tracks the status of a single wamo during a game
 struct WamoStatus {
     int16 position;
     uint256 health;
@@ -95,13 +109,13 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////       GAME SET UP       ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function createGame(address player2) external returns (uint256 gameId) {
+    function createGame(address player2, uint256 partySize) external returns (uint256 gameId) {
         // todo require statements
-        address player1 = msg.sender;
         gameId = gameCount++;
+        // game state
         GameData memory game;
         game.createTime = block.timestamp;
-        game.player1 = player1;
+        game.player1 = msg.sender;
         game.player2 = player2;
         game.status = GameStatus.PREGAME;
         // encode and store game data
@@ -109,6 +123,11 @@ contract WamosV2Arena is IERC721Receiver {
         gameIdToGameData[gameId] = gameData;
 
     }
+
+    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {
+
+    }
+
 
     // todo batch connection
     function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
@@ -162,8 +181,7 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     /////////////////////////////////////////////////////////////////
-    ////////////////////   ENCODING  FUNCTIONS   ////////////////////
+    ////////////////////   LIBRARY  FUNCTIONS    ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 }
