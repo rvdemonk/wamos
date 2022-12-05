@@ -105,9 +105,7 @@ contract WamosV2Arena is IERC721Receiver {
 
     }
 
-    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {
-
-    }
+    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 
     // todo batch connection
     function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
@@ -164,5 +162,4 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////   ENCODING  FUNCTIONS   ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 }
