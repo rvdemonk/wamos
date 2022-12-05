@@ -59,12 +59,14 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         }
     }
 
+    ////////// TEST UTILITY FUNCTIONS //////////
+    
+    function createGame(address p1, address p2) public {}
+
     function testOwnership() public {
         for (uint i=0; i<ACTORS.length*WAMOS_PER_PLAYER; i++) {
             address intendedOwner = ACTORS[i/10];
             assertTrue(wamos.ownerOf(i+1) == intendedOwner);
         }
     }
-
-    function createGame() public {}
 }

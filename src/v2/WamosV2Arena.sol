@@ -16,6 +16,7 @@ enum GameStatus {
 
 // Tracks each game
 struct GameData {
+    GameStatus status;
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
@@ -90,8 +91,21 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////       GAME SET UP       ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function createGame(address challengee) external returns (uint256) {}
+    function createGame(address player2) external returns (uint256 gameId) {
+        // todo require statements
+        address player1 = msg.sender;
+        gameId = gameCount++;
+        GameData memory game;
+        game.createTime = block.timestamp;
+        game.players = [player1, player2];
+        game.status = GameStatus.PREGAME;
+        // encode game data
+        uint256 gameData = _encodeGameData(game);
+        // store game
+        gameIdToGameData[gameId] = gameData;
+    }
 
+    // todo batch connection
     function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
 
     function _loadWamos(uint256 gameId, address player) internal {}
@@ -143,7 +157,8 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     /////////////////////////////////////////////////////////////////
-    ////////////////////   LIBRARY  FUNCTIONS    ////////////////////
+    ////////////////////   ENCODING  FUNCTIONS   ////////////////////
     /////////////////////////////////////////////////////////////////
 
+    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 }
