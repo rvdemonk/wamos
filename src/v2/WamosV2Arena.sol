@@ -101,7 +101,8 @@ contract WamosV2Arena is IERC721Receiver {
         gameId = gameCount++;
         GameData memory game;
         game.createTime = block.timestamp;
-        game.players = [player1, player2];
+        game.player1 = player1;
+        game.player2 = player2;
         game.status = GameStatus.PREGAME;
         // encode and store game data
         uint256 gameData = _encodeGameData(game);
