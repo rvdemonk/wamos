@@ -229,7 +229,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         // special traits: 3
         uint256 n = 12;
         int256 mu = 128;
-        uint256 sigma = 48;
+        uint256 sigma = 32;
         // generate GRVs
         int256[] memory gaussianRVs = gaussianRNG(seed, n, mu, sigma);
         for (uint256 i = 0; i < n; i++) {
