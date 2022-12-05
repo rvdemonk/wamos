@@ -20,7 +20,11 @@ struct GameData {
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
-    address[2] players; // 0-> challenger, 1-> challengee
+    address player1;
+    address player2;
+    uint256 partySize;
+    uint256 party1; // encoded
+    uint256 party2;
 }
 
 // Tracks the status of a single wamo during a game
@@ -99,10 +103,10 @@ contract WamosV2Arena is IERC721Receiver {
         game.createTime = block.timestamp;
         game.players = [player1, player2];
         game.status = GameStatus.PREGAME;
-        // encode game data
+        // encode and store game data
         uint256 gameData = _encodeGameData(game);
-        // store game
         gameIdToGameData[gameId] = gameData;
+
     }
 
     // todo batch connection
