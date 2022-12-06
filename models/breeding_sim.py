@@ -27,8 +27,16 @@ def create_gen(mu, sigma, n):
     """
     A generation of wam0s with normally distributed traits
     """
-    population = [np.random.normal(mu, sigma, len(TRAITS)) for wamo in range(n)]
+    pop_traits = [np.random.normal(mu, sigma, len(TRAITS)) for wamo in range(n)]
+    pop_sp_traits = [np.random.normal(mu, sigma, len(SP_TRAITS)) for wamo in range(n)]
     return population
+
+
+def breed_wamos(w1, w2):
+    """
+    Seed and parents? Child trait score = f(seed, parents seed)
+    """
+    pass
 
 
 def main():
