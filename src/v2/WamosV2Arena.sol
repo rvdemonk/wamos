@@ -63,15 +63,16 @@ contract WamosV2Arena is IERC721Receiver {
     //// PLAYER TAGS
     mapping(address => string) public addrToPlayerTag;
 
-    //// GAME DATA
     // todo
+    //// GAME DATA
     // game status data
     mapping(uint256 => uint256) gameIdToGameData;
     // wamo status data (if in game)
 
-    //// WAMO STAKING
     // todo
+    //// WAMO STAKING
     // wamo staking status
+    mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
     // wamos taked by players in game
 
     //// EVENTS
@@ -111,11 +112,20 @@ contract WamosV2Arena is IERC721Receiver {
         gameIdToGameData[gameId] = gameData;
     }
 
-    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {
-    }
+    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 
     // todo batch connection
-    function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
+    function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {
+        // checks
+        // register staking request for each wamoId
+        // wamoIdToStakingStatus[wamoId] = StakingStatus({
+        //         exists: true,
+        //         stakeRequested: true,
+        //         gameId: gameId,
+        //         isStaked: false
+        // });
+        // prompt transfer
+    }
 
     function _loadWamos(uint256 gameId, address player) internal {}
 
