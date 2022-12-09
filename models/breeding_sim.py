@@ -28,7 +28,7 @@ class WamoSimulator:
         self.mu = mu
         self.sigma = sigma
         self.n = n
-        self.population = 
+        # self.population = 
 
     def display(w, population):
         print("\n -- displaying traits of Wam0 #", w)
