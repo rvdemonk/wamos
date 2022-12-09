@@ -59,6 +59,11 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         }
     }
 
+    function testFirstMovePosChange() public {
+        vm.prank(player1);
+        uint256 gameId = arena.createGame(player2, 1);
+    }
+
     ////////// TEST UTILITY FUNCTIONS //////////
 
     function testOwnership() public {
@@ -70,6 +75,6 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
 
     function testInitGameData() public {
         vm.prank(player1);
-        uint256 gameId = arena.createGame(player2);
+        uint256 gameId = arena.createGame(player2, 1);
     }
 }

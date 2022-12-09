@@ -54,6 +54,13 @@ class WamoSimulator:
         return population
 
 
+def breed_wamos(w1, w2):
+    """
+    Seed and parents? Child trait score = f(seed, parents seed)
+    """
+    pass
+
+
 def main():
     start = time.time()
     population = create_gen(MU, SIGMA, N)

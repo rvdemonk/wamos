@@ -2,6 +2,11 @@
 
 pragma solidity <0.9.0;
 
+/**
+    create or join game - stake party - play - retrieve party
+    TODO encode all storage
+ */
+
 import "openzeppelin/token/ERC721/IERC721Receiver.sol";
 import "openzeppelin/token/ERC721/IERC721.sol";
 import "chainlink-v0.8/VRFConsumerBaseV2.sol";
@@ -16,11 +21,12 @@ enum GameStatus {
 
 // Tracks each game
 struct GameData {
+    address[2] players; // 0-> challenger, 1-> challengee
+    uint256 partySize;
     GameStatus status;
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
-    address[2] players; // 0-> challenger, 1-> challengee
 }
 
 // Tracks the status of a single wamo during a game
@@ -57,15 +63,16 @@ contract WamosV2Arena is IERC721Receiver {
     //// PLAYER TAGS
     mapping(address => string) public addrToPlayerTag;
 
-    //// GAME DATA
     // todo
+    //// GAME DATA
     // game status data
     mapping(uint256 => uint256) gameIdToGameData;
     // wamo status data (if in game)
 
-    //// WAMO STAKING
     // todo
+    //// WAMO STAKING
     // wamo staking status
+    mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
     // wamos taked by players in game
 
     //// EVENTS
@@ -91,24 +98,34 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////       GAME SET UP       ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function createGame(address player2) external returns (uint256 gameId) {
+    function createGame(address player2, uint256 partySize) external returns (uint256 gameId) {
         // todo require statements
         address player1 = msg.sender;
         gameId = gameCount++;
         GameData memory game;
         game.createTime = block.timestamp;
+        game.partySize = partySize;
         game.players = [player1, player2];
         game.status = GameStatus.PREGAME;
         // encode game data
         uint256 gameData = _encodeGameData(game);
         gameIdToGameData[gameId] = gameData;
-
     }
 
     function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 
     // todo batch connection
-    function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {}
+    function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {
+        // checks
+        // register staking request for each wamoId
+        // wamoIdToStakingStatus[wamoId] = StakingStatus({
+        //         exists: true,
+        //         stakeRequested: true,
+        //         gameId: gameId,
+        //         isStaked: false
+        // });
+        // prompt transfer
+    }
 
     function _loadWamos(uint256 gameId, address player) internal {}
 
