@@ -53,7 +53,7 @@ contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
     int16 public constant GRID_SIZE = 16;
     uint256 public constant MAX_PLAYERS = 2;
-    uint256 public constant PARTY_SIZE = 2; 
+    uint256 public constant PARTY_SIZE = 2;
 
     //// WAMOS
     WamosV2 wamos;
@@ -70,7 +70,7 @@ contract WamosV2Arena is IERC721Receiver {
 
     // todo
     //// GAME DATA
-    mapping(uint256 => GameData) gameIdToGameDataStruct; //temporary    
+    mapping(uint256 => GameData) gameIdToGameDataStruct; //temporary
     // game status data
     mapping(uint256 => uint256) gameIdToGameData;
     // wamo status data (if in game)
@@ -79,6 +79,7 @@ contract WamosV2Arena is IERC721Receiver {
     //// WAMO STAKING
     // wamo staking status
     mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
+
     // wamos taked by players in game
 
     //// EVENTS
@@ -104,7 +105,10 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////       GAME SET UP       ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function createGame(address player2, uint256 partySize) external returns (uint256 gameId) {
+    function createGame(
+        address player2,
+        uint256 partySize
+    ) external returns (uint256 gameId) {
         // todo require statements
         address player1 = msg.sender;
         gameId = gameCount++;
@@ -121,24 +125,36 @@ contract WamosV2Arena is IERC721Receiver {
         gameIdToGameDataStruct[gameId] = game;
     }
 
-    function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
+    function _encodeGameData(
+        GameData memory game
+    ) public returns (uint256 gameData) {}
 
-    // todo batch connection
     // @dev atm only build for party size of three
     function connectWamos(uint256 gameId, uint256[3] memory wamoIds) external {
-        // todo checks
-
-        // for each wamo in the party
-        for (uint i=0; i<wamoIds.length; i++) {
-            // store staking request
-            
+        // todo requirements
+        for (uint i = 0; i < wamoIds.length; i++) {
+            wamoIdToStakingStatus[wamoIds[i]] = StakingStatus.REQUESTED;
+            wamos.safeTransferFrom(msg.sender, address(this), wamoIds[i]);
         }
-
-
-        // prompt transfer
+        _loadWamos(gameId, msg.sender, wamoIds);
     }
 
-    function _loadWamos(uint256 gameId, address player) internal {}
+    function _loadWamos(
+        uint256 gameId, 
+        address player, 
+        uint256[3] memory wamoIds
+    ) internal {
+        // store local copy of wamos encoded data
+        
+        // check wamos have been received
+        // if so, register stake success status
+        
+        _assessGameStatus(gameId);
+    }
+
+    function _assessGameStatus(uint256 gameId) internal {
+        // if both parties are staked -> set game status to onfoot
+    }
 
     function onERC721Received(
         address operator, // should be wamos contract
@@ -150,7 +166,7 @@ contract WamosV2Arena is IERC721Receiver {
             uint256 gameId = 10;
         }
         return IERC721Receiver.onERC721Received.selector;
-    } 
+    }
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    GAMEPLAY FUNCTIONS   ////////////////////
@@ -182,7 +198,9 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////      VIEW FUNCTIONS     ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function getGameStatus(uint256 gameId) public view returns (GameStatus status) {
+    function getGameStatus(
+        uint256 gameId
+    ) public view returns (GameStatus status) {
         status = gameIdToGameDataStruct[gameId].status;
     }
 
@@ -197,5 +215,4 @@ contract WamosV2Arena is IERC721Receiver {
     /////////////////////////////////////////////////////////////////
     ////////////////////   ENCODING  FUNCTIONS   ////////////////////
     /////////////////////////////////////////////////////////////////
-
 }

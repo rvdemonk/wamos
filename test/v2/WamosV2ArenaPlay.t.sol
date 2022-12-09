@@ -8,7 +8,6 @@ import "~/v2/WamosV2Arena.sol";
 import "./WamosV2TestHelper.sol";
 
 contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
-
     address[3] ACTORS = [player1, player2, badActor];
 
     // contracts
@@ -32,7 +31,7 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
             address(vrfCoordinator),
             VRF_MOCK_KEYHASH,
             subscriptionId,
-            MINT_PRICE  
+            MINT_PRICE
         );
         // configure vrf subscription
         vrfCoordinator.addConsumer(subscriptionId, address(wamos));
@@ -47,9 +46,9 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         vm.prank(player1);
         wamos.approveArenaStaking();
         vm.prank(player2);
-        wamos.approveArenaStaking();      
+        wamos.approveArenaStaking();
         // badActor player not approved for testing
-        // deal some funny money  
+        // deal some funny money
         vm.deal(player1, ACTOR_STARTING_BAL);
         vm.deal(player2, ACTOR_STARTING_BAL);
         vm.deal(badActor, ACTOR_STARTING_BAL);
@@ -58,15 +57,17 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         uint256 requestId;
         for (uint i = 0; i < ACTORS.length; i++) {
             vm.prank(ACTORS[i]);
-            requestId = wamos.requestSpawn{value: WAMOS_PER_PLAYER*MINT_PRICE}(uint32(WAMOS_PER_PLAYER));
+            requestId = wamos.requestSpawn{
+                value: WAMOS_PER_PLAYER * MINT_PRICE
+            }(uint32(WAMOS_PER_PLAYER));
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             wamos.completeSpawn(requestId);
         }
 
         // create game
         uint256 partySize = 3;
-        uint256[3] memory party1 = [uint256(1),uint256(2), uint256(3)];
-        uint256[3] memory party2 = [uint256(11),uint256(12), uint256(13)];
+        uint256[3] memory party1 = [uint256(1), uint256(2), uint256(3)];
+        uint256[3] memory party2 = [uint256(11), uint256(12), uint256(13)];
         vm.prank(player1);
         testGameId = arena.createGame(player2, partySize);
         // both players connect wamos
@@ -79,8 +80,7 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
 
     function testSetupGameOnFoot() public {
         GameStatus status = arena.getGameStatus(testGameId);
-        console.log(uint256(status)); 
+        console.log(uint256(status));
         assertTrue(status == GameStatus.ONFOOT);
     }
-
 }

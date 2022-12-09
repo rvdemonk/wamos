@@ -28,7 +28,7 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
             address(vrfCoordinator),
             VRF_MOCK_KEYHASH,
             subscriptionId,
-            MINT_PRICE  
+            MINT_PRICE
         );
         // configure vrf subscription
         vrfCoordinator.addConsumer(subscriptionId, address(wamos));
@@ -42,9 +42,9 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         vm.prank(player1);
         wamos.approveArenaStaking();
         vm.prank(player2);
-        wamos.approveArenaStaking();      
+        wamos.approveArenaStaking();
         // badActor player not approved for testing
-        // deal some funny money  
+        // deal some funny money
         vm.deal(player1, ACTOR_STARTING_BAL);
         vm.deal(player2, ACTOR_STARTING_BAL);
         vm.deal(badActor, ACTOR_STARTING_BAL);
@@ -53,7 +53,9 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         uint256 requestId;
         for (uint i = 0; i < ACTORS.length; i++) {
             vm.prank(ACTORS[i]);
-            requestId = wamos.requestSpawn{value: WAMOS_PER_PLAYER*MINT_PRICE}(uint32(WAMOS_PER_PLAYER));
+            requestId = wamos.requestSpawn{
+                value: WAMOS_PER_PLAYER * MINT_PRICE
+            }(uint32(WAMOS_PER_PLAYER));
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             wamos.completeSpawn(requestId);
         }
@@ -67,9 +69,9 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
     ////////// TEST UTILITY FUNCTIONS //////////
 
     function testOwnership() public {
-        for (uint i=0; i<ACTORS.length*WAMOS_PER_PLAYER; i++) {
-            address intendedOwner = ACTORS[i/10];
-            assertTrue(wamos.ownerOf(i+1) == intendedOwner);
+        for (uint i = 0; i < ACTORS.length * WAMOS_PER_PLAYER; i++) {
+            address intendedOwner = ACTORS[i / 10];
+            assertTrue(wamos.ownerOf(i + 1) == intendedOwner);
         }
     }
 
