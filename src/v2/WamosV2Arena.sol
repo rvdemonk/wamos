@@ -19,6 +19,12 @@ enum GameStatus {
     FINISHED
 }
 
+enum StakingStatus {
+    UNSTAKED,
+    REQUESTED,
+    STAKED
+}
+
 // Tracks each game
 struct GameData {
     address[2] players; // 0-> challenger, 1-> challengee
@@ -37,12 +43,11 @@ struct WamoStatus {
     uint256 mana;
 }
 
-struct StakingStatus {
-    bool exists;
-    bool stakeRequested;
-    bool isStaked;
-    uint256 gameId;
-}
+// struct StakingStatus {
+//     bool isRequested;
+//     bool isStaked;
+//     uint256 gameId;
+// }
 
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
@@ -123,10 +128,13 @@ contract WamosV2Arena is IERC721Receiver {
     function connectWamos(uint256 gameId, uint256[3] memory wamoIds) external {
         // todo checks
 
-        // register staking request for each wamoId
-        
+        // for each wamo in the party
+        for (uint i=0; i<wamoIds.length; i++) {
+            // store staking request
+            
+        }
 
-        
+
         // prompt transfer
     }
 
