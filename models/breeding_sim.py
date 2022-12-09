@@ -28,6 +28,7 @@ class WamoSimulator:
         self.mu = mu
         self.sigma = sigma
         self.n = n
+        # todo
         # self.population = 
 
     def display(w, population):

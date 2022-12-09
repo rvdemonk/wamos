@@ -65,6 +65,7 @@ contract WamosV2Arena is IERC721Receiver {
 
     // todo
     //// GAME DATA
+    mapping(uint256 => GameData) gameIdToGameDataStruct; //temporary    
     // game status data
     mapping(uint256 => uint256) gameIdToGameData;
     // wamo status data (if in game)
@@ -110,20 +111,22 @@ contract WamosV2Arena is IERC721Receiver {
         // encode game data
         uint256 gameData = _encodeGameData(game);
         gameIdToGameData[gameId] = gameData;
+
+        // todo temporary
+        gameIdToGameDataStruct[gameId] = game;
     }
 
     function _encodeGameData(GameData memory game) public returns (uint256 gameData) {}
 
     // todo batch connection
-    function connectWamos(uint256 gameId, uint256[] memory wamoIds) external {
-        // checks
+    // @dev atm only build for party size of three
+    function connectWamos(uint256 gameId, uint256[3] memory wamoIds) external {
+        // todo checks
+
         // register staking request for each wamoId
-        // wamoIdToStakingStatus[wamoId] = StakingStatus({
-        //         exists: true,
-        //         stakeRequested: true,
-        //         gameId: gameId,
-        //         isStaked: false
-        // });
+        
+
+        
         // prompt transfer
     }
 
@@ -166,6 +169,14 @@ contract WamosV2Arena is IERC721Receiver {
     function _changeWamoHealth() internal {}
 
     function _moveWamo() internal {}
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////      VIEW FUNCTIONS     ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function getGameStatus(uint256 gameId) public view returns (GameStatus status) {
+        status = gameIdToGameDataStruct[gameId].status;
+    }
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    CONTRACT SETTERS     ////////////////////
