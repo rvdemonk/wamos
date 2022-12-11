@@ -77,10 +77,4 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         arena.connectWamos(testGameId, party2);
         // game should now be onfoot
     }
-
-    function testSetupGameOnFoot() public {
-        GameStatus status = arena.getGameStatus(testGameId);
-        console.log(uint256(status));
-        assertTrue(status == GameStatus.ONFOOT);
-    }
 }

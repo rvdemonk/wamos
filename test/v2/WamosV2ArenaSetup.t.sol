@@ -19,6 +19,9 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
     uint64 subscriptionId;
     uint256[] requestIds;
 
+    // TEST GAME
+    uint256 testGameId;
+
     function setUp() public {
         // mock vrf setup
         vrfCoordinator = new VRFCoordinatorV2Mock(BASE_FEE, GAS_PRICE_LINK);
@@ -59,24 +62,45 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             wamos.completeSpawn(requestId);
         }
-    }
 
-    function testFirstMovePosChange() public {
+        // create game
+        uint256 partySize = 3;
+        uint256[3] memory party1 = [uint256(1), uint256(2), uint256(3)];
+        uint256[3] memory party2 = [uint256(11), uint256(12), uint256(13)];
         vm.prank(player1);
-        uint256 gameId = arena.createGame(player2, 1);
+        testGameId = arena.createGame(player2, partySize);
+        // both players connect wamos
+        vm.prank(player1);
+        arena.connectWamos(testGameId, party1);
+        vm.prank(player2);
+        arena.connectWamos(testGameId, party2);
+        // game should now be onfoot
     }
 
-    ////////// TEST UTILITY FUNCTIONS //////////
-
-    function testOwnership() public {
-        for (uint i = 0; i < ACTORS.length * WAMOS_PER_PLAYER; i++) {
-            address intendedOwner = ACTORS[i / 10];
-            assertTrue(wamos.ownerOf(i + 1) == intendedOwner);
+    function testWamoSetupOwnership() public {
+        address intendedOwner;
+        for (uint i = 0; i < ACTORS.length; i++) {
+            intendedOwner = ACTORS[i];
+            for (uint j=1; j<31; j++) {
+                assertTrue(wamos.ownerOf(j) == intendedOwner);
+            }
         }
     }
 
     function testInitGameData() public {
         vm.prank(player1);
         uint256 gameId = arena.createGame(player2, 1);
+    }
+
+    function testSetupGameOnFoot() public {
+        GameStatus status = arena.getGameStatus(testGameId);
+        console.log(uint256(status));
+        assertTrue(status == GameStatus.ONFOOT);
+    }
+
+    // looks in struct
+    function testGameCountIncrements() public {
+        uint256 gameCount = arena.gameCount();
+        assertTrue(gameCount == 1);
     }
 }

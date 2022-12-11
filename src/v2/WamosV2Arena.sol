@@ -27,9 +27,11 @@ enum StakingStatus {
 
 // Tracks each game
 struct GameData {
-    address[2] players; // 0-> challenger, 1-> challengee
-    uint256 partySize;
+    address[2] players; //0->player1, 1->player2
     GameStatus status;
+    uint256 partySize;
+    bool party1IsStaked;
+    bool party2IsStaked;
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
@@ -37,6 +39,7 @@ struct GameData {
 
 // Tracks the status of a single wamo during a game
 struct WamoStatus {
+    bool inArena;
     int16 position;
     uint256 health;
     uint256 stamina;
@@ -117,6 +120,7 @@ contract WamosV2Arena is IERC721Receiver {
         game.partySize = partySize;
         game.players = [player1, player2];
         game.status = GameStatus.PREGAME;
+
         // encode game data
         uint256 gameData = _encodeGameData(game);
         gameIdToGameData[gameId] = gameData;
@@ -125,35 +129,42 @@ contract WamosV2Arena is IERC721Receiver {
         gameIdToGameDataStruct[gameId] = game;
     }
 
-    function _encodeGameData(
-        GameData memory game
-    ) public returns (uint256 gameData) {}
-
     // @dev atm only build for party size of three
     function connectWamos(uint256 gameId, uint256[3] memory wamoIds) external {
         // todo requirements
+
         for (uint i = 0; i < wamoIds.length; i++) {
             wamoIdToStakingStatus[wamoIds[i]] = StakingStatus.REQUESTED;
+            // prompt transfr
             wamos.safeTransferFrom(msg.sender, address(this), wamoIds[i]);
+            _loadWamo(gameId, msg.sender, wamoIds[i]);
         }
-        _loadWamos(gameId, msg.sender, wamoIds);
+
+        if (msg.sender == gameIdToGameDataStruct[gameId].players[0]) {
+            gameIdToGameDataStruct[gameId].party1IsStaked = true;
+        } else {
+            gameIdToGameDataStruct[gameId].party2IsStaked = true;
+        }
+
+        _assessGameStatus(gameId);
     }
 
-    function _loadWamos(
+    function _loadWamo(
         uint256 gameId, 
         address player, 
-        uint256[3] memory wamoIds
+        uint256 wamoId
     ) internal {
-        // store local copy of wamos encoded data
-        
+        // store local copy of wamo encoded data for init status
         // check wamos have been received
         // if so, register stake success status
-        
-        _assessGameStatus(gameId);
     }
 
     function _assessGameStatus(uint256 gameId) internal {
         // if both parties are staked -> set game status to onfoot
+        GameData memory game = gameIdToGameDataStruct[gameId];
+        if (game.party1IsStaked && game.party2IsStaked) {
+            gameIdToGameDataStruct[gameId].status = GameStatus.ONFOOT;
+        }
     }
 
     function onERC721Received(
@@ -193,6 +204,14 @@ contract WamosV2Arena is IERC721Receiver {
     function _changeWamoHealth() internal {}
 
     function _moveWamo() internal {}
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////    ENCODING FUNCTIONS   ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function _encodeGameData(
+        GameData memory game
+    ) public returns (uint256 gameData) {}
 
     /////////////////////////////////////////////////////////////////
     ////////////////////      VIEW FUNCTIONS     ////////////////////
