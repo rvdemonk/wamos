@@ -74,6 +74,8 @@ contract WamosV2Arena is IERC721Receiver {
     mapping(uint256 => GameData) gameIdToGameDataStruct;
     // game data (encoded)
     mapping(uint256 => uint256) gameIdToGameData;
+    // players
+    mapping(uint256 => address[2]) gameIdToPlayers;
     // wamo staking status
     mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
     // wamo status (struct, temporary)
@@ -91,6 +93,7 @@ contract WamosV2Arena is IERC721Receiver {
 
     // todo
     modifier onlyPlayer() {
+
         _;
     }
 
@@ -115,7 +118,7 @@ contract WamosV2Arena is IERC721Receiver {
         game.partySize = partySize;
         game.players = [player1, player2];
         game.status = GameStatus.PREGAME;
-
+        gameIdToPlayers[gameId] = [msg.sender, player2];
         // // encode game data
         // uint256 gameData = _encodeGameData(game);
         // gameIdToGameData[gameId] = gameData;
@@ -127,21 +130,17 @@ contract WamosV2Arena is IERC721Receiver {
     // @dev atm only build for party size of three
     function connectWamos(uint256 gameId, uint256[3] memory wamoIds) external {
         // todo requirements
-
         for (uint i = 0; i < wamoIds.length; i++) {
             wamoIdToStakingStatus[wamoIds[i]] = StakingStatus.REQUESTED;
             // prompt transfr
             wamos.safeTransferFrom(msg.sender, address(this), wamoIds[i]);
         }
-
         if (msg.sender == gameIdToGameDataStruct[gameId].players[0]) {
             gameIdToGameDataStruct[gameId].party1IsStaked = true;
         } else {
             gameIdToGameDataStruct[gameId].party2IsStaked = true;
         }
-
         _loadWamos(gameId, msg.sender, wamoIds);
-        
         _assessGameStatus(gameId);
     }
 
@@ -225,10 +224,9 @@ contract WamosV2Arena is IERC721Receiver {
         bool moveBeforeAbility,
         bool useAbility
     ) external {
-        //
         // require statements
-        //
-        // increment turn count
+        require(abilitySelection < 4, "Ability selection must be in [0,3]");
+        require(moveSelection < 8, "Move selection must be in [0,7]");
         _incrementTurnCount(gameId);  
         _commitTurn(
             gameId,
@@ -242,7 +240,12 @@ contract WamosV2Arena is IERC721Receiver {
         );
     }
 
-    function resign(uint256 gameId) external {}
+    function resign(uint256 gameId) external {
+        // assign victor status
+        // if (msg.sender == gameIdToPlayers[gameId][0]) {
+
+        // }
+    }
 
     function claimVictory() external {}
 
@@ -261,7 +264,9 @@ contract WamosV2Arena is IERC721Receiver {
         bool isMoved, 
         bool moveBeforeAbility,
         bool useAbility
-    ) internal {}
+    ) internal {
+
+    }
 
     function _incrementTurnCount(uint256 gameId) internal {
         gameIdToGameDataStruct[gameId].turnCount++;
