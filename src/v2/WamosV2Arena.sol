@@ -46,12 +46,6 @@ struct WamoStatus {
     uint256 mana;
 }
 
-// struct StakingStatus {
-//     bool isRequested;
-//     bool isStaked;
-//     uint256 gameId;
-// }
-
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
     int16 public constant GRID_SIZE = 16;
@@ -150,10 +144,25 @@ contract WamosV2Arena is IERC721Receiver {
         address player, 
         uint256 wamoId
     ) internal {
-        // store local copy of wamo encoded data for init status
-        Traits memory traits = wamos.getTraits(wamoId);
-        // check wamos have been received
+        // check wamos have been received?
         // if so, register stake success status
+
+        // load wamo traits
+        Traits memory traits = wamos.getTraits(wamoId);
+        uint256 wamoStatus;
+
+        // if player is p1, starting position 0; else 255
+
+        // in arena
+        wamoStatus |= uint256(1) << 8;
+        // starting position
+        // wamoStatus |= uint256(startingPos) << 16;
+        // extract relevant and encode
+        wamoStatus |= traits.health << 24;
+        wamoStatus |= traits.mana << 32;
+        wamoStatus |= traits.stamina << 40;
+
+        wamoIdToWamoStatus[wamoId] = wamoStatus;
     }
 
     function _assessGameStatus(uint256 gameId) internal {
