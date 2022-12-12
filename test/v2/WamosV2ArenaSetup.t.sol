@@ -69,7 +69,7 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
 
     // ------------------ UTILITIES -------------------- //
 
-    function init3WGameAsP1() internal returns (uint256 gameId) {
+    function init3WGameAsP1() internal returns (uint256 gameId, uint256[3] memory party1, uint256[3] memory party2) {
         uint256 partySize = 3;
         uint256[3] memory party1 = [uint256(1), uint256(2), uint256(3)];
         uint256[3] memory party2 = [uint256(7), uint256(8), uint256(9)];
@@ -98,18 +98,27 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         assertTrue(arena.gameCount() == 0);
     }
 
-    function testGameOnFootAfterConnecting() public {
-        uint256 gameId = init3WGameAsP1();
-        GameStatus status = arena.getGameStatus(gameId);
-        assertTrue(status == GameStatus.ONFOOT);
-    }
-
     function testGameCountIncrements() public {
-        uint256 gameId = init3WGameAsP1();
+        (uint256 gameId,,) = init3WGameAsP1();
         uint256 gameCount = arena.gameCount();
         assertTrue(gameCount == 1);
     }
 
-    
+    function testGameOnFootAfterConnecting() public {
+        (uint256 gameId,,) = init3WGameAsP1();
+        GameStatus status = arena.getGameStatus(gameId);
+        assertTrue(status == GameStatus.ONFOOT);
+    }
+
+    function testArenaOwnsWamosAfterConnecting() public {
+        (uint256 gameId, uint256[3] memory party1, uint256[3] memory party2) 
+            = init3WGameAsP1();
+        for (uint256 i=0; i<party1.length; i++) {
+            assertTrue(wamos.ownerOf(party1[i]) == address(this));
+            assertTrue(wamos.ownerOf(party2[i]) == address(this));
+        }
+    }
+
+    function testWamoStakingStatusAfterConnecting() public {}
 
 }
