@@ -71,22 +71,17 @@ contract WamosV2Arena is IERC721Receiver {
     //// PLAYER TAGS
     mapping(address => string) public addrToPlayerTag;
 
-    // todo
     //// GAME DATA
-    mapping(uint256 => GameData) gameIdToGameDataStruct; //temporary
-    // game status data
+    // game data (struct, temporary)
+    mapping(uint256 => GameData) gameIdToGameDataStruct;
+    // game data (encoded)
     mapping(uint256 => uint256) gameIdToGameData;
-    // wamo status data (if in game)
-
-    // todo
-    //// WAMO STAKING
     // wamo staking status
     mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
+    // wamo status (encoded)
+    mapping(uint256 => uint256) wamoIdToWamoStatus;
 
-    // wamos taked by players in game
-
-    //// EVENTS
-    // todo
+    //// EVENTS todo
 
     constructor(address _wamosAddr) {
         wamos = WamosV2(_wamosAddr);
@@ -121,9 +116,9 @@ contract WamosV2Arena is IERC721Receiver {
         game.players = [player1, player2];
         game.status = GameStatus.PREGAME;
 
-        // encode game data
-        uint256 gameData = _encodeGameData(game);
-        gameIdToGameData[gameId] = gameData;
+        // // encode game data
+        // uint256 gameData = _encodeGameData(game);
+        // gameIdToGameData[gameId] = gameData;
 
         // todo temporary
         gameIdToGameDataStruct[gameId] = game;
@@ -149,12 +144,14 @@ contract WamosV2Arena is IERC721Receiver {
         _assessGameStatus(gameId);
     }
 
+    // @dev load wamos together or one at a time? loadwamo or loadwamos??
     function _loadWamo(
         uint256 gameId, 
         address player, 
         uint256 wamoId
     ) internal {
         // store local copy of wamo encoded data for init status
+        Traits memory traits = wamos.getTraits(wamoId);
         // check wamos have been received
         // if so, register stake success status
     }
