@@ -147,12 +147,14 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
             = init3WGameAsP1();
         for (uint256 i=0; i<3; i++) {
             uint256 wamoId = party1[i];
-            Traits memory traits = wamos.getWamoTraits(wamoId);
+            Traits memory traits = wamos.getTraits(wamoId);
             WamoStatus memory status = arena.getWamoStatus(wamoId);
-            assertTrue(traits.health = status.health);
-            assertTrue(traits.mana = status.mana);
-            assertTrue(traits.stamina = status.stamina);
+            assertTrue(traits.health == status.health);
+            assertTrue(traits.mana == status.mana);
+            assertTrue(traits.stamina == status.stamina);
         }
     }
+
+    
 
 }

@@ -35,6 +35,7 @@ struct GameData {
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
+    uint256 victor;
 }
 
 // Tracks the status of a single wamo during a game
@@ -166,6 +167,7 @@ contract WamosV2Arena is IERC721Receiver {
             status.health = traits.health;
             status.mana = traits.mana;
             status.stamina = traits.stamina;
+
             wamoIdToWamoStatusStruct[wamoIds[i]] = status;
 
             /////// ENCODING
@@ -203,9 +205,9 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 tokenId,
         bytes calldata data
     ) external override returns (bytes4) {
-        if (operator == address(this)) {
-            uint256 gameId = 10;
-        }
+        // if (operator == address(this)) {
+        //     // any logic required?
+        // }
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -213,9 +215,34 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////    GAMEPLAY FUNCTIONS   ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function commitTurn() external {}
+    function commitTurn(
+        uint256 gameId,
+        uint256 actingWamoId,
+        uint256 targetWamoId,
+        uint256 moveSelection,
+        uint256 abilitySelection,
+        bool isMoved, 
+        bool moveBeforeAbility,
+        bool useAbility
+    ) external {
+        //
+        // require statements
+        //
+        // increment turn count
+        _incrementTurnCount(gameId);  
+        _commitTurn(
+            gameId,
+            actingWamoId,
+            targetWamoId,
+            moveSelection,
+            abilitySelection,
+            isMoved, 
+            moveBeforeAbility,
+            useAbility
+        );
+    }
 
-    function resign() external {}
+    function resign(uint256 gameId) external {}
 
     function claimVictory() external {}
 
@@ -225,7 +252,21 @@ contract WamosV2Arena is IERC721Receiver {
     //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function _commitTurn() internal {}
+    function _commitTurn(
+        uint256 gameId,
+        uint256 actingWamoId,
+        uint256 targetWamoId,
+        uint256 moveSelection,
+        uint256 abilitySelection,
+        bool isMoved, 
+        bool moveBeforeAbility,
+        bool useAbility
+    ) internal {}
+
+    function _incrementTurnCount(uint256 gameId) internal {
+        gameIdToGameDataStruct[gameId].turnCount++;
+        // todo replace with encoding solution
+    }
 
     function _changeWamoPosition() internal {}
 
