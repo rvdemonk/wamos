@@ -16,7 +16,7 @@ abstract contract WamosV2TestHelper {
 
     // TEST CONFIG
     uint256 ACTOR_STARTING_BAL = 1 ether;
-    uint256 WAMOS_PER_PLAYER = 10;
+    uint256 SETUP_BATCH_SIZE = 6;
 
     // TEST PLAYERS
     address player1 = 0x316DBF75409134CBcb1b3e0f013ABbfcF63CA040;

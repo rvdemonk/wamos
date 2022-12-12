@@ -198,6 +198,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         address owner = requestIdToRequest[_requestId].sender;
         uint256 startingId = requestIdToRequest[_requestId].firstWamoId;
         uint256 numToMint = requestIdToRequest[_requestId].numWamos;
+        
         for (uint256 i = 0; i < numToMint; i++) {
             _safeMint(owner, startingId + i);
         }

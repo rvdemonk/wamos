@@ -44,6 +44,16 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         (, , , , wamoId, , ) = wamos.getRequest(requestId);
     }
 
+    function spawnWamoBatchAs(address sender, uint32 batchSize) private returns (uint256 firstWamoId) {
+        vm.prank(sender);
+        uint256 requestId = wamos.requestSpawn{value: MINT_PRICE*batchSize}(batchSize);
+        vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
+        wamos.completeSpawn(requestId);
+        (, , , , firstWamoId, , ) = wamos.getRequest(requestId);
+    }
+
+    
+
     // DEPLOYMENT AND SUBSCRIPTION
 
     function testWamosIsDeployed() public {
@@ -145,6 +155,21 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         Ability[] memory abilities = wamos.getAbilities(wamoId);
         for (uint256 i = 0; i < 4; i++) {
             assertFalse(abilities[i].power == 0);
+        }
+    }
+
+    function testWamoOwnership() public {
+        uint256 wamoId = spawnWamoAs(player2);
+        assertTrue(wamos.ownerOf(wamoId) == player2);
+    }
+
+    function testWamoOwnershipBatchOrder() public {
+        uint256 initSupply = wamos.nextWamoId();
+        uint32 batchSize = 9;
+        uint256 firstWamoId = spawnWamoBatchAs(player2, batchSize);
+        assertTrue(wamos.nextWamoId() == initSupply + batchSize);
+        for (uint256 i=0; i<batchSize; i++) {
+            assertTrue(wamos.ownerOf(firstWamoId+i) == player2);
         }
     }
 }

@@ -52,55 +52,64 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         vm.deal(player2, ACTOR_STARTING_BAL);
         vm.deal(badActor, ACTOR_STARTING_BAL);
 
-        // mint wamos 1-10, 11-20, 21-30 for p1, p2, badActor respectively
+        // mint 6 wamos for p1, p2, badActor
         uint256 requestId;
+
         for (uint i = 0; i < ACTORS.length; i++) {
             vm.prank(ACTORS[i]);
-            requestId = wamos.requestSpawn{
-                value: WAMOS_PER_PLAYER * MINT_PRICE
-            }(uint32(WAMOS_PER_PLAYER));
+            requestId = wamos.requestSpawn{value: SETUP_BATCH_SIZE * MINT_PRICE}(uint32(SETUP_BATCH_SIZE));
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             wamos.completeSpawn(requestId);
         }
 
-        // create game
+        console.log("TOTAL WAMOS MINTED");
+        uint256 wamosCount = wamos.nextWamoId() - 1;
+        console.log(wamosCount);
+    }
+
+    // ------------------ UTILITIES -------------------- //
+
+    function init3WGameAsP1() internal returns (uint256 gameId) {
         uint256 partySize = 3;
         uint256[3] memory party1 = [uint256(1), uint256(2), uint256(3)];
-        uint256[3] memory party2 = [uint256(11), uint256(12), uint256(13)];
+        uint256[3] memory party2 = [uint256(7), uint256(8), uint256(9)];
         vm.prank(player1);
-        testGameId = arena.createGame(player2, partySize);
+        gameId = arena.createGame(player2, partySize);
         // both players connect wamos
         vm.prank(player1);
         arena.connectWamos(testGameId, party1);
         vm.prank(player2);
-        arena.connectWamos(testGameId, party2);
-        // game should now be onfoot
+        arena.connectWamos(testGameId, party2); 
     }
 
+    // ------------------ TESTS -------------------- //
+
     function testWamoSetupOwnership() public {
-        address intendedOwner;
-        for (uint i = 0; i < ACTORS.length; i++) {
-            intendedOwner = ACTORS[i];
-            for (uint j=1; j<31; j++) {
-                assertTrue(wamos.ownerOf(j) == intendedOwner);
-            }
+        address owner;
+        console.log(address(arena));
+        for (uint256 i=1; i<=3*SETUP_BATCH_SIZE; i++) {
+            owner = ACTORS[(i-1)/6];
+            assertTrue(owner == wamos.ownerOf(i));
+            // console.log(wamos.ownerOf(i));
         }
     }
 
-    function testInitGameData() public {
-        vm.prank(player1);
-        uint256 gameId = arena.createGame(player2, 1);
+    function testGameCountStartsZero() public {
+        assertTrue(arena.gameCount() == 0);
     }
 
-    function testSetupGameOnFoot() public {
-        GameStatus status = arena.getGameStatus(testGameId);
-        console.log(uint256(status));
+    function testGameOnFootAfterConnecting() public {
+        uint256 gameId = init3WGameAsP1();
+        GameStatus status = arena.getGameStatus(gameId);
         assertTrue(status == GameStatus.ONFOOT);
     }
 
-    // looks in struct
     function testGameCountIncrements() public {
+        uint256 gameId = init3WGameAsP1();
         uint256 gameCount = arena.gameCount();
         assertTrue(gameCount == 1);
     }
+
+    
+
 }

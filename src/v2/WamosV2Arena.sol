@@ -46,6 +46,9 @@ struct WamoStatus {
     uint256 mana;
 }
 
+error GameDoesNotExist(uint256 gameId);
+error NotPlayerOfGame(uint256 gameId, address addr);
+
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
     int16 public constant GRID_SIZE = 16;
@@ -72,6 +75,8 @@ contract WamosV2Arena is IERC721Receiver {
     mapping(uint256 => uint256) gameIdToGameData;
     // wamo staking status
     mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
+    // wamo status (struct, temporary)
+    mapping(uint256 => WamoStatus) wamoIdToWamoStatusStruct;
     // wamo status (encoded)
     mapping(uint256 => uint256) wamoIdToWamoStatus;
 
@@ -126,7 +131,6 @@ contract WamosV2Arena is IERC721Receiver {
             wamoIdToStakingStatus[wamoIds[i]] = StakingStatus.REQUESTED;
             // prompt transfr
             wamos.safeTransferFrom(msg.sender, address(this), wamoIds[i]);
-            _loadWamo(gameId, msg.sender, wamoIds[i]);
         }
 
         if (msg.sender == gameIdToGameDataStruct[gameId].players[0]) {
@@ -135,34 +139,54 @@ contract WamosV2Arena is IERC721Receiver {
             gameIdToGameDataStruct[gameId].party2IsStaked = true;
         }
 
+        _loadWamos(gameId, msg.sender, wamoIds);
+        
         _assessGameStatus(gameId);
     }
 
     // @dev load wamos together or one at a time? loadwamo or loadwamos??
-    function _loadWamo(
+    function _loadWamos(
         uint256 gameId, 
         address player, 
-        uint256 wamoId
+        uint256[3] memory wamoIds
     ) internal {
         // check wamos have been received?
         // if so, register stake success status
+        for (uint256 i=0; i< wamoIds.length; i++) {
+            Traits memory traits = wamos.getTraits(wamoIds[i]);
+            
+            WamoStatus memory status;
+            // initialise wamo arena status
+            status.inArena = true;
+            if (player == gameIdToGameDataStruct[gameId].players[0]) {
+                status.position = int16(uint16(i));
+            } else {
+                status.position = int16(uint16(255-i));
+            }
+            status.health = traits.health;
+            status.mana = traits.mana;
+            status.stamina = traits.stamina;
+            wamoIdToWamoStatusStruct[wamoIds[i]] = status;
 
-        // load wamo traits
-        Traits memory traits = wamos.getTraits(wamoId);
-        uint256 wamoStatus;
-
-        // if player is p1, starting position 0; else 255
-
-        // in arena
-        wamoStatus |= uint256(1) << 8;
-        // starting position
-        // wamoStatus |= uint256(startingPos) << 16;
-        // extract relevant and encode
-        wamoStatus |= traits.health << 24;
-        wamoStatus |= traits.mana << 32;
-        wamoStatus |= traits.stamina << 40;
-
-        wamoIdToWamoStatus[wamoId] = wamoStatus;
+            /////// ENCODING
+            // uint256 wamoStatus;
+            // // in arena
+            // wamoStatus |= uint256(1);
+            // // starting pos
+            // if (player == gameIdToGameDataStruct[gameId].players[0]) {
+            //     // p1 is staking
+            //     wamoStatus |= uint256(i) << 1;
+            // } else {
+            //     // p2 is staking
+            //     wamoStatus |= uint256(255-i) << 9;
+            // }
+            // // locally store traits that will mutate during battle
+            // wamoStatus |= traits.health << 17;
+            // wamoStatus |= traits.mana << 25;
+            // wamoStatus |= traits.stamina << 33;
+            // // store encoded wamo status         
+            // wamoIdToWamoStatus[wamoIds[i]] = wamoStatus;
+        }
     }
 
     function _assessGameStatus(uint256 gameId) internal {
@@ -227,6 +251,13 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 gameId
     ) public view returns (GameStatus status) {
         status = gameIdToGameDataStruct[gameId].status;
+    }
+
+    function getWamoStatus(uint256 wamoId) public view returns (WamoStatus memory status) {
+        // uint256 encodedStatus = wamoIdToWamoStatus[wamoId];
+        // status.inArena = ( (encodedStatus & uint256(1)) == 1 ? true : false);
+        // status.position = int8()
+        status = wamoIdToWamoStatusStruct[wamoId];
     }
 
     /////////////////////////////////////////////////////////////////

@@ -58,8 +58,8 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         for (uint i = 0; i < ACTORS.length; i++) {
             vm.prank(ACTORS[i]);
             requestId = wamos.requestSpawn{
-                value: WAMOS_PER_PLAYER * MINT_PRICE
-            }(uint32(WAMOS_PER_PLAYER));
+                value: SETUP_BATCH_SIZE * MINT_PRICE
+            }(uint32(SETUP_BATCH_SIZE));
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             wamos.completeSpawn(requestId);
         }
