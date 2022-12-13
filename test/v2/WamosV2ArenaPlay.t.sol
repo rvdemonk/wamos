@@ -98,6 +98,12 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         assertTrue(arena.getGameStatus(testGameId) == GameStatus.ONFOOT);
     }
 
+    function testTurnCountIncrements() public {
+        uint256 startCount = arena.getTurnCount(testGameId);
+        moveForwardAsWith(player1, 1);
+        assertTrue(arena.getTurnCount(testGameId) == startCount+1);
+    }
+
     function testMoveChangesIdenCorrectly() public {
         uint256 actingWamo = 1;
         uint256 moveSelection = 3; // should be +16
@@ -126,10 +132,8 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         assertTrue(newIden == startPos + idenMutation);
     }
 
-    function testTurnCountIncrements() public {
-        uint256 startCount = arena.getTurnCount(testGameId);
-        moveForwardAsWith(player1, 1);
-        assertTrue(arena.getTurnCount(testGameId) == startCount+1);
+    function testConsecutiveMoves() public {
+        
     }
 
     function testAbilityDamageIsInflicted() public {
