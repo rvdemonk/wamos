@@ -161,4 +161,19 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         // console.log("target updated health:", targetHealthAfter);
         assertTrue(targetHealthAfter == targetHealthStart - expectedDamage);
     }
+
+    function testCannotOutOfTurn() public {
+        vm.expectRevert();
+        vm.prank(player2);
+        arena.commitTurn(
+            testGameId,
+            7,
+            1,
+            2,
+            0,
+            false,
+            false,
+            false
+        );     
+    }
 }
