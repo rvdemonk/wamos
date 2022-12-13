@@ -155,6 +155,21 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         }
     }
 
+    function testGameDataPartiesMatch() public {
+        (uint256 gameId, uint256[3] memory party1, uint256[3] memory party2) 
+            = init3WGameAsP1();
+        
+        GameData memory gamedata = arena.getGameDataStruct(gameId);
+
+        uint256[3] memory stored1 = gamedata.party1;
+        uint256[3] memory stored2 = gamedata.party2;
+
+        for (uint256 i=0; i<gamedata.partySize; i++) {
+            assertTrue(stored1[i] == party1[i]);
+            assertTrue(stored2[i] == party2[i]);
+        }
+    }
+
     // -------------------------------------------------------
 
     function controlFlow(bool gate) internal {
