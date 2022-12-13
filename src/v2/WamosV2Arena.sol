@@ -268,13 +268,27 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     function resign(uint256 gameId) external onlyPlayer(gameId) {
-        // change game status to finished
-        // set other player as victor
-        // distribute glory
+        // no checks, game simply ends immediately
+        address victor;
+        address[2] memory players;
+        if (msg.sender == players[0]) {
+            victor = players[1];
+        } else {
+            victor = players[0];
+        }
+        _endGame(gameId, victor);
     }
 
-    function claimVictory() external {
-        // ensure the party of the other play has been defeated
+    function claimVictory(uint256 gameId) external {
+        // check the party of the other play has been defeated
+        // todo expand to account for variable party size
+        uint256 partySize = 3;
+        uint256 enemyPartyHealth;
+        for (uint256 i=0; i<partySize; i++) {
+            return
+        }
+        // end game with sender as victor
+        _endGame(gameId, msg.sender)
     }
 
     function retrieveWamos() external {
@@ -284,6 +298,8 @@ contract WamosV2Arena is IERC721Receiver {
     /////////////////////////////////////////////////////////////////
     //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
     /////////////////////////////////////////////////////////////////
+
+    function _endGame(uint256 gameId, address victor) internal {}
 
     function _commitTurn(
         uint256 gameId,
@@ -313,11 +329,6 @@ contract WamosV2Arena is IERC721Receiver {
                 _moveWamo(actingWamoId, moveSelection);
             }
         }
-    }
-
-    function _incrementTurnCount(uint256 gameId) internal {
-        gameIdToGameDataStruct[gameId].turnCount++;
-        // todo replace with encoding solution
     }
 
     function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {
@@ -375,6 +386,11 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     function _healWamo(uint256 wamoId, uint256 amout) internal {}
+
+    function _incrementTurnCount(uint256 gameId) internal {
+        gameIdToGameDataStruct[gameId].turnCount++;
+        // todo replace with encoding solution
+    }
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    ENCODING FUNCTIONS   ////////////////////
