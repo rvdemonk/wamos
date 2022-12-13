@@ -76,7 +76,7 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         // game should now be onfoot
     }
 
-    function moveForwardAsWith(address player, uint256 wamoId) interal {
+    function moveForwardAsWith(address player, uint256 wamoId) internal {
         vm.prank(player);
         arena.commitTurn(
             testGameId,
