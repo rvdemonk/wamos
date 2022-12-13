@@ -343,6 +343,7 @@ contract WamosV2Arena is IERC721Receiver {
     function _setWamoPosition(uint256 wamoId, int16 newIden) internal {
         // todo update to encoded version
         wamoIdToWamoStatusStruct[wamoId].position = newIden;
+        // todo event: wamo, new iden
     }
 
     function _inflictDamage(uint256 targetWamoId, uint256 damage) internal {
@@ -369,9 +370,15 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////      VIEW FUNCTIONS     ////////////////////
     /////////////////////////////////////////////////////////////////
 
+    function getTurnCount(uint256 gameId) public view returns (uint256 count) {
+        // todo update to encoded
+        count = gameIdToGameDataStruct[gameId].turnCount;
+    }
+
     function getGameStatus(
         uint256 gameId
     ) public view returns (GameStatus status) {
+        // todo update to encoded
         status = gameIdToGameDataStruct[gameId].status;
     }
 
@@ -439,5 +446,13 @@ contract WamosV2Arena is IERC721Receiver {
 
     function setWamoPosition(uint256 wamoId, int16 newIden) external onlyDeployer {
         _setWamoPosition(wamoId, newIden);
+    }
+
+    function calculateDamage(
+        uint256 actingWamoId,
+        uint256 targetWamoId,
+        Ability memory ability
+    ) external returns (uint256 damage) {
+        damage = 10;
     }
 }

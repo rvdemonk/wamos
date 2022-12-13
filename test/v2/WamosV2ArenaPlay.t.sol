@@ -76,6 +76,20 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         // game should now be onfoot
     }
 
+    function moveForwardAsWith(address player, uint256 wamoId) interal {
+        vm.prank(player);
+        arena.commitTurn(
+            testGameId,
+            wamoId,
+            7,
+            moveSelection,
+            0,
+            isMoved,
+            true,
+            false
+        );        
+    }
+
     function testGameOnFoot() public {
         assertTrue(arena.getGameStatus(testGameId) == GameStatus.ONFOOT);
     }
@@ -106,6 +120,13 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
 
         int16 newIden = arena.getWamoPosition(actingWamo);
         assertTrue(newIden == startPos + idenMutation);
-
     }
+
+    function testTurnCountIncrements() public {
+        uint256 startCount = arena.getTurnCount(testGameId);
+        moveForwardAsWith(player1, 1);
+        assertTrue(arena.getTurnCount(testGameId) == startCount+1);
+    }
+
+    function testAbilityDamageIsInflicted() public {}
 }
