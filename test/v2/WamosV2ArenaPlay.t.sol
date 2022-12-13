@@ -92,6 +92,8 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         );        
     }
 
+    // -------------------------- TESTS --------------------------- //
+
     function testGameOnFoot() public {
         assertTrue(arena.getGameStatus(testGameId) == GameStatus.ONFOOT);
     }
@@ -131,13 +133,15 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
     }
 
     function testAbilityDamageIsInflicted() public {
-        // use admin tools to first move wamos within range
         uint256 attacker = 1;
         uint256 target = 7;
+        // use admin tools to first move wamos within range
         arena.setWamoPosition(attacker, 100);
         arena.setWamoPosition(target, 101);
+
         assertTrue(arena.getWamoPosition(attacker) == 100);
         assertTrue(arena.getWamoPosition(target) == 101);
+        
         uint256 abilityChoice = 0;
         Ability memory ability = wamos.getAbility(attacker, abilityChoice);
         uint256 expectedDamage = arena.calculateDamage(attacker, target, ability);
@@ -190,5 +194,52 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
             false,
             false
         );    
+    }
+
+    function testResignEndsGame() public {
+        vm.prank(player1);
+        arena.resign(testGameId);
+        assertTrue(arena.getGameStatus(testGameId) == GameStatus.FINISHED);
+    }
+
+    function testCannotResignGameIfNotPlayer() public {
+        vm.prank(badActor);
+        vm.expectRevert();
+        arena.resign(testGameId);
+    }
+
+    function testRetrieveWamosReturnsOwnership() public {
+        // arena owns wamos prior to retrieval
+        for (uint256 i=0; i<party1.length; i++) {
+            assertTrue(wamos.ownerOf(party1[i]) == address(arena));
+        }
+        vm.startPrank(player1);
+        arena.resign(testGameId);
+        arena.retrieveWamos(testGameId);
+        for (uint256 i=0; i<party1.length; i++) {
+            assertTrue(wamos.ownerOf(party1[i]) == player1);
+        }
+    }
+
+    function testCannotRetrieveWamosIfGameOnfoot() public {
+        vm.expectRevert();
+        vm.prank(player1);
+        arena.retrieveWamos(testGameId);
+    }
+
+    function testCannotClaimVictoryIfEnemyWamosLive() public {
+        vm.prank(player1);
+        vm.expectRevert();
+        arena.claimVictory(testGameId);
+    }
+
+    function testValidClaimVictoryEndsGame() public {
+        // use admin functions to set party2 healths to 0
+        for (uint256 i=0; i<party2.length; i++) {
+            arena.setWamoHealth(party2[i], 0);
+        }
+        vm.prank(player1);
+        arena.claimVictory(testGameId);
+        assertTrue(arena.getGameStatus(testGameId) == GameStatus.FINISHED);
     }
 }

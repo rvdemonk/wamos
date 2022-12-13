@@ -549,6 +549,10 @@ contract WamosV2Arena is IERC721Receiver {
         _setWamoPosition(wamoId, newIden);
     }
 
+    function setWamoHealth(uint256 wamoId, uint256 newHealth) external onlyDeployer {
+        wamoIdToWamoStatusStruct[wamoId].health = newHealth;
+    }
+
     function calculateDamage(
         uint256 actingWamoId,
         uint256 targetWamoId,
