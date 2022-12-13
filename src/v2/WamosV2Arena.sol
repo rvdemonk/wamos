@@ -49,6 +49,7 @@ struct WamoStatus {
 
 error GameDoesNotExist(uint256 gameId);
 error NotPlayerOfGame(uint256 gameId, address addr);
+error MoveOutOfBounds(uint256 wamoId, int16 attemptedIdenMutation);
 
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
@@ -296,22 +297,58 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {
-        int16 indexMutation = wamos.getMovement(wamoId, moveSelection);
-        int16 currentPos = getWamoPosition(wamoId);
-        // if ()
+        int16 idenMutation = wamos.getMovement(wamoId, moveSelection);
+        int16 currentIden = getWamoPosition(wamoId);
+        int16 newIden = currentIden + idenMutation;
+        if (newIden >= 0 && newIden < 256) {
+            // valid move
+            _setWamoPosition(wamoId, newIden);
+        } else {
+            // invalid move
+            revert MoveOutOfBounds(wamoId, idenMutation);
+        }
     }
 
     function _useAbility(
         uint256 actingWamoId, 
         uint256 targetWamoId, 
         uint256 abilitySelection
-    ) internal {}
+    ) internal {
+        Ability memory ability = wamos.getAbility(actingWamoId, abilitySelection);
+        uint256 damage = _calculateDamage(actingWamoId, targetWamoId, ability);
+        _inflictDamage(targetWamoId, damage);
+        // todo update wamo status to exact cost of ability
+        // if dmg type magic -> subtract from mana, etc
+    }
 
-    function _calculateDamage() internal {}
+    function _calculateDamage(
+        uint256 actingWamoId,
+        uint256 targetWamoId,
+        Ability memory ability
+    ) internal returns (uint256 damage) {
+        // get attacker stats
+        // get defender stats
+        // get pseudo randomness
+        // todo damage algorithm
+        damage = 10;
+    }
 
-    function _changeWamoHealth(uint256 wamoId) internal {}
+    function _setWamoPosition(uint256 wamoId, int16 newIden) internal {
+        // todo update to encoded version
+        wamoIdToWamoStatusStruct[wamoId].position = newIden;
+    }
 
-    function _moveWamo(uint256 wamoId) internal {}
+    function _inflictDamage(uint256 targetWamoId, uint256 damage) internal {
+        uint256 currentHealth = wamoIdToWamoStatusStruct[targetWamoId].health;
+        if (damage > currentHealth) {
+            wamoIdToWamoStatusStruct[targetWamoId].health = currentHealth - damage;
+        } else {
+            wamoIdToWamoStatusStruct[targetWamoId].health = 0;
+        }
+        // todo emit event: wamo, damage, new hp
+    }
+
+    function _healWamo(uint256 wamoId, uint256 amout) internal {}
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    ENCODING FUNCTIONS   ////////////////////
