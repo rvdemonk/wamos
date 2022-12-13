@@ -55,6 +55,7 @@ error NotPlayersTurnOrNotInGame(uint256 gameId, address sender);
 error NotPlayerInGame(uint256 gameId, address sender);
 error MoveOutOfBounds(uint256 wamoId, int16 attemptedIdenMutation);
 error OpponentNotDefeated(uint256 gameId);
+error GameNotFinished(uint256 gameId, address sender);
 
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
@@ -304,7 +305,12 @@ contract WamosV2Arena is IERC721Receiver {
 
     function retrieveWamos(uint256 gameId) external onlyPlayer(gameId) {
         // game must be over
+        if (_getGameStatus(gameId) != GameStatus.FINISHED) {
+            revert GameNotFinished(gameId, msg.sender);
+        }
         // prompt transfer of relevant wamos back to sender
+        uint256[3] memory party = _getPlayersParty(gameId, msg.sender);
+        // for (uint256 i=0; i<party.length)
     }
 
     /////////////////////////////////////////////////////////////////
@@ -433,9 +439,13 @@ contract WamosV2Arena is IERC721Receiver {
         return gameIdToGameDataStruct[gameId];
     }
 
-    function getGameStatus(
+    function getGameStatus(uint256 gameId) public view returns (GameStatus) {
+        return _getGameStatus(gameId);
+    }
+
+    function _getGameStatus(
         uint256 gameId
-    ) public view returns (GameStatus status) {
+    ) internal view returns (GameStatus status) {
         // todo update to encoded
         status = gameIdToGameDataStruct[gameId].status;
     }
@@ -474,6 +484,17 @@ contract WamosV2Arena is IERC721Receiver {
         } else {
             party = gameIdToGameDataStruct[gameId].party1;
         }
+    }
+
+    function _getPlayersParty(
+        uint256 gameId,
+        address player
+    ) internal view returns (uint256[3] memory party) {
+        if (msg.sender == gameIdToPlayers[gameId][0]) {
+            party = gameIdToGameDataStruct[gameId].party1;
+        } else {
+            party = gameIdToGameDataStruct[gameId].party2;
+        }        
     }
 
     /////////////////////////////////////////////////////////////////
