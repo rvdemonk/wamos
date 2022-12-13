@@ -232,10 +232,11 @@ contract WamosV2Arena is IERC721Receiver {
         bool moveBeforeAbility,
         bool useAbility
     ) external {
-        // require statements
+        // todo require statements
         require(abilitySelection < 4, "Ability selection must be in [0,3]");
         require(moveSelection < 8, "Move selection must be in [0,7]");
-        // todo require wamo is not dead
+        // require wamo is not dead
+
         _incrementTurnCount(gameId);  
         _commitTurn(
             gameId,
@@ -348,9 +349,10 @@ contract WamosV2Arena is IERC721Receiver {
 
     function _inflictDamage(uint256 targetWamoId, uint256 damage) internal {
         uint256 currentHealth = wamoIdToWamoStatusStruct[targetWamoId].health;
-        if (damage > currentHealth) {
+        if (damage < currentHealth) {
             wamoIdToWamoStatusStruct[targetWamoId].health = currentHealth - damage;
         } else {
+            // dead
             wamoIdToWamoStatusStruct[targetWamoId].health = 0;
         }
         // todo emit event: wamo, damage, new hp
@@ -453,6 +455,6 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 targetWamoId,
         Ability memory ability
     ) external returns (uint256 damage) {
-        damage = 10;
+        damage = _calculateDamage(actingWamoId, targetWamoId, ability);
     }
 }

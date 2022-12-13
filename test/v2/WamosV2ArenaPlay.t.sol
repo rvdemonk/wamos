@@ -21,6 +21,8 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
 
     // TEST GAME STORAGE
     uint256 testGameId;
+    uint256[3] party1;
+    uint256[3] party2;
 
     function setUp() public {
         // mock vrf setup
@@ -64,8 +66,8 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         }
 
         uint256 partySize = 3;
-        uint256[3] memory party1 = [uint256(1), uint256(2), uint256(3)];
-        uint256[3] memory party2 = [uint256(7), uint256(8), uint256(9)];
+        party1 = [uint256(1), uint256(2), uint256(3)];
+        party2 = [uint256(7), uint256(8), uint256(9)];
         vm.prank(player1);
         testGameId = arena.createGame(player2, partySize);
         // both players connect wamos
@@ -128,5 +130,34 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         assertTrue(arena.getTurnCount(testGameId) == startCount+1);
     }
 
-    function testAbilityDamageIsInflicted() public {}
+    function testAbilityDamageIsInflicted() public {
+        // use admin tools to first move wamos within range
+        uint256 attacker = 1;
+        uint256 target = 7;
+        arena.setWamoPosition(attacker, 100);
+        arena.setWamoPosition(target, 101);
+        assertTrue(arena.getWamoPosition(attacker) == 100);
+        assertTrue(arena.getWamoPosition(target) == 101);
+        uint256 abilityChoice = 0;
+        Ability memory ability = wamos.getAbility(attacker, abilityChoice);
+        uint256 expectedDamage = arena.calculateDamage(attacker, target, ability);
+        uint256 targetHealthStart = arena.getWamoStatus(target).health;
+        // console.log("target full health:", targetHealthStart);
+        // console.log("damage:", expectedDamage);
+        // use ability without moving
+        arena.commitTurn(
+            testGameId,
+            attacker,
+            target,
+            0,
+            abilityChoice,
+            false,
+            false,
+            true
+        );
+        // check damage inficted
+        uint256 targetHealthAfter = arena.getWamoStatus(target).health;
+        // console.log("target updated health:", targetHealthAfter);
+        assertTrue(targetHealthAfter == targetHealthStart - expectedDamage);
+    }
 }
