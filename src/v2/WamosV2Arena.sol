@@ -5,6 +5,7 @@ pragma solidity <0.9.0;
 /**
     create or join game - stake party - play - retrieve party
     TODO encode all storage
+    TODO better way to determine if msg.sender is p1 or p2
  */
 
 import "openzeppelin/token/ERC721/IERC721Receiver.sol";
@@ -286,10 +287,10 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     function claimVictory(uint256 gameId) external {
-        // check the party of the other play has been defeated
         // todo expand to account for variable party size
         uint256 partySize = 3;
-        uint256 enemyPartyHealth;
+        uint256[3] memory enemyParty = _getOpponentsParty(gameId, msg.sender);
+        // check the party of the other play has been defeated
         // for (uint256 i=0; i<partySize; i++) {
         //     if (getWamoHealth[wamoId]) {
 
@@ -451,6 +452,17 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 wamoId
     ) internal view returns (uint256) {
         return wamoIdToWamoStatusStruct[wamoId].health;
+    }
+
+    function _getOpponentsParty(
+        uint256 gameId, 
+        address player
+    ) internal view returns (uint256[3] memory party) {
+        if (player == gameIdToPlayers[gameId][0]) {
+            party = gameIdToGameDataStruct[gameId].party2;
+        } else {
+            party = gameIdToGameDataStruct[gameId].party1;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
