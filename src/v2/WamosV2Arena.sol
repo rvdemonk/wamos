@@ -32,6 +32,8 @@ struct GameData {
     uint256 partySize;
     bool party1IsStaked;
     bool party2IsStaked;
+    uint256[3] party1;
+    uint256[3] party2;
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
@@ -153,16 +155,20 @@ contract WamosV2Arena is IERC721Receiver {
         uint256[3] memory wamoIds
     ) external onlyPlayer(gameId) {
         // todo requirements
+        // prompt transfers and flag wamo as staked
         for (uint i = 0; i < wamoIds.length; i++) {
             wamoIdToStakingStatus[wamoIds[i]] = StakingStatus.REQUESTED;
-            // prompt transfr
             wamos.safeTransferFrom(msg.sender, address(this), wamoIds[i]);
         }
+        // flag players party as staked
         if (msg.sender == gameIdToGameDataStruct[gameId].players[0]) {
             gameIdToGameDataStruct[gameId].party1IsStaked = true;
+            gameIdToGameDataStruct[gameId].party1 = wamoIds;
         } else {
             gameIdToGameDataStruct[gameId].party2IsStaked = true;
+            gameIdToGameDataStruct[gameId].party2 = wamoIds;
         }
+        
         _loadWamos(gameId, msg.sender, wamoIds);
         _assessGameStatus(gameId);
     }
@@ -284,11 +290,13 @@ contract WamosV2Arena is IERC721Receiver {
         // todo expand to account for variable party size
         uint256 partySize = 3;
         uint256 enemyPartyHealth;
-        for (uint256 i=0; i<partySize; i++) {
-            return
-        }
+        // for (uint256 i=0; i<partySize; i++) {
+        //     if (getWamoHealth[wamoId]) {
+
+        //     }
+        // }
         // end game with sender as victor
-        _endGame(gameId, msg.sender)
+        _endGame(gameId, msg.sender);
     }
 
     function retrieveWamos() external {
@@ -433,6 +441,12 @@ contract WamosV2Arena is IERC721Receiver {
         // todo check game is onfoot?
         // todo update to encoded version 
         position = wamoIdToWamoStatusStruct[wamoId].position;
+    }
+
+    function _getWamoHealth(
+        uint256 wamoId
+    ) internal view returns (uint256) {
+        return wamoIdToWamoStatusStruct[wamoId].health;
     }
 
     /////////////////////////////////////////////////////////////////
