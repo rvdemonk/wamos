@@ -242,11 +242,19 @@ contract WamosV2Arena is IERC721Receiver {
         );
     }
 
-    function resign(uint256 gameId) external {}
+    function resign(uint256 gameId) external {
+        // change game status to finished
+        // set other player as victor
+        // distribute glory
+    }
 
-    function claimVictory() external {}
+    function claimVictory() external {
+        // ensure the party of the other play has been defeated
+    }
 
-    function retrieveWamos() external {}
+    function retrieveWamos() external {
+        // prompt transfer of relevant wamos back to sender
+    }
 
     /////////////////////////////////////////////////////////////////
     //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
@@ -261,20 +269,22 @@ contract WamosV2Arena is IERC721Receiver {
         bool isMoved, 
         bool moveBeforeAbility,
         bool useAbility
-    ) internal {}
+    ) internal {
+
+    }
 
     function _incrementTurnCount(uint256 gameId) internal {
         gameIdToGameDataStruct[gameId].turnCount++;
         // todo replace with encoding solution
     }
 
-    function _changeWamoPosition() internal {}
+    function _changeWamoPosition(uint256 wamoId, uint256 moveSelection) internal {}
 
     function _calculateDamage() internal {}
 
-    function _changeWamoHealth() internal {}
+    function _changeWamoHealth(uint256 wamoId) internal {}
 
-    function _moveWamo() internal {}
+    function _moveWamo(uint256 wamoId) internal {}
 
     /////////////////////////////////////////////////////////////////
     ////////////////////    ENCODING FUNCTIONS   ////////////////////
@@ -310,6 +320,37 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     /////////////////////////////////////////////////////////////////
-    ////////////////////   ENCODING  FUNCTIONS   ////////////////////
+    ////////////////////    LIBRARY  FUNCTIONS   ////////////////////
     /////////////////////////////////////////////////////////////////
+
+    function abs(int16 number) public pure returns (int16) {
+        return number >= 0 ? number : -number;
+    }
+
+    function euclideanDistance(
+        int16 p1,
+        int16 p2
+    ) public pure returns (int16 y) {
+        int16 dx = (p2 % GRID_SIZE) - (p1 % GRID_SIZE);
+        int16 dy = (p2 / GRID_SIZE - p1 / GRID_SIZE) + 1;
+
+        // Heron's method for sqrt approximation
+        int16 a = (dx ** 2 + dy ** 2);
+        // begin method
+        int16 z = (a + 1) / 2;
+        y = a;
+        while (z < y) {
+            y = z;
+            z = (a / z + z) / 2;
+        }
+    }
+
+    function sqrtApprox(int16 x) public pure returns (int16 y) {
+        int16 z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+    }
 }

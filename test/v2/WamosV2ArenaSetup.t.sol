@@ -155,6 +155,30 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
         }
     }
 
-    
+    // -------------------------------------------------------
+
+    function controlFlow(bool gate) internal {
+        uint256 flag;
+        if (gate) {
+            if (gate && true) {
+                for (uint256 i=0; i<10; i++) {
+                    if (i>9) {
+                        flag = 1;
+                    }
+                }
+            }
+        }
+        else {
+            flag = 0;
+        }
+    }
+
+    function testControlFlowGasClosed() public {
+        controlFlow(false);
+    }
+
+    function testControlFlowGasOpen() public {
+        controlFlow(true);
+    }
 
 }
