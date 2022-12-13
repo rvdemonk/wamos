@@ -298,7 +298,7 @@ contract WamosV2Arena is IERC721Receiver {
     function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {
         int16 indexMutation = wamos.getMovement(wamoId, moveSelection);
         int16 currentPos = getWamoPosition(wamoId);
-        if ()
+        // if ()
     }
 
     function _useAbility(
