@@ -54,6 +54,7 @@ error GameDoesNotExist(uint256 gameId);
 error NotPlayersTurnOrNotInGame(uint256 gameId, address sender);
 error NotPlayerInGame(uint256 gameId, address sender);
 error MoveOutOfBounds(uint256 wamoId, int16 attemptedIdenMutation);
+error OpponentNotDefeated(uint256 gameId);
 
 contract WamosV2Arena is IERC721Receiver {
     //// GAME CONSTANTS
@@ -291,12 +292,13 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 partySize = 3;
         uint256[3] memory enemyParty = _getOpponentsParty(gameId, msg.sender);
         // check the party of the other play has been defeated
-        // for (uint256 i=0; i<partySize; i++) {
-        //     if (getWamoHealth[wamoId]) {
-
-        //     }
-        // }
-        // end game with sender as victor
+        uint256 wamoId;
+        for (uint256 i=0; i<partySize; i++) {
+            wamoId = enemyParty[i];
+            if (_getWamoHealthStatus(wamoId) > 0) {
+                revert OpponentNotDefeated(gameId);
+            }
+        }
         _endGame(gameId, msg.sender);
     }
 
@@ -448,7 +450,11 @@ contract WamosV2Arena is IERC721Receiver {
         position = wamoIdToWamoStatusStruct[wamoId].position;
     }
 
-    function _getWamoHealth(
+    function getWamoHealthStatus(uint256 wamoId) external view returns (uint256) {
+        return _getWamoHealthStatus(wamoId);
+    }
+
+    function _getWamoHealthStatus(
         uint256 wamoId
     ) internal view returns (uint256) {
         return wamoIdToWamoStatusStruct[wamoId].health;
