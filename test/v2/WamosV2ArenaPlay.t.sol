@@ -82,9 +82,9 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
             testGameId,
             wamoId,
             7,
-            moveSelection,
+            3,
             0,
-            isMoved,
+            true,
             true,
             false
         );        
