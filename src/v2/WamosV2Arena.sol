@@ -421,6 +421,10 @@ contract WamosV2Arena is IERC721Receiver {
         return gameIdToGameDataStruct[gameId].turnCount;
     }
 
+    function getGameDataStruct(uint256 gameId) public view returns (GameData memory) {
+        return gameIdToGameDataStruct[gameId];
+    }
+
     function getGameStatus(
         uint256 gameId
     ) public view returns (GameStatus status) {
