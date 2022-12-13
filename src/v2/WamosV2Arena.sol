@@ -238,6 +238,7 @@ contract WamosV2Arena is IERC721Receiver {
             moveBeforeAbility,
             useAbility
         );
+        // todo REGEN PARTY HP,MANA,STAM
     }
 
     function resign(uint256 gameId) external {
@@ -268,17 +269,25 @@ contract WamosV2Arena is IERC721Receiver {
         bool moveBeforeAbility,
         bool useAbility
     ) internal {
+        // TURN
         if (!isMoved && !useAbility) {
-            // do nothing
-            return;
+            return; // do nothing
         } else if (isMoved && !useAbility) {
             // only move
             _moveWamo(actingWamoId, moveSelection);
         } else if (!isMoved && useAbility) {
             // only use ability
-
+            _useAbility(actingWamoId, targetWamoId, abilitySelection);
+        } else {
+            // move and ability - order dependent
+            if (moveBeforeAbility) {
+                _moveWamo(actingWamoId, moveSelection);
+                _useAbility(actingWamoId, targetWamoId, abilitySelection);
+            } else {
+                _useAbility(actingWamoId, targetWamoId, abilitySelection);
+                _moveWamo(actingWamoId, moveSelection);
+            }
         }
-
     }
 
     function _incrementTurnCount(uint256 gameId) internal {
@@ -286,7 +295,10 @@ contract WamosV2Arena is IERC721Receiver {
         // todo replace with encoding solution
     }
 
-    function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {}
+    function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {
+        int16 indexMutation = wamos.getMovement(wamoId, moveSelection);
+        // int16 currentPos = 
+    }
 
     function _useAbility(
         uint256 actingWamoId, 

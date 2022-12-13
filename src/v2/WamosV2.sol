@@ -198,7 +198,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         address owner = requestIdToRequest[_requestId].sender;
         uint256 startingId = requestIdToRequest[_requestId].firstWamoId;
         uint256 numToMint = requestIdToRequest[_requestId].numWamos;
-        
+
         for (uint256 i = 0; i < numToMint; i++) {
             _safeMint(owner, startingId + i);
         }
@@ -303,10 +303,24 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         abilities = wamoIdToAbilities[wamoId];
     }
 
+    function getAbility(
+        uint256 wamoId, uint256 index
+    ) public view returns (Ability memory ability) {
+        // todo error if index > 3
+        ability = wamoIdToAbilities[wamoId][index];
+    }
+
     function getMovements(
         uint256 wamoId
     ) public view returns (int16[8] memory movements) {
         movements = wamoIdToMovements[wamoId];
+    }
+
+    function getMovement(
+        uint256 wamoId, uint256 index
+    ) public view returns (int16 movement) {
+        // todo error if index > 7
+        movement = wamoIdToMovements[wamoId][index];
     }
 
     function getTraits(
