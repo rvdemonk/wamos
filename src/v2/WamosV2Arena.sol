@@ -93,8 +93,8 @@ contract WamosV2Arena is IERC721Receiver {
     //// MODIFIERS ////
 
     // todo
-    modifier onlyPlayer() {
-
+    modifier onlyPlayer(uint256 gameId) {
+        // if (msg.sender != )
         _;
     }
 

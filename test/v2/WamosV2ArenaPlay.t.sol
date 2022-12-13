@@ -53,28 +53,59 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         vm.deal(player2, ACTOR_STARTING_BAL);
         vm.deal(badActor, ACTOR_STARTING_BAL);
 
-        // mint wamos 1-10, 11-20, 21-30 for p1, p2, badActor respectively
+        // mint 6 wamos for p1, p2, badActor
         uint256 requestId;
+
         for (uint i = 0; i < ACTORS.length; i++) {
             vm.prank(ACTORS[i]);
-            requestId = wamos.requestSpawn{
-                value: SETUP_BATCH_SIZE * MINT_PRICE
-            }(uint32(SETUP_BATCH_SIZE));
+            requestId = wamos.requestSpawn{value: SETUP_BATCH_SIZE * MINT_PRICE}(uint32(SETUP_BATCH_SIZE));
             vrfCoordinator.fulfillRandomWords(requestId, address(wamos));
             wamos.completeSpawn(requestId);
         }
 
-        // create game
         uint256 partySize = 3;
         uint256[3] memory party1 = [uint256(1), uint256(2), uint256(3)];
-        uint256[3] memory party2 = [uint256(11), uint256(12), uint256(13)];
+        uint256[3] memory party2 = [uint256(7), uint256(8), uint256(9)];
         vm.prank(player1);
         testGameId = arena.createGame(player2, partySize);
         // both players connect wamos
         vm.prank(player1);
         arena.connectWamos(testGameId, party1);
         vm.prank(player2);
-        arena.connectWamos(testGameId, party2);
+        arena.connectWamos(testGameId, party2); 
         // game should now be onfoot
+    }
+
+    function testGameOnFoot() public {
+        assertTrue(arena.getGameStatus(testGameId) == GameStatus.ONFOOT);
+    }
+
+    function testMoveChangesIdenCorrectly() public {
+        uint256 actingWamo = 1;
+        uint256 moveSelection = 3; // should be +16
+
+        int16 startPos = arena.getWamoPosition(actingWamo);
+        int16 idenMutation = wamos.getMovement(actingWamo, moveSelection);
+
+        assertTrue(idenMutation == 16);
+
+        vm.prank(player1);
+        bool isMoved = true;
+
+        // move but do not use ability
+        arena.commitTurn(
+            testGameId,
+            actingWamo,
+            7,
+            moveSelection,
+            0,
+            isMoved,
+            true,
+            false
+        );
+
+        int16 newIden = arena.getWamoPosition(actingWamo);
+        assertTrue(newIden == startPos + idenMutation);
+
     }
 }
