@@ -48,7 +48,7 @@ struct WamoStatus {
 }
 
 error GameDoesNotExist(uint256 gameId);
-error NotPlayerOfGame(uint256 gameId, address addr);
+error NotPlayersTurnOrNotInGame(uint256 gameId, address addr);
 error MoveOutOfBounds(uint256 wamoId, int16 attemptedIdenMutation);
 
 contract WamosV2Arena is IERC721Receiver {
@@ -236,6 +236,12 @@ contract WamosV2Arena is IERC721Receiver {
         require(abilitySelection < 4, "Ability selection must be in [0,3]");
         require(moveSelection < 8, "Move selection must be in [0,7]");
         // require wamo is not dead
+        // msg.sender can only be player turnCount mod 2 (player whos turn it is)
+        address[2] memory players = gameIdToPlayers[gameId];
+        uint256 turn = _getTurnCount(gameId);
+        if (msg.sender != players[turn%2]) {
+            revert NotPlayersTurnOrNotInGame(gameId, msg.sender);
+        }
 
         _incrementTurnCount(gameId);  
         _commitTurn(
@@ -372,9 +378,13 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////      VIEW FUNCTIONS     ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function getTurnCount(uint256 gameId) public view returns (uint256 count) {
+    function getTurnCount(uint256 gameId) public view returns (uint256) {
+        return _getTurnCount(gameId);
+    }
+
+    function _getTurnCount(uint256 gameId) internal view returns (uint256) {
         // todo update to encoded
-        count = gameIdToGameDataStruct[gameId].turnCount;
+        return gameIdToGameDataStruct[gameId].turnCount;
     }
 
     function getGameStatus(

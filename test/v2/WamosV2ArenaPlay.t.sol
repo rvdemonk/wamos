@@ -145,6 +145,7 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         // console.log("target full health:", targetHealthStart);
         // console.log("damage:", expectedDamage);
         // use ability without moving
+        vm.prank(player1);
         arena.commitTurn(
             testGameId,
             attacker,
