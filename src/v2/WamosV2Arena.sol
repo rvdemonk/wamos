@@ -62,6 +62,7 @@ contract WamosV2Arena is IERC721Receiver {
 
     //// GAME CONTRACT DATA
     uint256 public gameCount;
+    address immutable deployer;
 
     //// INVITE SYSTEM
     mapping(address => uint256[]) public addrToChallengesSent;
@@ -88,6 +89,7 @@ contract WamosV2Arena is IERC721Receiver {
 
     constructor(address _wamosAddr) {
         wamos = WamosV2(_wamosAddr);
+        deployer = msg.sender;
     }
 
     //// MODIFIERS ////
@@ -104,6 +106,7 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     modifier onlyDeployer() {
+        require(msg.sender == deployer, "Function only callable by Arena Deployer");
         _;
     }
 
@@ -428,5 +431,13 @@ contract WamosV2Arena is IERC721Receiver {
             y = z;
             z = (x / z + z) / 2;
         }
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ////////////////////     ADMIN  FUNCTIONS    ////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    function setWamoPosition(uint256 wamoId, int16 newIden) external onlyDeployer {
+        _setWamoPosition(wamoId, newIden);
     }
 }
