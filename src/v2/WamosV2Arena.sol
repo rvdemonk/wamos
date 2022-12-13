@@ -70,7 +70,7 @@ contract WamosV2Arena is IERC721Receiver {
     mapping(address => string) public addrToPlayerTag;
 
     //// GAME DATA
-    // game data (struct, temporary)
+    // game data (struct, temp)
     mapping(uint256 => GameData) gameIdToGameDataStruct;
     // game data (encoded)
     mapping(uint256 => uint256) gameIdToGameData;
@@ -78,7 +78,7 @@ contract WamosV2Arena is IERC721Receiver {
     mapping(uint256 => address[2]) gameIdToPlayers;
     // wamo staking status
     mapping(uint256 => StakingStatus) wamoIdToStakingStatus;
-    // wamo status (struct, temporary)
+    // wamo status (struct, temp)
     mapping(uint256 => WamoStatus) wamoIdToWamoStatusStruct;
     // wamo status (encoded)
     mapping(uint256 => uint256) wamoIdToWamoStatus;
@@ -227,6 +227,7 @@ contract WamosV2Arena is IERC721Receiver {
         // require statements
         require(abilitySelection < 4, "Ability selection must be in [0,3]");
         require(moveSelection < 8, "Move selection must be in [0,7]");
+        // todo require wamo is not dead
         _incrementTurnCount(gameId);  
         _commitTurn(
             gameId,
@@ -269,7 +270,6 @@ contract WamosV2Arena is IERC721Receiver {
         bool moveBeforeAbility,
         bool useAbility
     ) internal {
-        // TURN
         if (!isMoved && !useAbility) {
             return; // do nothing
         } else if (isMoved && !useAbility) {
@@ -297,7 +297,8 @@ contract WamosV2Arena is IERC721Receiver {
 
     function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {
         int16 indexMutation = wamos.getMovement(wamoId, moveSelection);
-        // int16 currentPos = 
+        int16 currentPos = getWamoPosition(wamoId);
+        if ()
     }
 
     function _useAbility(
@@ -335,6 +336,14 @@ contract WamosV2Arena is IERC721Receiver {
         // status.inArena = ( (encodedStatus & uint256(1)) == 1 ? true : false);
         // status.position = int8()
         status = wamoIdToWamoStatusStruct[wamoId];
+    }
+
+    function getWamoPosition(
+        uint256 wamoId
+    ) public view returns (int16 position) {
+        // todo check game is onfoot?
+        // todo update to encoded version 
+        position = wamoIdToWamoStatusStruct[wamoId].position;
     }
 
     /////////////////////////////////////////////////////////////////
