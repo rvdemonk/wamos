@@ -259,9 +259,9 @@ contract WamosV2Arena is IERC721Receiver {
         // todo require statements
         require(abilitySelection < 4, "Ability selection must be in [0,3]");
         require(moveSelection < 8, "Move selection must be in [0,7]");
+        require(_getGameStatus(gameId) == GameStatus.ONFOOT, "Game must be onfoot!");
         // require wamo is not dead
-        // msg.sender can only be player turnCount mod 2 (player whos turn it is)
-
+        // game must be onfoot
         _incrementTurnCount(gameId);  
         _commitTurn(
             gameId,
@@ -409,8 +409,6 @@ contract WamosV2Arena is IERC721Receiver {
         }
         // todo emit event: wamo, damage, new hp
     }
-
-    function _healWamo(uint256 wamoId, uint256 amout) internal {}
 
     function _incrementTurnCount(uint256 gameId) internal {
         gameIdToGameDataStruct[gameId].turnCount++;
