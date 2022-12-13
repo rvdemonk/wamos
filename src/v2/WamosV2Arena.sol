@@ -268,6 +268,16 @@ contract WamosV2Arena is IERC721Receiver {
         bool moveBeforeAbility,
         bool useAbility
     ) internal {
+        if (!isMoved && !useAbility) {
+            // do nothing
+            return;
+        } else if (isMoved && !useAbility) {
+            // only move
+            _moveWamo(actingWamoId, moveSelection);
+        } else if (!isMoved && useAbility) {
+            // only use ability
+
+        }
 
     }
 
@@ -276,7 +286,13 @@ contract WamosV2Arena is IERC721Receiver {
         // todo replace with encoding solution
     }
 
-    function _changeWamoPosition(uint256 wamoId, uint256 moveSelection) internal {}
+    function _moveWamo(uint256 wamoId, uint256 moveSelection) internal {}
+
+    function _useAbility(
+        uint256 actingWamoId, 
+        uint256 targetWamoId, 
+        uint256 abilitySelection
+    ) internal {}
 
     function _calculateDamage() internal {}
 
