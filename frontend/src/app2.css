@@ -1,0 +1,9 @@
+html {
+  font-size: 100%;
+}
+
+.nav {
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: repeat(6, 1fr);
+}
