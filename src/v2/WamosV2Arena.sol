@@ -302,7 +302,8 @@ contract WamosV2Arena is IERC721Receiver {
         _endGame(gameId, msg.sender);
     }
 
-    function retrieveWamos() external {
+    function retrieveWamos(uint256 gameId) external onlyPlayer(gameId) {
+        // game must be over
         // prompt transfer of relevant wamos back to sender
     }
 
@@ -310,7 +311,11 @@ contract WamosV2Arena is IERC721Receiver {
     //////////////////// INTERNAL GAME FUNCTIONS ////////////////////
     /////////////////////////////////////////////////////////////////
 
-    function _endGame(uint256 gameId, address victor) internal {}
+    function _endGame(uint256 gameId, address victor) internal {
+        // todo update to encoded version
+        gameIdToGameDataStruct[gameId].status = GameStatus.FINISHED;
+        // distribute glory and spoils
+    }
 
     function _commitTurn(
         uint256 gameId,
