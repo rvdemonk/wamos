@@ -162,7 +162,7 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
         assertTrue(targetHealthAfter == targetHealthStart - expectedDamage);
     }
 
-    function testCannotOutOfTurn() public {
+    function testCannotCommitOutOfTurn() public {
         vm.expectRevert();
         vm.prank(player2);
         arena.commitTurn(
@@ -175,5 +175,20 @@ contract WamosV2ArenaPlayTest is Test, WamosV2TestHelper {
             false,
             false
         );     
+    }
+
+    function testCannotCommitTurnAsBadActor() public {
+        vm.expectRevert();
+        vm.prank(badActor);
+        arena.commitTurn(
+            testGameId,
+            7,
+            1,
+            2,
+            0,
+            false,
+            false,
+            false
+        );    
     }
 }

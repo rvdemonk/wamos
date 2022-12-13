@@ -48,7 +48,8 @@ struct WamoStatus {
 }
 
 error GameDoesNotExist(uint256 gameId);
-error NotPlayersTurnOrNotInGame(uint256 gameId, address addr);
+error NotPlayersTurnOrNotInGame(uint256 gameId, address sender);
+error NotPlayerInGame(uint256 gameId, address sender);
 error MoveOutOfBounds(uint256 wamoId, int16 attemptedIdenMutation);
 
 contract WamosV2Arena is IERC721Receiver {
@@ -96,7 +97,18 @@ contract WamosV2Arena is IERC721Receiver {
 
     // todo
     modifier onlyPlayer(uint256 gameId) {
-        // if (msg.sender != )
+        if (msg.sender != gameIdToPlayers[gameId][0] && msg.sender != gameIdToPlayers[gameId][1]) {
+            revert NotPlayerInGame(gameId, msg.sender);
+        }
+        _;
+    }
+
+    modifier onlyTurn(uint256 gameId) {
+        address[2] memory players = gameIdToPlayers[gameId];
+        uint256 turn = _getTurnCount(gameId);
+        if (msg.sender != players[turn%2]) {
+            revert NotPlayersTurnOrNotInGame(gameId, msg.sender);
+        }
         _;
     }
 
@@ -136,7 +148,10 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     // @dev atm only build for party size of three
-    function connectWamos(uint256 gameId, uint256[3] memory wamoIds) external {
+    function connectWamos(
+        uint256 gameId, 
+        uint256[3] memory wamoIds
+    ) external onlyPlayer(gameId) {
         // todo requirements
         for (uint i = 0; i < wamoIds.length; i++) {
             wamoIdToStakingStatus[wamoIds[i]] = StakingStatus.REQUESTED;
@@ -231,17 +246,12 @@ contract WamosV2Arena is IERC721Receiver {
         bool isMoved, 
         bool moveBeforeAbility,
         bool useAbility
-    ) external {
+    ) external onlyTurn(gameId) {
         // todo require statements
         require(abilitySelection < 4, "Ability selection must be in [0,3]");
         require(moveSelection < 8, "Move selection must be in [0,7]");
         // require wamo is not dead
         // msg.sender can only be player turnCount mod 2 (player whos turn it is)
-        address[2] memory players = gameIdToPlayers[gameId];
-        uint256 turn = _getTurnCount(gameId);
-        if (msg.sender != players[turn%2]) {
-            revert NotPlayersTurnOrNotInGame(gameId, msg.sender);
-        }
 
         _incrementTurnCount(gameId);  
         _commitTurn(
@@ -257,7 +267,7 @@ contract WamosV2Arena is IERC721Receiver {
         // todo REGEN PARTY HP,MANA,STAM
     }
 
-    function resign(uint256 gameId) external {
+    function resign(uint256 gameId) external onlyPlayer(gameId) {
         // change game status to finished
         // set other player as victor
         // distribute glory
