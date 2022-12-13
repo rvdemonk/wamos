@@ -287,7 +287,7 @@ contract WamosV2Arena is IERC721Receiver {
         _endGame(gameId, victor);
     }
 
-    function claimVictory(uint256 gameId) external {
+    function claimVictory(uint256 gameId) external onlyPlayer(gameId) {
         // todo expand to account for variable party size
         uint256 partySize = 3;
         uint256[3] memory enemyParty = _getOpponentsParty(gameId, msg.sender);
