@@ -308,9 +308,12 @@ contract WamosV2Arena is IERC721Receiver {
         if (_getGameStatus(gameId) != GameStatus.FINISHED) {
             revert GameNotFinished(gameId, msg.sender);
         }
-        // prompt transfer of relevant wamos back to sender
         uint256[3] memory party = _getPlayersParty(gameId, msg.sender);
-        // for (uint256 i=0; i<party.length)
+        // prompt transfer of relevant wamos back to sender
+        for (uint256 i=0; i<party.length; i++) {
+            wamos.safeTransferFrom(address(this), msg.sender, party[i]);
+        }
+        // todo event
     }
 
     /////////////////////////////////////////////////////////////////
