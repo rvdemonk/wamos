@@ -323,6 +323,7 @@ contract WamosV2Arena is IERC721Receiver {
     function _endGame(uint256 gameId, address victor) internal {
         // todo update to encoded version
         gameIdToGameDataStruct[gameId].status = GameStatus.FINISHED;
+        // gameIdToGameDataStruct[gameId].status = GameStatus.FINISHED;
         // distribute glory and spoils
     }
 
@@ -339,13 +340,10 @@ contract WamosV2Arena is IERC721Receiver {
         if (!isMoved && !useAbility) {
             return; // do nothing
         } else if (isMoved && !useAbility) {
-            // only move
             _moveWamo(actingWamoId, moveSelection);
         } else if (!isMoved && useAbility) {
-            // only use ability
             _useAbility(actingWamoId, targetWamoId, abilitySelection);
         } else {
-            // move and ability - order dependent
             if (moveBeforeAbility) {
                 _moveWamo(actingWamoId, moveSelection);
                 _useAbility(actingWamoId, targetWamoId, abilitySelection);
@@ -409,6 +407,8 @@ contract WamosV2Arena is IERC721Receiver {
         }
         // todo emit event: wamo, damage, new hp
     }
+
+    // function _regen(uint256 wamoId) internal {}
 
     function _incrementTurnCount(uint256 gameId) internal {
         gameIdToGameDataStruct[gameId].turnCount++;
