@@ -38,7 +38,7 @@ struct GameData {
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
-    uint256 victor;
+    address victor;
 }
 
 // Tracks the status of a single wamo during a game
@@ -323,7 +323,8 @@ contract WamosV2Arena is IERC721Receiver {
     function _endGame(uint256 gameId, address victor) internal {
         // todo update to encoded version
         gameIdToGameDataStruct[gameId].status = GameStatus.FINISHED;
-        // gameIdToGameDataStruct[gameId].status = GameStatus.FINISHED;
+        gameIdToGameDataStruct[gameId].victor = victor; // todo change to player index
+        // todo add victory and loss to wamos stats
         // distribute glory and spoils
     }
 

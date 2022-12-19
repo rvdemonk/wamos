@@ -52,8 +52,6 @@ contract WamosV2Test is Test, WamosV2TestHelper {
         (, , , , firstWamoId, , ) = wamos.getRequest(requestId);
     }
 
-    
-
     // DEPLOYMENT AND SUBSCRIPTION
 
     function testWamosIsDeployed() public {
