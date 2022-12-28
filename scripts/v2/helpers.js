@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const fs = require('fs');
+const path = require("path");
 
 function getAddresses() {
   const rawData = fs.readFileSync('deployments.json');
@@ -95,11 +96,20 @@ async function registerLatestArena() {
 async function getVrf() {
   const chain = hre.network.name;
   const vrfAddress = hre.config.networks[chain].vrfCoordinator;
-  const vrf = await hre.ethers.getContractAt("VRFCoordinatorV2Interface", vrfAddress);
+  const vrf = await hre.ethers.getContractAt("lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol:VRFCoordinatorV2Interface", vrfAddress);
   return vrf;
 }
 
-// async function  
+function updateFrontend(wamos, arena) {
+  const contractsDir = "vite/src/contracts/";
+  const artifacts = {
+    "WamosV2Address": wamos.address,
+    "WamosV2ABI": hre.artifacts.readArtifactSync("WamosV2"),
+    "WamosV2ArenaAddress": wamos.address,
+    "WamosV2ArenaABI": hre.artifacts.readArtifactSync("WamosV2Arena"),
+  }
+  fs.writeFileSync(path.join(contractsDir, "artifacts.json"), JSON.stringify(artifacts));
+} 
 
 module.exports = {
   deployWamos,
@@ -108,5 +118,6 @@ module.exports = {
   getArena,
   registerLatestArena,
   getVrf,
-  getAddresses
+  getAddresses,
+  updateFrontend
 };

@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { deployWamos, deployArena, registerLatestArena, getVrf, getAddresses } = require("./helpers");
+const { deployWamos, deployArena, registerLatestArena, getVrf, getAddresses, updateFrontend } = require("./helpers");
 
 async function main() {
   const deprecatedContracts = getAddresses();
@@ -18,6 +18,7 @@ async function main() {
   await vrf.addConsumer(subId, wamos.address);
   console.log(
     `\n -- New Wam0s World --\n`);
+  updateFrontend(wamos, arena);
 }
 
 main().catch((error) => {
