@@ -19,8 +19,8 @@ function getRemappings() {
 module.exports = {
   WAMOS_DEPLOY_ADDR: "0x20c446Ea4bfF241a0388B987351103c56683ED1F",
   WAMOS_BATTLE_ADDR: "0xeC61b2B437Db3ccf1a96a1a9011ED12f13Cc9d98",
-  WAMOS_ADDR: "",
-  ARENA_ADDR: "",
+  VERIFICATION_BLOCK_CONFIRMATIONS: 6,
+  WAMOSV1_PRICE: "1000000000000000",
   defaultNetwork: "mumbai",
   networks: {
     hardhat: {
