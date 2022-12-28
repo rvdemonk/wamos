@@ -102,7 +102,7 @@ async function getVrf() {
 
 function updateFrontend(wamos, arena) {
   console.log('saving files to frontend...')
-  const contractsDir = "vite/src/contracts/";
+  const contractsDir = "vite/src/";
   const artifacts = {
     "WamosV2Address": wamos.address,
     "WamosV2ABI": hre.artifacts.readArtifactSync("WamosV2"),
