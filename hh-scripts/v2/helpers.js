@@ -92,6 +92,8 @@ async function registerLatestArena() {
   await wamos.setWamosArenaAddress(arenaAddr);
 }
 
+
+
 module.exports = {
   deployWamos,
   deployArena,

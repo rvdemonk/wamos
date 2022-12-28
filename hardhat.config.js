@@ -48,7 +48,7 @@ module.exports = {
       chainId: 137,
       linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
       url: "https://polygon-mainnet.g.alchemy.com/v2/NAD4cA_1X57AN5ad43yLzSaVOamH2LSt",
-      vrfCoordinator: "",
+      vrfCoordinator: "0xAE975071Be8F8eE67addBC1A82488F1C24858067",
       gasLane: "",
     },
     mumbai: {
