@@ -6,5 +6,5 @@ task("fund_subscription", "Funds the vrf subscription with the link in the main 
     const vrf = await require("../scripts/v2/helpers").getVrf();
     const subId = hre.config.networks[active].subscriptionId;
     let subData = await vrf.getSubscription(subId);
-
+    
   })

@@ -5,7 +5,6 @@ task("clear_consumers", "Removes all consuming contracts from VRF subscription")
     const subId = hre.config.networks[active].subscriptionId;
     let subData = await vrf.getSubscription(subId);
     const consumers = subData.consumers;
-    console.log(typeof consumers, consumers.length, consumers[0]);
     for (let i=0; i<consumers.length; i++) {
         await vrf.removeConsumer(subId, consumers[i]);
     }
