@@ -117,7 +117,7 @@ export class WamoSpawner extends Component {
     }
   }
 
-  async _checkRequest(requestId) {
+  async checkRequest(requestId) {
     console.log(`checking request status...`);
     let requestData = await this.state.wamos.getRequest(requestId);
     let isFulfilled = requestData.isFulfilled;

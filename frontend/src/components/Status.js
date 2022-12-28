@@ -1,4 +1,4 @@
-import { WamoProfile } from "../components/WamoProfile";
+import { WamoProfile } from "./WamoProfile";
 
 export function Status({ state, expandProfile }) {
   const wamoGroup = state.wamoGroup;

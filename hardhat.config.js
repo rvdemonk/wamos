@@ -53,12 +53,12 @@ module.exports = {
     },
     mumbai: {
       chainId: 80001,
-      accounts: [process.env.PRIVATE_KEY, process.env.PRIVATE_KEY2],
+      accounts: [process.env.PRIVATE_KEY],
       linkToken: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
       url: "https://polygon-mumbai.g.alchemy.com/v2/eYgXsBSOPz9oR2j30eumjxLssbFSvo6i",
       gas: 2100000,
       gasPrice: 8000000000,
-      subscriptionId: 2476,
+      subscriptionId: 2866,
       vrfCoordinator: "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
       gasLane:
         "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f",
