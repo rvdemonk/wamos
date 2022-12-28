@@ -1,8 +1,8 @@
 const hre = require("hardhat");
-const { deployWamos } = require("./helpers");
+const { deployArena } = require("./helpers");
 
 async function main() {
-  const wamos = await deployWamos();
+  await deployArena();
 }
 
 main().catch((error) => {

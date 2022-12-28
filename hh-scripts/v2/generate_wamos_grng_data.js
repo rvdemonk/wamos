@@ -23,7 +23,7 @@ async function main() {
   }
 
   console.log("Testing WamosV2 Gaussian RNG!");
-  const wamos = await deployWamos();
+  const wamos = await deployWamos(saveDeploy=false);
 
   // rng config
   const mu = 128;
