@@ -1,0 +1,84 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "src/v2/VRFCoordinatorV2.sol",
+    "id": 30538,
+    "exportedSymbols": {
+      "AggregatorV3Interface": [
+        3670
+      ],
+      "BlockhashStoreInterface": [
+        3680
+      ],
+      "ConfirmedOwner": [
+        19
+      ],
+      "ConfirmedOwnerWithProposal": [
+        181
+      ],
+      "ERC677ReceiverInterface": [
+        3692
+      ],
+      "LinkTokenInterface": [
+        3787
+      ],
+      "OwnableInterface": [
+        3803
+      ],
+      "TypeAndVersionInterface": [
+        3811
+      ],
+      "VRF": [
+        1279
+      ],
+      "VRFConsumerBaseV2": [
+        1337
+      ],
+      "VRFCoordinatorV2": [
+        3624
+      ],
+      "VRFCoordinatorV2Interface": [
+        3907
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "33:71:31",
+    "nodes": [
+      {
+        "id": 30536,
+        "nodeType": "PragmaDirective",
+        "src": "33:23:31",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "<",
+          "0.9",
+          ".0"
+        ]
+      },
+      {
+        "id": 30537,
+        "nodeType": "ImportDirective",
+        "src": "58:45:31",
+        "nodes": [],
+        "absolutePath": "lib/chainlink/contracts/src/v0.8/VRFCoordinatorV2.sol",
+        "file": "chainlink-v0.8/VRFCoordinatorV2.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 30538,
+        "sourceUnit": 3625,
+        "symbolAliases": [],
+        "unitAlias": ""
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 31
+}

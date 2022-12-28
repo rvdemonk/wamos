@@ -38,7 +38,7 @@ async function deployWamos(saveDeploy = true) {
     updateAddresses(addr);
   }
   
-  console.log("WamosV2 deployed at: ", wamos.address);
+  console.log("WamosV2 deployed to: ", wamos.address);
   return wamos;
 }
 
@@ -92,12 +92,21 @@ async function registerLatestArena() {
   await wamos.setWamosArenaAddress(arenaAddr);
 }
 
+async function getVrf() {
+  const chain = hre.network.name;
+  const vrfAddress = hre.config.networks[chain].vrfCoordinator;
+  const vrf = await hre.ethers.getContractAt("VRFCoordinatorV2Interface", vrfAddress);
+  return vrf;
+}
 
+// async function  
 
 module.exports = {
   deployWamos,
   deployArena,
   getWamos,
   getArena,
-  registerLatestArena
+  registerLatestArena,
+  getVrf,
+  getAddresses
 };
