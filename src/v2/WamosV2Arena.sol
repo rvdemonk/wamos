@@ -38,7 +38,7 @@ struct GameData {
     uint256 createTime;
     uint256 lastMoveTime;
     uint256 turnCount;
-    uint256 victor;
+    address victor;
 }
 
 // Tracks the status of a single wamo during a game
@@ -237,7 +237,7 @@ contract WamosV2Arena is IERC721Receiver {
         bytes calldata data
     ) external override returns (bytes4) {
         // if (operator == address(this)) {
-        //     // any logic required?
+        //     // todo any logic required?
         // }
         return IERC721Receiver.onERC721Received.selector;
     }
@@ -323,6 +323,8 @@ contract WamosV2Arena is IERC721Receiver {
     function _endGame(uint256 gameId, address victor) internal {
         // todo update to encoded version
         gameIdToGameDataStruct[gameId].status = GameStatus.FINISHED;
+        gameIdToGameDataStruct[gameId].victor = victor; // todo change to player index
+        // todo add victory and loss to wamos stats
         // distribute glory and spoils
     }
 
@@ -339,13 +341,10 @@ contract WamosV2Arena is IERC721Receiver {
         if (!isMoved && !useAbility) {
             return; // do nothing
         } else if (isMoved && !useAbility) {
-            // only move
             _moveWamo(actingWamoId, moveSelection);
         } else if (!isMoved && useAbility) {
-            // only use ability
             _useAbility(actingWamoId, targetWamoId, abilitySelection);
         } else {
-            // move and ability - order dependent
             if (moveBeforeAbility) {
                 _moveWamo(actingWamoId, moveSelection);
                 _useAbility(actingWamoId, targetWamoId, abilitySelection);
@@ -375,6 +374,9 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 abilitySelection
     ) internal {
         Ability memory ability = wamos.getAbility(actingWamoId, abilitySelection);
+        // check that ability is in range
+        //
+        // if in range...
         uint256 damage = _calculateDamage(actingWamoId, targetWamoId, ability);
         _inflictDamage(targetWamoId, damage);
         // todo update wamo status to exact cost of ability
@@ -386,11 +388,27 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 targetWamoId,
         Ability memory ability
     ) internal returns (uint256 damage) {
-        // get attacker stats
-        // get defender stats
-        // get pseudo randomness
+        Traits memory attacker = wamos.getTraits(actingWamoId);
+        Traits memory defender = wamos.getTraits(targetWamoId);
+
         // todo damage algorithm
-        damage = 10;
+        // damage = 10;
+        // damage = ability.power * (attack)
+
+        // isolate relevant attack and defence stats
+        uint256 att;
+        uint256 def;
+        if (ability.damageType == DamageType.MEELEE) {
+            att = attacker.meeleeAttack;
+            def = defender.meeleeDefence;
+        } else if (ability.damageType == DamageType.MAGIC) {
+            att = attacker.magicAttack;
+            def = defender.magicDefence;
+        }
+
+        // doesnt include accuracy
+        damage = ((( 100 * ability.power * (att/def) + 10) / 40) * (75+(block.timestamp%50))) / 100;
+
     }
 
     function _setWamoPosition(uint256 wamoId, int16 newIden) internal {
@@ -409,6 +427,9 @@ contract WamosV2Arena is IERC721Receiver {
         }
         // todo emit event: wamo, damage, new hp
     }
+
+    // todo
+    function _regen(uint256 wamoId) internal {}
 
     function _incrementTurnCount(uint256 gameId) internal {
         gameIdToGameDataStruct[gameId].turnCount++;
@@ -547,6 +568,10 @@ contract WamosV2Arena is IERC721Receiver {
 
     function setWamoPosition(uint256 wamoId, int16 newIden) external onlyDeployer {
         _setWamoPosition(wamoId, newIden);
+    }
+
+    function setWamoHealth(uint256 wamoId, uint256 newHealth) external onlyDeployer {
+        wamoIdToWamoStatusStruct[wamoId].health = newHealth;
     }
 
     function calculateDamage(

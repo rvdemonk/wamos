@@ -1,0 +1,51 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "src/v2/VRFCoordinatorInterface.sol",
+    "id": 99,
+    "exportedSymbols": {
+      "VRFCoordinatorV2Interface": [
+        95
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "33:91:1",
+    "nodes": [
+      {
+        "id": 97,
+        "nodeType": "PragmaDirective",
+        "src": "33:23:1",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "<",
+          "0.9",
+          ".0"
+        ]
+      },
+      {
+        "id": 98,
+        "nodeType": "ImportDirective",
+        "src": "58:65:1",
+        "nodes": [],
+        "absolutePath": "lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol",
+        "file": "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 99,
+        "sourceUnit": 96,
+        "symbolAliases": [],
+        "unitAlias": ""
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 1
+}

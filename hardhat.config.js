@@ -4,6 +4,13 @@ require("hardhat-preprocessor");
 const fs = require("fs");
 // TASKS
 require("./tasks/link_balance.js");
+require("./tasks/deployer.js");
+require("./tasks/subscription.js");
+require("./tasks/clear_consumers.js");
+require("./tasks/subscription.js");
+require("./tasks/clear_consumers.js");
+require("./tasks/network.js");
+require("./tasks/balance.js");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
@@ -19,8 +26,8 @@ function getRemappings() {
 module.exports = {
   WAMOS_DEPLOY_ADDR: "0x20c446Ea4bfF241a0388B987351103c56683ED1F",
   WAMOS_BATTLE_ADDR: "0xeC61b2B437Db3ccf1a96a1a9011ED12f13Cc9d98",
-  WAMOS_ADDR: "",
-  ARENA_ADDR: "",
+  VERIFICATION_BLOCK_CONFIRMATIONS: 6,
+  WAMOSV1_PRICE: "1000000000000000",
   defaultNetwork: "mumbai",
   networks: {
     hardhat: {
@@ -48,7 +55,7 @@ module.exports = {
       chainId: 137,
       linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
       url: "https://polygon-mainnet.g.alchemy.com/v2/NAD4cA_1X57AN5ad43yLzSaVOamH2LSt",
-      vrfCoordinator: "",
+      vrfCoordinator: "0xAE975071Be8F8eE67addBC1A82488F1C24858067",
       gasLane: "",
     },
     mumbai: {

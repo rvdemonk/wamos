@@ -1,0 +1,243 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "number",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBlockhash",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "getBlockhash(uint256)": "e9413d38"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"number\",\"type\":\"uint256\"}],\"name\":\"getBlockhash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/chainlink/contracts/src/v0.8/interfaces/BlockhashStoreInterface.sol\":\"BlockhashStoreInterface\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":OnChainRNG/=lib/OnChainRNG/\",\":chainlink-v0.4/=lib/chainlink/contracts/src/v0.4/\",\":chainlink-v0.8/=lib/chainlink/contracts/src/v0.8/\",\":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/\",\":ds-test/=lib/solmate/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":solmate/=lib/solmate/src/\",\":~/=src/\"]},\"sources\":{\"lib/chainlink/contracts/src/v0.8/interfaces/BlockhashStoreInterface.sol\":{\"keccak256\":\"0x0d39e3be84000b35faa198e8c4fcc1cfd65a876275c776f45b4e0d48c852b4cc\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://58e6245ee4cdee7fd87ffffb3fefb795accd54a9810015e80bdf619f60e728e2\",\"dweb:/ipfs/Qmei6Pc8kv81ad3MC1oHxsJbHsm32QvcsneDCfZcTJJQrD\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.15+commit.e14f2714"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "number",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getBlockhash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":OnChainRNG/=lib/OnChainRNG/",
+        ":chainlink-v0.4/=lib/chainlink/contracts/src/v0.4/",
+        ":chainlink-v0.8/=lib/chainlink/contracts/src/v0.8/",
+        ":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/",
+        ":ds-test/=lib/solmate/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
+        ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        ":solmate/=lib/solmate/src/",
+        ":~/=src/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "lib/chainlink/contracts/src/v0.8/interfaces/BlockhashStoreInterface.sol": "BlockhashStoreInterface"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/chainlink/contracts/src/v0.8/interfaces/BlockhashStoreInterface.sol": {
+        "keccak256": "0x0d39e3be84000b35faa198e8c4fcc1cfd65a876275c776f45b4e0d48c852b4cc",
+        "urls": [
+          "bzz-raw://58e6245ee4cdee7fd87ffffb3fefb795accd54a9810015e80bdf619f60e728e2",
+          "dweb:/ipfs/Qmei6Pc8kv81ad3MC1oHxsJbHsm32QvcsneDCfZcTJJQrD"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "lib/chainlink/contracts/src/v0.8/interfaces/BlockhashStoreInterface.sol",
+    "id": 3681,
+    "exportedSymbols": {
+      "BlockhashStoreInterface": [
+        3680
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:136:6",
+    "nodes": [
+      {
+        "id": 3672,
+        "nodeType": "PragmaDirective",
+        "src": "32:23:6",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 3680,
+        "nodeType": "ContractDefinition",
+        "src": "57:110:6",
+        "nodes": [
+          {
+            "id": 3679,
+            "nodeType": "FunctionDefinition",
+            "src": "95:70:6",
+            "nodes": [],
+            "functionSelector": "e9413d38",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getBlockhash",
+            "nameLocation": "104:12:6",
+            "parameters": {
+              "id": 3675,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3674,
+                  "mutability": "mutable",
+                  "name": "number",
+                  "nameLocation": "125:6:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3679,
+                  "src": "117:14:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3673,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "117:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "116:16:6"
+            },
+            "returnParameters": {
+              "id": 3678,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3677,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3679,
+                  "src": "156:7:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3676,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "156:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "155:9:6"
+            },
+            "scope": 3680,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "BlockhashStoreInterface",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          3680
+        ],
+        "name": "BlockhashStoreInterface",
+        "nameLocation": "67:23:6",
+        "scope": 3681,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 6
+}
