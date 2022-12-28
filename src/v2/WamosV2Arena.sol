@@ -391,10 +391,6 @@ contract WamosV2Arena is IERC721Receiver {
         Traits memory attacker = wamos.getTraits(actingWamoId);
         Traits memory defender = wamos.getTraits(targetWamoId);
 
-        // todo damage algorithm
-        // damage = 10;
-        // damage = ability.power * (attack)
-
         // isolate relevant attack and defence stats
         uint256 att;
         uint256 def;

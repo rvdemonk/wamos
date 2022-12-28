@@ -1,6 +1,6 @@
 solmate/=lib/solmate/src/
-openzeppelin/=lib/openzeppelin-contracts/contracts/
-chainlink-v0.8/=lib/chainlink/contracts/src/v0.8/
+openzeppelin-solidity/=lib/openzeppelin-contracts/
+@chainlink/=lib/chainlink/
 chainlink-v0.4/=lib/chainlink/contracts/src/v0.4/
 forge-std/=lib/forge-std/src/
 ~/=src/

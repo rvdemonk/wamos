@@ -2,4 +2,4 @@
 
 pragma solidity <0.9.0;
 
-import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";

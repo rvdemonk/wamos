@@ -11,7 +11,7 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/v2/WamosV2TestHelper.sol\":\"WamosV2TestHelper\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":OnChainRNG/=lib/OnChainRNG/\",\":chainlink-v0.4/=lib/chainlink/contracts/src/v0.4/\",\":chainlink-v0.8/=lib/chainlink/contracts/src/v0.8/\",\":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/\",\":ds-test/=lib/solmate/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":solmate/=lib/solmate/src/\",\":~/=src/\"]},\"sources\":{\"lib/chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol\":{\"keccak256\":\"0x3d709a5e0f1f9b8841172b10ba8af785dd51a13eda9fc395723a706e51329904\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://038eef992d813c20737fbe94e3a36e5d541d1aa736158dd2a43dd5b840b8c360\",\"dweb:/ipfs/QmZWJ25Yr1sUSAsfJRKvTMDmGkmy63hHhB495CUL1bpNz4\"]},\"lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol\":{\"keccak256\":\"0xc7d7cd730d36825485ef4107d93c3ff18b9f3a5a00ea3d5988ba9a0bd70b10c5\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8cb1064885ecbcd9c3adba779e190cb4a538e5d4d15aeccb67d3376bdffc94bd\",\"dweb:/ipfs/QmcQHK6ewve7tFi4XXK65JthQg4kQzApQikWcURJjGt4iQ\"]},\"lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol\":{\"keccak256\":\"0x54cdc97717cbae1a51a5500c8ee4875ebf056c95b54d2155a9544a79cb4f4494\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4bd670a55aacc0ab372835cd7e21b487f9fb69d8c6375234b68862a58f3b1153\",\"dweb:/ipfs/QmRMdB9TFLgG1LXg9VSTWbZZ1yf3uY1RY3pPkoMN23JfZk\"]},\"lib/chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol\":{\"keccak256\":\"0x05006a64339914b08f67180caf5dd29f95e74fe3993021ff839a98029f399e63\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d064be17a25ec5103e9b59d9da40a7d98c5f5ec8cebbe70ad358366d587a9601\",\"dweb:/ipfs/QmPBqDneAbK93EhLmTbaXGfjRKfUhT2v7gkagDcPr47khs\"]},\"src/test/VRFCoordinatorV2Mock.sol\":{\"keccak256\":\"0xd1d2f8df8d0b674bba0ae594a27021cc7ccae114afc2fab38fe2b17326118825\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c38825a1f76993efcb0705403d78a1274c65fb8d5bd840ce7c339c9f513992a0\",\"dweb:/ipfs/QmUaMqU8P4h6HvdM7Jb4bmgrCxUhKfWCnrFZdbxft28tfA\"]},\"test/v2/WamosV2TestHelper.sol\":{\"keccak256\":\"0x5d88009d2cac705bf8b505deb8a77a413c4f0df91d09707c1bb9bcbe0c552676\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://20e872f83003a0401a10c3b5e9b4d7bed1a94fa4912b5b3bcaf233f301976d44\",\"dweb:/ipfs/QmaqQFddDNUm5v3yeavPUSVP4urZ6P26sy54g1LW9fMaTw\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.15+commit.e14f2714\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"test/v2/WamosV2TestHelper.sol\":\"WamosV2TestHelper\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=lib/chainlink/\",\":OnChainRNG/=lib/OnChainRNG/\",\":chainlink-v0.4/=lib/chainlink/contracts/src/v0.4/\",\":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/\",\":ds-test/=lib/solmate/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":openzeppelin-solidity/=lib/openzeppelin-contracts/\",\":solmate/=lib/solmate/src/\",\":~/=src/\"]},\"sources\":{\"lib/chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol\":{\"keccak256\":\"0x3d709a5e0f1f9b8841172b10ba8af785dd51a13eda9fc395723a706e51329904\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://038eef992d813c20737fbe94e3a36e5d541d1aa736158dd2a43dd5b840b8c360\",\"dweb:/ipfs/QmZWJ25Yr1sUSAsfJRKvTMDmGkmy63hHhB495CUL1bpNz4\"]},\"lib/chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol\":{\"keccak256\":\"0xc7d7cd730d36825485ef4107d93c3ff18b9f3a5a00ea3d5988ba9a0bd70b10c5\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8cb1064885ecbcd9c3adba779e190cb4a538e5d4d15aeccb67d3376bdffc94bd\",\"dweb:/ipfs/QmcQHK6ewve7tFi4XXK65JthQg4kQzApQikWcURJjGt4iQ\"]},\"lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol\":{\"keccak256\":\"0x54cdc97717cbae1a51a5500c8ee4875ebf056c95b54d2155a9544a79cb4f4494\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4bd670a55aacc0ab372835cd7e21b487f9fb69d8c6375234b68862a58f3b1153\",\"dweb:/ipfs/QmRMdB9TFLgG1LXg9VSTWbZZ1yf3uY1RY3pPkoMN23JfZk\"]},\"lib/chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol\":{\"keccak256\":\"0x05006a64339914b08f67180caf5dd29f95e74fe3993021ff839a98029f399e63\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d064be17a25ec5103e9b59d9da40a7d98c5f5ec8cebbe70ad358366d587a9601\",\"dweb:/ipfs/QmPBqDneAbK93EhLmTbaXGfjRKfUhT2v7gkagDcPr47khs\"]},\"src/test/VRFCoordinatorV2Mock.sol\":{\"keccak256\":\"0x73cd159d5a453f966a91de9e8980b4455e46b45b07c5bffe274c7d9265785a09\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://36cb8e59f439d71882737cad6fe3596c3470b36bc760d347cee574719b54ed29\",\"dweb:/ipfs/QmZokWu3ybF9DEuKQQyMVi9hg2gcBcu6Bvwb9noC7TaUk6\"]},\"test/v2/WamosV2TestHelper.sol\":{\"keccak256\":\"0x5d88009d2cac705bf8b505deb8a77a413c4f0df91d09707c1bb9bcbe0c552676\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://20e872f83003a0401a10c3b5e9b4d7bed1a94fa4912b5b3bcaf233f301976d44\",\"dweb:/ipfs/QmaqQFddDNUm5v3yeavPUSVP4urZ6P26sy54g1LW9fMaTw\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.15+commit.e14f2714"
@@ -32,14 +32,14 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=lib/chainlink/",
         ":OnChainRNG/=lib/OnChainRNG/",
         ":chainlink-v0.4/=lib/chainlink/contracts/src/v0.4/",
-        ":chainlink-v0.8/=lib/chainlink/contracts/src/v0.8/",
         ":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/",
         ":ds-test/=lib/solmate/lib/ds-test/src/",
         ":forge-std/=lib/forge-std/src/",
         ":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/",
-        ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        ":openzeppelin-solidity/=lib/openzeppelin-contracts/",
         ":solmate/=lib/solmate/src/",
         ":~/=src/"
       ],
@@ -89,10 +89,10 @@
         "license": "MIT"
       },
       "src/test/VRFCoordinatorV2Mock.sol": {
-        "keccak256": "0xd1d2f8df8d0b674bba0ae594a27021cc7ccae114afc2fab38fe2b17326118825",
+        "keccak256": "0x73cd159d5a453f966a91de9e8980b4455e46b45b07c5bffe274c7d9265785a09",
         "urls": [
-          "bzz-raw://c38825a1f76993efcb0705403d78a1274c65fb8d5bd840ce7c339c9f513992a0",
-          "dweb:/ipfs/QmUaMqU8P4h6HvdM7Jb4bmgrCxUhKfWCnrFZdbxft28tfA"
+          "bzz-raw://36cb8e59f439d71882737cad6fe3596c3470b36bc760d347cee574719b54ed29",
+          "dweb:/ipfs/QmZokWu3ybF9DEuKQQyMVi9hg2gcBcu6Bvwb9noC7TaUk6"
         ],
         "license": "MIT"
       },
@@ -109,31 +109,31 @@
   },
   "ast": {
     "absolutePath": "test/v2/WamosV2TestHelper.sol",
-    "id": 40193,
+    "id": 35810,
     "exportedSymbols": {
       "LinkTokenInterface": [
-        347
+        3787
       ],
       "VRFConsumerBaseV2": [
-        252
+        1337
       ],
       "VRFCoordinatorV2Interface": [
-        443
+        3907
       ],
       "VRFCoordinatorV2Mock": [
-        1306
+        4770
       ],
       "WamosV2TestHelper": [
-        40192
+        35809
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "39:843:37",
+    "src": "39:843:38",
     "nodes": [
       {
-        "id": 40157,
+        "id": 35774,
         "nodeType": "PragmaDirective",
-        "src": "39:23:37",
+        "src": "39:23:38",
         "nodes": [],
         "literals": [
           "solidity",
@@ -143,33 +143,33 @@
         ]
       },
       {
-        "id": 40158,
+        "id": 35775,
         "nodeType": "ImportDirective",
-        "src": "64:49:37",
+        "src": "64:49:38",
         "nodes": [],
         "absolutePath": "src/test/VRFCoordinatorV2Mock.sol",
         "file": "../../src/test/VRFCoordinatorV2Mock.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 40193,
-        "sourceUnit": 27090,
+        "scope": 35810,
+        "sourceUnit": 30535,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 40192,
+        "id": 35809,
         "nodeType": "ContractDefinition",
-        "src": "115:766:37",
+        "src": "115:766:38",
         "nodes": [
           {
-            "id": 40161,
+            "id": 35778,
             "nodeType": "VariableDeclaration",
-            "src": "183:23:37",
+            "src": "183:23:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "BASE_FEE",
-            "nameLocation": "190:8:37",
-            "scope": 40192,
+            "nameLocation": "190:8:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -177,10 +177,10 @@
               "typeString": "uint96"
             },
             "typeName": {
-              "id": 40159,
+              "id": 35776,
               "name": "uint96",
               "nodeType": "ElementaryTypeName",
-              "src": "183:6:37",
+              "src": "183:6:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint96",
                 "typeString": "uint96"
@@ -188,14 +188,14 @@
             },
             "value": {
               "hexValue": "3130303030",
-              "id": 40160,
+              "id": 35777,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "201:5:37",
+              "src": "201:5:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_10000_by_1",
                 "typeString": "int_const 10000"
@@ -205,15 +205,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40164,
+            "id": 35781,
             "nodeType": "VariableDeclaration",
-            "src": "212:29:37",
+            "src": "212:29:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "GAS_PRICE_LINK",
-            "nameLocation": "219:14:37",
-            "scope": 40192,
+            "nameLocation": "219:14:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -221,10 +221,10 @@
               "typeString": "uint96"
             },
             "typeName": {
-              "id": 40162,
+              "id": 35779,
               "name": "uint96",
               "nodeType": "ElementaryTypeName",
-              "src": "212:6:37",
+              "src": "212:6:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint96",
                 "typeString": "uint96"
@@ -232,14 +232,14 @@
             },
             "value": {
               "hexValue": "3130303030",
-              "id": 40163,
+              "id": 35780,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "236:5:37",
+              "src": "236:5:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_10000_by_1",
                 "typeString": "int_const 10000"
@@ -249,15 +249,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40167,
+            "id": 35784,
             "nodeType": "VariableDeclaration",
-            "src": "247:39:37",
+            "src": "247:39:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "SUB_FUNDING",
-            "nameLocation": "254:11:37",
-            "scope": 40192,
+            "nameLocation": "254:11:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -265,10 +265,10 @@
               "typeString": "uint96"
             },
             "typeName": {
-              "id": 40165,
+              "id": 35782,
               "name": "uint96",
               "nodeType": "ElementaryTypeName",
-              "src": "247:6:37",
+              "src": "247:6:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint96",
                 "typeString": "uint96"
@@ -276,14 +276,14 @@
             },
             "value": {
               "hexValue": "313030303030303030303030303030303030",
-              "id": 40166,
+              "id": 35783,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "268:18:37",
+              "src": "268:18:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_100000000000000000_by_1",
                 "typeString": "int_const 100000000000000000"
@@ -293,15 +293,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40170,
+            "id": 35787,
             "nodeType": "VariableDeclaration",
-            "src": "292:101:37",
+            "src": "292:101:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "VRF_MOCK_KEYHASH",
-            "nameLocation": "300:16:37",
-            "scope": 40192,
+            "nameLocation": "300:16:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -309,10 +309,10 @@
               "typeString": "bytes32"
             },
             "typeName": {
-              "id": 40168,
+              "id": 35785,
               "name": "bytes32",
               "nodeType": "ElementaryTypeName",
-              "src": "292:7:37",
+              "src": "292:7:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_bytes32",
                 "typeString": "bytes32"
@@ -320,14 +320,14 @@
             },
             "value": {
               "hexValue": "307864383962326266313530653362396531333434363938366535373166623963616232346231336365613061343365613230613630343961383563633830376363",
-              "id": 40169,
+              "id": 35786,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "327:66:37",
+              "src": "327:66:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_97973739869984912651550909666084161772131617901237201842557439014392109205452_by_1",
                 "typeString": "int_const 9797...(69 digits omitted)...5452"
@@ -337,15 +337,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40173,
+            "id": 35790,
             "nodeType": "VariableDeclaration",
-            "src": "419:31:37",
+            "src": "419:31:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "MINT_PRICE",
-            "nameLocation": "427:10:37",
-            "scope": 40192,
+            "nameLocation": "427:10:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -353,10 +353,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 40171,
+              "id": 35788,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "419:7:37",
+              "src": "419:7:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -364,14 +364,14 @@
             },
             "value": {
               "hexValue": "302e3031",
-              "id": 40172,
+              "id": 35789,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "440:10:37",
+              "src": "440:10:38",
               "subdenomination": "ether",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_10000000000000000_by_1",
@@ -382,15 +382,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40176,
+            "id": 35793,
             "nodeType": "VariableDeclaration",
-            "src": "476:36:37",
+            "src": "476:36:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "ACTOR_STARTING_BAL",
-            "nameLocation": "484:18:37",
-            "scope": 40192,
+            "nameLocation": "484:18:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -398,10 +398,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 40174,
+              "id": 35791,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "476:7:37",
+              "src": "476:7:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -409,14 +409,14 @@
             },
             "value": {
               "hexValue": "31",
-              "id": 40175,
+              "id": 35792,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "505:7:37",
+              "src": "505:7:38",
               "subdenomination": "ether",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_1000000000000000000_by_1",
@@ -427,15 +427,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40179,
+            "id": 35796,
             "nodeType": "VariableDeclaration",
-            "src": "518:28:37",
+            "src": "518:28:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "SETUP_BATCH_SIZE",
-            "nameLocation": "526:16:37",
-            "scope": 40192,
+            "nameLocation": "526:16:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -443,10 +443,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 40177,
+              "id": 35794,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "518:7:37",
+              "src": "518:7:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -454,14 +454,14 @@
             },
             "value": {
               "hexValue": "36",
-              "id": 40178,
+              "id": 35795,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "545:1:37",
+              "src": "545:1:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_6_by_1",
                 "typeString": "int_const 6"
@@ -471,15 +471,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40182,
+            "id": 35799,
             "nodeType": "VariableDeclaration",
-            "src": "573:60:37",
+            "src": "573:60:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "player1",
-            "nameLocation": "581:7:37",
-            "scope": 40192,
+            "nameLocation": "581:7:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -487,10 +487,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 40180,
+              "id": 35797,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "573:7:37",
+              "src": "573:7:38",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -499,14 +499,14 @@
             },
             "value": {
               "hexValue": "307833313644424637353430393133344342636231623365306630313341426266634636334341303430",
-              "id": 40181,
+              "id": 35798,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "591:42:37",
+              "src": "591:42:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -516,15 +516,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40185,
+            "id": 35802,
             "nodeType": "VariableDeclaration",
-            "src": "639:60:37",
+            "src": "639:60:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "player2",
-            "nameLocation": "647:7:37",
-            "scope": 40192,
+            "nameLocation": "647:7:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -532,10 +532,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 40183,
+              "id": 35800,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "639:7:37",
+              "src": "639:7:38",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -544,14 +544,14 @@
             },
             "value": {
               "hexValue": "307834313736323246353334643546333033323143463738634237333535373733663842414337363231",
-              "id": 40184,
+              "id": 35801,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "657:42:37",
+              "src": "657:42:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -561,15 +561,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40188,
+            "id": 35805,
             "nodeType": "VariableDeclaration",
-            "src": "705:61:37",
+            "src": "705:61:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "badActor",
-            "nameLocation": "713:8:37",
-            "scope": 40192,
+            "nameLocation": "713:8:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -577,10 +577,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 40186,
+              "id": 35803,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "705:7:37",
+              "src": "705:7:38",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -589,14 +589,14 @@
             },
             "value": {
               "hexValue": "307841356364356166353262353034383935633835323542354135363737383539466230344638393037",
-              "id": 40187,
+              "id": 35804,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "724:42:37",
+              "src": "724:42:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
                 "typeString": "address"
@@ -606,15 +606,15 @@
             "visibility": "internal"
           },
           {
-            "id": 40191,
+            "id": 35808,
             "nodeType": "VariableDeclaration",
-            "src": "773:105:37",
+            "src": "773:105:38",
             "nodes": [],
             "constant": false,
             "mutability": "mutable",
             "name": "TEST_SEED",
-            "nameLocation": "781:9:37",
-            "scope": 40192,
+            "nameLocation": "781:9:38",
+            "scope": 35809,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -622,10 +622,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 40189,
+              "id": 35806,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "773:7:37",
+              "src": "773:7:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -633,14 +633,14 @@
             },
             "value": {
               "hexValue": "3732393834353138353839383236323237353331353738393931393033333732383434303930393938323139393033323538303737373936303933373238313539383332323439343032373030",
-              "id": 40190,
+              "id": 35807,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "number",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "801:77:37",
+              "src": "801:77:38",
               "typeDescriptions": {
                 "typeIdentifier": "t_rational_72984518589826227531578991903372844090998219903258077796093728159832249402700_by_1",
                 "typeString": "int_const 7298...(69 digits omitted)...2700"
@@ -657,15 +657,15 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          40192
+          35809
         ],
         "name": "WamosV2TestHelper",
-        "nameLocation": "133:17:37",
-        "scope": 40193,
+        "nameLocation": "133:17:38",
+        "scope": 35810,
         "usedErrors": []
       }
     ],
     "license": "UNLICENSED"
   },
-  "id": 37
+  "id": 38
 }
