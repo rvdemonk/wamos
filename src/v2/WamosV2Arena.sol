@@ -374,6 +374,9 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 abilitySelection
     ) internal {
         Ability memory ability = wamos.getAbility(actingWamoId, abilitySelection);
+        // check that ability is in range
+        //
+        // if in range...
         uint256 damage = _calculateDamage(actingWamoId, targetWamoId, ability);
         _inflictDamage(targetWamoId, damage);
         // todo update wamo status to exact cost of ability
@@ -385,11 +388,27 @@ contract WamosV2Arena is IERC721Receiver {
         uint256 targetWamoId,
         Ability memory ability
     ) internal returns (uint256 damage) {
-        // get attacker stats
-        // get defender stats
-        // get pseudo randomness
+        Traits memory attacker = wamos.getTraits(actingWamoId);
+        Traits memory defender = wamos.getTraits(targetWamoId);
+
         // todo damage algorithm
-        damage = 10;
+        // damage = 10;
+        // damage = ability.power * (attack)
+
+        // isolate relevant attack and defence stats
+        uint256 att;
+        uint256 def;
+        if (ability.damageType == DamageType.MEELEE) {
+            att = attacker.meeleeAttack;
+            def = defender.meeleeDefence;
+        } else if (ability.damageType == DamageType.MAGIC) {
+            att = attacker.magicAttack;
+            def = defender.magicDefence;
+        }
+
+        // doesnt include accuracy
+        damage = ((( 100 * ability.power * (att/def) + 10) / 40) * (75+(block.timestamp%50))) / 100;
+
     }
 
     function _setWamoPosition(uint256 wamoId, int16 newIden) internal {
