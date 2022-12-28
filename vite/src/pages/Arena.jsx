@@ -8,9 +8,10 @@ import Col from "react-bootstrap/Col";
 
 import { Menu } from "../components/Menu";
 import { Approve } from "../components/Approve";
+import { Create } from "../components/Create";
+import { FormExample } from "../components/FormExample";
 
 export function Arena() {
-  const { wamos, arena } = useWamo();
   const { theme } = useTheme();
 
   const [id, setId] = useState(false);
@@ -23,13 +24,7 @@ export function Arena() {
     } else if (!create && !join) {
       return <Menu />;
     } else if (create && !join) {
-      return (
-        <>
-          <Card.Body>
-            <Card.Title>Create Game</Card.Title>
-          </Card.Body>
-        </>
-      );
+      return <Create />;
     } else if (!create && join) {
       return (
         <>

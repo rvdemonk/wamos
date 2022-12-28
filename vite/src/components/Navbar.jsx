@@ -9,7 +9,6 @@ import { NavLink } from "react-router-dom";
 import { useEth } from "../context/EthContext";
 import { useTheme } from "../context/ThemeContext";
 import { showAddress } from "../utilities/ShowAddress";
-import { storageParse } from "../utilities/StorageParse";
 
 export function Navbar() {
   const { address, connectWallet, disconnectWallet } = useEth();

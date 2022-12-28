@@ -20,6 +20,7 @@ export function ArenaProvider({ children }) {
 
   const [create, setCreate] = useState(false);
   const [join, setJoin] = useState(false);
+  const [gameId, setGameId] = useState(false);
 
   const params = {
     gasLimit: "1122744",
@@ -67,8 +68,10 @@ export function ArenaProvider({ children }) {
     }
   }
 
-  async function createGame() {
+  async function createGame(opponent, party) {
     try {
+      const _gameId = await arena.createGame(opponent, party);
+      setGameId(_gameId);
     } catch (error) {
       console.log(error);
     }
@@ -87,6 +90,7 @@ export function ArenaProvider({ children }) {
         create,
         setCreate,
         createGame,
+        gameId,
       }}
     >
       {children}
