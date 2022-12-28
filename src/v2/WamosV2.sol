@@ -80,7 +80,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     uint16 public vrfRequestConfirmations;
 
     //// ARENA CONFIG
-    address arenaAddress;
+    address public arenaAddress;
 
     //// WAMO SPAWN DATA
     uint256[] public requestIds;
