@@ -29,16 +29,19 @@ export function WamoProvider({ children }) {
 
     const wamos = new ethers.Contract(
       artifacts.WamosV2Address,
-      artifacts.WamosV2ABI,
+      artifacts.WamosV2ABI.abi,
       provider.getSigner(0)
     );
 
+    // console.log(wamos.address);
+    // console.log(await wamos.contractOwner());
+      
     setWamos(wamos);
 
     // init arena contract
     const arena = new ethers.Contract(
       artifacts.WamosV2ArenaAddress,
-      artifacts.WamosV2ArenaABI,
+      artifacts.WamosV2ArenaABI.abi,
       provider.getSigner(0)
     );
     setArena(arena);
