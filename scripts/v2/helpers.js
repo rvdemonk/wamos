@@ -106,7 +106,7 @@ function updateFrontend(wamos, arena) {
   const artifacts = {
     "WamosV2Address": wamos.address,
     "WamosV2ABI": hre.artifacts.readArtifactSync("WamosV2"),
-    "WamosV2ArenaAddress": wamos.address,
+    "WamosV2ArenaAddress": arena.address,
     "WamosV2ArenaABI": hre.artifacts.readArtifactSync("WamosV2Arena"),
   }
   fs.writeFileSync(path.join(contractsDir, "artifacts.json"), JSON.stringify(artifacts));

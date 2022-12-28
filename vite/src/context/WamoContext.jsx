@@ -27,9 +27,6 @@ export function WamoProvider({ children }) {
       artifacts.WamosV2ABI.abi,
       provider.getSigner(0)
     );
-
-    // console.log(wamos.address);
-    // console.log(await wamos.contractOwner());
       
     setWamos(wamos);
 
