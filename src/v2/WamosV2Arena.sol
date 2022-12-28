@@ -444,6 +444,14 @@ contract WamosV2Arena is IERC721Receiver {
     ////////////////////      VIEW FUNCTIONS     ////////////////////
     /////////////////////////////////////////////////////////////////
 
+    function getChallengers(address player) public view returns (uint256[] memory) {
+        return addrToChallengesReceived[player];
+    }
+
+    function getChallenges(address player) public view returns (uint256[] memory) {
+        return addrToChallengesSent[player];
+    }
+
     function getTurnCount(uint256 gameId) public view returns (uint256) {
         return _getTurnCount(gameId);
     }

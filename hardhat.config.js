@@ -11,6 +11,7 @@ require("./tasks/subscription.js");
 require("./tasks/clear_consumers.js");
 require("./tasks/network.js");
 require("./tasks/balance.js");
+require("./tasks/new_world.js");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
