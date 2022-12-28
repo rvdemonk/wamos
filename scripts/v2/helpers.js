@@ -95,7 +95,7 @@ async function registerLatestArena() {
 async function getVrf() {
   const chain = hre.network.name;
   const vrfAddress = hre.config.networks[chain].vrfCoordinator;
-  const vrf = await hre.ethers.getContractAt("VRFCoordinatorV2", vrfAddress);
+  const vrf = await hre.ethers.getContractAt("VRFCoordinatorV2Interface", vrfAddress);
   return vrf;
 }
 
