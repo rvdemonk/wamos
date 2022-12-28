@@ -24,6 +24,11 @@ async function deployWamos() {
   return wamos;
 }
 
+async function deployArena() {
+  // const 
+}
+
 module.exports = {
   deployWamos,
+  deployArena
 };

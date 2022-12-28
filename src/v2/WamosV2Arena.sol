@@ -409,7 +409,8 @@ contract WamosV2Arena is IERC721Receiver {
         // todo emit event: wamo, damage, new hp
     }
 
-    // function _regen(uint256 wamoId) internal {}
+    // todo
+    function _regen(uint256 wamoId) internal {}
 
     function _incrementTurnCount(uint256 gameId) internal {
         gameIdToGameDataStruct[gameId].turnCount++;
