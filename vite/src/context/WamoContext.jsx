@@ -1,9 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import { ethers } from "ethers";
-import WamosV2ArenaArtifact from "../contracts/WamosV2Arena.json";
-import WamosV2ArenacontractAddress from "../contracts/WamosV2Arena-contract-address.json";
-import WamosV2Artifact from "../contracts/WamosV2.json";
-import WamosV2contractAddress from "../contracts/WamosV2-contract-address.json";
+
+// import WamosV2ArenaArtifact from "../contracts/WamosV2Arena.json";
+// import WamosV2ArenacontractAddress from "../contracts/WamosV2Arena-contract-address.json";
+// import WamosV2Artifact from "../contracts/WamosV2.json";
+// import WamosV2contractAddress from "../contracts/WamosV2-contract-address.json";
+
+import artifacts from "../contracts/artifacts.json"
 
 const WamoContext = createContext({});
 
@@ -25,8 +28,8 @@ export function WamoProvider({ children }) {
     // init wamos contract
 
     const wamos = new ethers.Contract(
-      WamosV2contractAddress.WamosV2,
-      WamosV2Artifact.abi,
+      artifacts.WamosV2Address,
+      artifacts.WamosV2ABI,
       provider.getSigner(0)
     );
 
@@ -34,8 +37,8 @@ export function WamoProvider({ children }) {
 
     // init arena contract
     const arena = new ethers.Contract(
-      WamosV2ArenacontractAddress.WamosV2Arena,
-      WamosV2ArenaArtifact.abi,
+      artifacts.WamosV2ArenaAddress,
+      artifacts.WamosV2ArenaABI,
       provider.getSigner(0)
     );
     setArena(arena);
