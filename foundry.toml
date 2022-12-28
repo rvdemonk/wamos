@@ -1,6 +1,6 @@
 [profile.default]
 src = 'src'
-out = 'frontend/artefacts/'
+out = 'out'
 libs = ['lib']
 
 [rpc_endpoints]
