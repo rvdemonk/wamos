@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const { deployWamos } = require("./helpers");
+const path = require("path");
 
 async function main() {
   await deployWamos();

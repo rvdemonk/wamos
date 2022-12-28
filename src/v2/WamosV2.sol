@@ -2,10 +2,10 @@
 
 pragma solidity <0.9.0;
 
-import "openzeppelin/token/ERC721/ERC721.sol";
-import "openzeppelin/utils/Strings.sol";
-import "chainlink-v0.8/VRFConsumerBaseV2.sol";
-import "chainlink-v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-solidity/contracts/utils/Strings.sol";
+import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 enum DamageType {
     MEELEE,
