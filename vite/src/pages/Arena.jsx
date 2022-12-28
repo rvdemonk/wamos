@@ -9,7 +9,7 @@ import Col from "react-bootstrap/Col";
 import { Menu } from "../components/Menu";
 import { Approve } from "../components/Approve";
 import { Create } from "../components/Create";
-import { FormExample } from "../components/FormExample";
+import { Join } from "../components/Join";
 
 export function Arena() {
   const { theme } = useTheme();
@@ -26,13 +26,7 @@ export function Arena() {
     } else if (create && !join) {
       return <Create />;
     } else if (!create && join) {
-      return (
-        <>
-          <Card.Body>
-            <Card.Title>Join Game</Card.Title>
-          </Card.Body>
-        </>
-      );
+      return <Join />;
     } else if (create && join) {
       return (
         <>

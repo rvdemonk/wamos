@@ -21,6 +21,7 @@ export function ArenaProvider({ children }) {
   const [create, setCreate] = useState(false);
   const [join, setJoin] = useState(false);
   const [gameId, setGameId] = useState(false);
+  const [challenges, setChallenges] = useState(false);
 
   const params = {
     gasLimit: "1122744",
@@ -32,7 +33,8 @@ export function ArenaProvider({ children }) {
     //   ? setWamosArenaAddress()
     //   : console.log(arenaStakingStatus);
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
-  }, []);
+    !Object.keys(challenges).length ? getChallenges() : null;
+  }, [arenaStakingStatus, challenges]);
 
   async function setWamosArenaAddress() {
     await wamos.setWamosArenaAddress(arena.address);
@@ -77,7 +79,13 @@ export function ArenaProvider({ children }) {
     }
   }
 
-  console.log(arenaStakingStatus);
+  async function getChallenges() {
+    const challengesReceived = await arena.getChallengesReceivedBy(address);
+    const challengesSent = await arena.getChallengesSentBy(address);
+    console.log(challengesSent);
+
+    setChallenges({ challengesReceived, challengesSent });
+  }
 
   return (
     <ArenaContext.Provider

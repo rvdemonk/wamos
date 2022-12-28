@@ -23,13 +23,8 @@ export function Create() {
 
   return (
     <>
-      <Card.Body>
-        <Form
-          noValidate
-          validated={validated}
-          onSubmit={handleSubmit}
-          className="d-grid gap-2 d-xxl-flex justify-content-center"
-        >
+      <Card.Body className="d-grid gap-2 d-xxl-flex justify-content-center">
+        <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formAddressl">
             <Form.Label>Opponent Address</Form.Label>
 
@@ -55,7 +50,7 @@ export function Create() {
             </Form.Text>
           </Form.Group>
 
-          <Button variant="primary" type="submit">
+          <Button variant="primary" className="" size="sm" type="submit">
             Create Game
           </Button>
         </Form>
