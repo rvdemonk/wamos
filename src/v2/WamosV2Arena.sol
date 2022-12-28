@@ -237,7 +237,7 @@ contract WamosV2Arena is IERC721Receiver {
         bytes calldata data
     ) external override returns (bytes4) {
         // if (operator == address(this)) {
-        //     // any logic required?
+        //     // todo any logic required?
         // }
         return IERC721Receiver.onERC721Received.selector;
     }
