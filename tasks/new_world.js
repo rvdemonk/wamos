@@ -6,6 +6,8 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
     console.log(`-- creating a new world\n network: ${active}\ndeployer: ${deployer.address}\n`)
     const wamos = await helpers.deployWamos();
     const arena = await helpers.deployArena();
+    await wamos.setWamosArenaAddress(arena.address);
+
     helpers.updateFrontend(wamos, arena);
 
     const subId = hre.config.networks[active].subscriptionId;
