@@ -12,8 +12,6 @@ export function useArena() {
 export function ArenaProvider({ children }) {
   const { address } = useEth();
   const { wamos, arena } = useWamo();
-  const [arenaAddressStatus, setArenaAddressStatus] =
-    useLocalStorage("arenaAddressStatus");
 
   const [arenaStakingStatus, setArenaStakingStatus] =
     useLocalStorage("arenaStakingStatus");
@@ -33,7 +31,8 @@ export function ArenaProvider({ children }) {
     //   ? setWamosArenaAddress()
     //   : console.log(arenaStakingStatus);
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
-    !Object.keys(challenges).length ? getChallenges() : null;
+    !Object.keys(challenges).length && arena ? getChallenges() : null;
+    console.log(challenges);
   }, [arenaStakingStatus, challenges]);
 
   async function setWamosArenaAddress() {
@@ -80,9 +79,9 @@ export function ArenaProvider({ children }) {
   }
 
   async function getChallenges() {
-    const challengesReceived = await arena.getChallengesReceivedBy(address);
-    const challengesSent = await arena.getChallengesSentBy(address);
-    console.log(challengesSent);
+    const challengesReceived = await arena.getChallengers(address);
+    const challengesSent = await arena.getChallenges(address);
+    console.log(challengesReceived);
 
     setChallenges({ challengesReceived, challengesSent });
   }

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { ethers } from "ethers";
 
-import artifacts from "../artifacts.json"
+import artifacts from "../artifacts.json";
 
 const WamoContext = createContext({});
 
@@ -27,7 +27,7 @@ export function WamoProvider({ children }) {
       artifacts.WamosV2ABI.abi,
       provider.getSigner(0)
     );
-      
+
     setWamos(wamos);
 
     // init arena contract
@@ -37,6 +37,8 @@ export function WamoProvider({ children }) {
       provider.getSigner(0)
     );
     setArena(arena);
+
+    console.log("initialized contracts");
   }
 
   !wamos && !arena ? initializeContracts() : null;
