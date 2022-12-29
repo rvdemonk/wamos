@@ -51,7 +51,6 @@ async function deployArena() {
 
 async function getWamos() {
   const addr = getArtifacts().WamosV2Address;
-  console.log(addr);
   const wamos = hre.ethers.getContractAt("WamosV2", addr);
   return wamos;
 }
@@ -60,6 +59,12 @@ async function getArena() {
   const addr = getArtifacts().WamosV2ArenaAddress;
   const arena = hre.ethers.getContractAt("WamosV2Arena", addr);
   return arena;
+}
+
+async function getContracts() {
+  const artifacts = getArtifacts();
+  const wamos = hre.ethers.getContractAt("WamosV2", artifacts.WamosV2Address);
+  const arena = hre.ethers.getContractAt("WamosV2Arena", artifacts.WamosV2ArenaAddress);
 }
 
 async function registerLatestArena() {
@@ -76,7 +81,7 @@ async function getVrf() {
 }
 
 function updateFrontend(wamos, arena) {
-  console.log('saving files to frontend...')
+  console.log('saving files to frontend ->', CONTRACTS_DIR);
   const artifacts = {
     "WamosV2Address": wamos.address,
     "WamosV2ABI": hre.artifacts.readArtifactSync("WamosV2"),
@@ -91,6 +96,7 @@ module.exports = {
   deployArena,
   getWamos,
   getArena,
+  getContracts,
   registerLatestArena,
   getVrf,
   getArtifacts,
