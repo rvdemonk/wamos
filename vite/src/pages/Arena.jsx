@@ -16,7 +16,7 @@ export function Arena() {
 
   const [id, setId] = useState(false);
 
-  const { arenaStakingStatus, join, create } = useArena();
+  const { arenaStakingStatus, join, create, eraseArenaData } = useArena();
 
   function Render() {
     if (!arenaStakingStatus) {
@@ -43,7 +43,17 @@ export function Arena() {
     <div className="container">
       <div className="py-4 vh-100 text-center">
         <Card className={theme ? "bg-dark text-light" : "bg-light"}>
-          <Card.Header>The Gates of the Arena</Card.Header>
+          <Card.Header>
+            <Button
+              onClick={() => eraseArenaData()}
+              variant={theme ? "outline-light" : "outline-dark"}
+              size="sm"
+              className="me-3"
+            >
+              <span>&#x2715;</span>
+            </Button>
+            The Gates of the Arena
+          </Card.Header>
           <Render />
         </Card>
       </div>

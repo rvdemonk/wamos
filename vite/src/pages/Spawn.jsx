@@ -42,6 +42,13 @@ export function Spawn() {
         <>
           <div className="card-body">
             <h5 className="card-title">Communicating with the G0ds...</h5>
+            {!spawnData.console
+              ? null
+              : spawnData.console.map((item, index) => (
+                  <p key={index} className="card-text">
+                    {item}
+                  </p>
+                ))}
           </div>
         </>
       );

@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Nav,
+  Spinner,
   Navbar as NavbarBs,
 } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
@@ -13,6 +14,22 @@ import { showAddress } from "../utilities/ShowAddress";
 export function Navbar() {
   const { address, connectWallet, disconnectWallet } = useEth();
   const { theme, setTheme } = useTheme();
+
+  function ConnectSpinner() {
+    return (
+      <>
+        <Spinner
+          className="me-1"
+          as="span"
+          animation="grow"
+          size="sm"
+          role="status"
+          aria-hidden="true"
+        />
+        Connect
+      </>
+    );
+  }
 
   return (
     <NavbarBs
@@ -62,7 +79,7 @@ export function Navbar() {
           onClick={() => (!address ? connectWallet() : disconnectWallet())}
           variant={theme ? "outline-light" : "outline-dark"}
         >
-          {!address ? "Connect" : showAddress(address)}
+          {!address ? <ConnectSpinner /> : showAddress(address)}
         </Button>
       </Container>
     </NavbarBs>

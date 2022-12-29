@@ -27,18 +27,10 @@ export function ArenaProvider({ children }) {
   };
 
   useEffect(() => {
-    // !arenaAddressStatus
-    //   ? setWamosArenaAddress()
-    //   : console.log(arenaStakingStatus);
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
-    !Object.keys(challenges).length && arena ? getChallenges() : null;
+    getChallenges();
     console.log(challenges);
-  }, [arenaStakingStatus, challenges]);
-
-  async function setWamosArenaAddress() {
-    await wamos.setWamosArenaAddress(arena.address);
-    setArenaAddressStatus(true);
-  }
+  }, [join]);
 
   async function fetchArenaStakingStatus() {
     try {
@@ -46,7 +38,6 @@ export function ArenaProvider({ children }) {
         address,
         arena.address
       );
-
       setArenaStakingStatus(_arenaStakingStatus);
     } catch (error) {
       console.log(error);
@@ -79,11 +70,19 @@ export function ArenaProvider({ children }) {
   }
 
   async function getChallenges() {
-    const challengesReceived = await arena.getChallengers(address);
-    const challengesSent = await arena.getChallenges(address);
-    console.log(challengesReceived);
+    try {
+      const challengesReceived = await arena.getChallengers(address);
+      const challengesSent = await arena.getChallenges(address);
+      console.log(challengesSent, challengesReceived);
+      setChallenges({ challengesReceived, challengesSent });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-    setChallenges({ challengesReceived, challengesSent });
+  function eraseArenaData() {
+    setCreate(false);
+    setJoin(false);
   }
 
   return (
@@ -97,6 +96,7 @@ export function ArenaProvider({ children }) {
         create,
         setCreate,
         createGame,
+        eraseArenaData,
         gameId,
       }}
     >
