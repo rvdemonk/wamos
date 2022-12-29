@@ -51,20 +51,20 @@ async function deployArena() {
 
 async function getWamos() {
   const addr = getArtifacts().WamosV2Address;
-  const wamos = hre.ethers.getContractAt("WamosV2", addr);
+  const wamos = await hre.ethers.getContractAt("WamosV2", addr);
   return wamos;
 }
 
 async function getArena() {
   const addr = getArtifacts().WamosV2ArenaAddress;
-  const arena = hre.ethers.getContractAt("WamosV2Arena", addr);
+  const arena = await hre.ethers.getContractAt("WamosV2Arena", addr);
   return arena;
 }
 
 async function getContracts() {
   const artifacts = getArtifacts();
-  const wamos = hre.ethers.getContractAt("WamosV2", artifacts.WamosV2Address);
-  const arena = hre.ethers.getContractAt("WamosV2Arena", artifacts.WamosV2ArenaAddress);
+  const wamos = await hre.ethers.getContractAt("WamosV2", artifacts.WamosV2Address);
+  const arena = await hre.ethers.getContractAt("WamosV2Arena", artifacts.WamosV2ArenaAddress);
   return [wamos, arena];
 }
 
