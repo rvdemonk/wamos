@@ -63,7 +63,7 @@ async function getArena() {
 
 async function getContracts() {
   const artifacts = getArtifacts();
-  const wamos = await hre.ethers.getContractAt("WamosV2", artifacts.WamosV2Address);
+  const wamos = await hre.ethers.getContractAt("WamosV2.sol:WamosV2", artifacts.WamosV2Address);
   const arena = await hre.ethers.getContractAt("WamosV2Arena", artifacts.WamosV2ArenaAddress);
   return [wamos, arena];
 }
