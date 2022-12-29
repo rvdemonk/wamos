@@ -1,11 +1,11 @@
 // TASKS INDEX
-require("./tasks/link_balance.js");
-require("./tasks/deployer.js");
-require("./tasks/subscription.js");
-require("./tasks/clear_consumers.js");
-require("./tasks/subscription.js");
-require("./tasks/clear_consumers.js");
-require("./tasks/network.js");
-require("./tasks/balance.js");
-require("./tasks/new_world.js");
-require("./tasks/world.js");
+require("./link_balance.js");
+require("./deployer.js");
+require("./subscription.js");
+require("./clear_consumers.js");
+require("./subscription.js");
+require("./clear_consumers.js");
+require("./network.js");
+require("./balance.js");
+require("./new_world.js");
+require("./world.js");
