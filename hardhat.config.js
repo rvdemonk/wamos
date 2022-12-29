@@ -12,6 +12,7 @@ require("./tasks/clear_consumers.js");
 require("./tasks/network.js");
 require("./tasks/balance.js");
 require("./tasks/new_world.js");
+require("./tasks/current_world.js");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
