@@ -69,7 +69,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
     VRFCoordinatorV2Interface public vrfCoordinator;
 
     //// CONTRACT DATA
-    uint256 public timestmap;
+    uint256 public timestamp;
     address public contractOwner;
     uint256 public mintPrice;
     uint256 public nextWamoId;
