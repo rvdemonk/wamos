@@ -81,10 +81,14 @@ export function ArenaProvider({ children }) {
     }
   }
 
+<<<<<<< HEAD
+  console.log('Arena Staking approved?', arenaStakingStatus);
+=======
   function eraseArenaData() {
     setCreate(false);
     setJoin(false);
   }
+>>>>>>> main
 
   return (
     <ArenaContext.Provider
