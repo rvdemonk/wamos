@@ -13,9 +13,16 @@ export function SpawnProvider({ children }) {
   const { address } = useEth();
   const { wamos, arena } = useWamo();
 
+  const [checkCount, setCheckCount] = useState(false);
   const [spawnData, setSpawnData] = useState(false);
   const [spawnStatus, setSpawnStatus] = useLocalStorage("spawnStatus");
   const [spawnRefresh, setSpawnRefresh] = useState(false);
+  const [spawnRequestFulfilled, setSpawnRequestFulfilled] = useState(false);
+
+  useEffect(() => {
+    !spawnRefresh ? initializeSpawnData() : null;
+    checkCount ? requestCheck() : null;
+  }, [checkCount, spawnRefresh]);
 
   async function initializeSpawnData() {
     try {
@@ -54,42 +61,31 @@ export function SpawnProvider({ children }) {
       var _spawnData = spawnData;
 
       _spawnData.lastRequestId = requestId;
+
       _spawnData.testWamoId = firstWamoId;
-      _spawnData.console = [
-        "Spawn Request lodged",
-        `Request ID: ${requestId}`,
-        `First Wamo ID: ${firstWamoId}`,
-      ];
-
-      console.log(requestId);
-
+      _spawnData.console = [`Wamo ID: ${firstWamoId}`];
       setSpawnData(_spawnData);
+      setCheckCount(1);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-      if (requestId !== 0) {
-        console.log(`checking request status...`);
-        let requestData = await wamos.getRequest(requestId);
-        var isFulfilled = requestData.isFulfilled;
-        let waitCount = 0;
-        const maxWait = 120;
-        while (!isFulfilled) {
-          // set state to request checking
-          console.log(`entered check loop`);
-          if (waitCount > maxWait) {
-            console.log(`## Timed out waiting for request fulfillment...`);
-            break;
-          }
+  async function requestCheck() {
+    try {
+      setCheckCount(checkCount + 1);
+      let requestData = await wamos.getRequest(spawnData.lastRequestId);
+      setSpawnRequestFulfilled(requestData.isFulfilled);
 
-          waitCount++;
-          await new Promise((r) => setTimeout(r, 2000));
-          requestData = await wamos.getRequest(requestId);
-          var isFulfilled = requestData.isFulfilled;
-        }
-        if (isFulfilled) {
-          console.log(`Request Fulfilled!`);
-          setSpawnStatus("requested");
-        }
+      if (!spawnRequestFulfilled) {
+        requestData = await wamos.getRequest(spawnData.lastRequestId);
+        await new Promise((r) => setTimeout(r, 1000));
+
+        setSpawnRequestFulfilled(requestData.isFulfilled);
       } else {
-        setSpawnStatusData(`Something went wrong with the request...`);
+        console.log(`Request Fulfilled!`);
+        setCheckCount(false);
+        setSpawnStatus("requested");
       }
     } catch (error) {
       console.log(error);
@@ -97,37 +93,41 @@ export function SpawnProvider({ children }) {
   }
 
   async function completeSpawn() {
-    const requestId = spawnData.lastRequestId;
-    console.log(`** Completing spawn with requestId ${requestId}`);
+    try {
+      const requestId = spawnData.lastRequestId;
+      console.log(`** Completing spawn with requestId ${requestId}`);
 
-    // send complete spawn transaction
-    const completeTx = await wamos.completeSpawn(requestId);
+      // send complete spawn transaction
+      const completeTx = await wamos.completeSpawn(requestId);
 
-    // set state
-    setSpawnStatus("completing");
+      // set state
+      setSpawnStatus("completing");
 
-    console.log(`Getting tx receipt`);
-    const receipt = await completeTx.wait();
-    const completionEvent = receipt.events.find(
-      (event) => event.event === "SpawnCompleted"
-    );
+      console.log(`Getting tx receipt`);
+      const receipt = await completeTx.wait();
+      const completionEvent = receipt.events.find(
+        (event) => event.event === "SpawnCompleted"
+      );
 
-    // const [, , firstWamoId, lastWamoId] = completionEvent.args;
+      // const [, , firstWamoId, lastWamoId] = completionEvent.args;
 
-    const firstWamoId = spawnData.testWamoId;
+      const firstWamoId = spawnData.testWamoId;
 
-    console.log(`first wamo id: ${firstWamoId}`);
+      console.log(`Wam0 id: ${firstWamoId}`);
 
-    var _spawnData = spawnData;
+      var _spawnData = spawnData;
 
-    const id = firstWamoId;
-    const abilities = await wamos.getAbilities(firstWamoId);
-    const traits = await wamos.getTraits(firstWamoId);
+      const id = firstWamoId;
+      const abilities = await wamos.getAbilities(firstWamoId);
+      const traits = await wamos.getTraits(firstWamoId);
 
-    _spawnData.firstWamoData = { id, abilities, traits };
-    setSpawnData(_spawnData);
+      _spawnData.firstWamoData = { id, abilities, traits };
+      setSpawnData(_spawnData);
 
-    setSpawnStatus("completed");
+      setSpawnStatus("completed");
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function eraseSpawnData() {
@@ -136,9 +136,6 @@ export function SpawnProvider({ children }) {
     setSpawnData(false);
     setSpawnRefresh(false);
   }
-
-  !spawnRefresh ? initializeSpawnData() : null;
-
   return (
     <SpawnContext.Provider
       value={{
@@ -147,6 +144,7 @@ export function SpawnProvider({ children }) {
         requestSpawn,
         completeSpawn,
         eraseSpawnData,
+        checkCount,
       }}
     >
       {children}

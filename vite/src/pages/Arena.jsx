@@ -10,17 +10,19 @@ import { Menu } from "../components/Menu";
 import { Approve } from "../components/Approve";
 import { Create } from "../components/Create";
 import { Join } from "../components/Join";
+import { Game } from "../components/Game";
 
 export function Arena() {
   const { theme } = useTheme();
 
-  const [id, setId] = useState(false);
-
-  const { arenaStakingStatus, join, create, eraseArenaData } = useArena();
+  const { arenaStakingStatus, join, create, eraseArenaData, gameId } =
+    useArena();
 
   function Render() {
     if (!arenaStakingStatus) {
       return <Approve />;
+    } else if (gameId) {
+      return <Game />;
     } else if (!create && !join) {
       return <Menu />;
     } else if (create && !join) {

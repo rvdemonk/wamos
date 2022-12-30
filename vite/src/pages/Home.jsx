@@ -32,7 +32,7 @@ export function Home() {
         onClick={() => setContractLink(!contractLink)}
       >
         <h6>
-          <small class="text-muted">
+          <small className="text-muted">
             {contractLink
               ? contractName + contractAddress
               : contractName + showAddress(contractAddress)}

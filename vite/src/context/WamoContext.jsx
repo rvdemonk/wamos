@@ -37,8 +37,6 @@ export function WamoProvider({ children }) {
       provider.getSigner(0)
     );
     setArena(arena);
-
-    console.log("initialized contracts");
   }
 
   !wamos && !arena ? initializeContracts() : null;

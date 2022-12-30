@@ -2,6 +2,7 @@ import { useSpawn } from "../context/SpawnContext";
 import { useTheme } from "../context/ThemeContext";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import { Loading } from "../components/Loading";
 
 import { WamoProfile } from "../components/WamoProfile";
 
@@ -12,6 +13,7 @@ export function Spawn() {
     requestSpawn,
     completeSpawn,
     eraseSpawnData,
+    checkCount,
   } = useSpawn();
   const { theme } = useTheme();
 
@@ -37,18 +39,43 @@ export function Spawn() {
           </div>
         </>
       );
-    } else if (["requesting", "completing"].includes(spawnStatus)) {
+    } else if (["requesting"].includes(spawnStatus)) {
       return (
         <>
           <div className="card-body">
             <h5 className="card-title">Communicating with the G0ds...</h5>
-            {!spawnData.console
-              ? null
-              : spawnData.console.map((item, index) => (
-                  <p key={index} className="card-text">
+            {!spawnData.console ? (
+              <Loading />
+            ) : (
+              spawnData.console.map((item, index) => (
+                <>
+                  <p key={index} className="text-muted">
                     {item}
                   </p>
-                ))}
+                  {checkCount ? (
+                    <p key={index + 1} className="text-muted">
+                      CheckCount: {checkCount}
+                    </p>
+                  ) : null}
+                </>
+              ))
+            )}
+          </div>
+        </>
+      );
+    } else if (["completing"].includes(spawnStatus)) {
+      return (
+        <>
+          <div className="card-body">
+            <h5 className="card-title">Communicating with the G0ds...</h5>
+            {spawnData.console.map((item, index) => (
+              <>
+                <p key={index} className="text-muted">
+                  {item}
+                </p>
+                <Loading />
+              </>
+            ))}
           </div>
         </>
       );

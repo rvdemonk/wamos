@@ -28,8 +28,7 @@ export function ArenaProvider({ children }) {
 
   useEffect(() => {
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
-    getChallenges();
-    console.log(challenges);
+    arena && join ? getChallenges() : null;
   }, [join]);
 
   async function fetchArenaStakingStatus() {
@@ -64,7 +63,6 @@ export function ArenaProvider({ children }) {
     try {
       const _gameId = await arena.createGame(opponent, party);
       setGameId(_gameId);
-      console.log(gameId);
     } catch (error) {
       console.log(error);
     }
@@ -73,9 +71,38 @@ export function ArenaProvider({ children }) {
   async function getChallenges() {
     try {
       const challengesReceived = await arena.getChallengers(address);
+      let challengesReceivedData = [];
       const challengesSent = await arena.getChallenges(address);
-      console.log(challengesSent);
-      setChallenges({ challengesReceived, challengesSent });
+      let challengesSentData = [];
+
+      if (challengesReceived.length) {
+        for (let i = 0; i < challengesReceived.length; i++) {
+          challengesReceivedData[i] = [
+            challengesReceived[i],
+            await arena.getGameDataStruct(challengesReceived[i]),
+          ];
+        }
+      }
+      if (challengesSent.length) {
+        for (let i = 0; i < challengesSent.length; i++) {
+          challengesSentData[i] = [
+            challengesSent[i],
+            await arena.getGameDataStruct(challengesSent[i]),
+          ];
+        }
+      }
+
+      setChallenges({ challengesReceivedData, challengesSentData });
+
+      console.log(challenges.challengesSentData[0][1]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function getGameDataStruct(gameId) {
+    try {
+      return await arena.getGameDataStruct(gameId);
     } catch (error) {
       console.log(error);
     }
@@ -99,6 +126,7 @@ export function ArenaProvider({ children }) {
         createGame,
         eraseArenaData,
         gameId,
+        setGameId,
         challenges,
       }}
     >
