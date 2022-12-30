@@ -1,4 +1,4 @@
-task("link-balance", "Displays balance of link in deployment wallet").setAction(
+task("link_balance", "Displays balance of link in deployment wallet").setAction(
   async (taskArgs, hre) => {
     const ethers = hre.ethers;
 

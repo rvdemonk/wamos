@@ -17,7 +17,7 @@ async function deployWamos() {
   const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
 
   console.log(
-    `Deploying WamosV2 on ${network} from ${deployer.address}`
+    `Deploying WamosV2 on ${network} from ${deployer.address.substring(0,6)}`
   );
 
   const chainConfig = hre.config.networks[network];
@@ -40,7 +40,7 @@ async function deployArena() {
   
   const artifacts = getArtifacts();
   console.log(
-    `Deploying WamosV2Arena on ${network} from ${deployer.address}`
+    `Deploying WamosV2Arena on ${network} from ${deployer.address.substring(0,6)}`
   );
   const arena = await WamosV2Arena.deploy(
     artifacts.WamosV2Address
@@ -79,6 +79,15 @@ async function getVrf() {
   const vrfAddress = hre.config.networks[chain].vrfCoordinator;
   const vrf = await hre.ethers.getContractAt("lib/chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol:VRFCoordinatorV2Interface", vrfAddress);
   return vrf;
+}
+
+async function clearVrfConsumers(vrf, activeNetwork) {
+  const subId = hre.config.networks[active].subscriptionId;
+  let subData = await vrf.getSubscription(subId);
+  const consumers = subData.consumers;
+  for (let i=0; i<consumers.length; i++) {
+      await vrf.removeConsumer(subId, consumers[i]);
+  }
 }
 
 function updateFrontend(wamos, arena) {
