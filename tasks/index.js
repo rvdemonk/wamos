@@ -1,5 +1,7 @@
-// TASKS INDEX
-require("./link_balance.js");
+///////////////////////////////////////
+///////////// TASKS INDEX /////////////
+///////////////////////////////////////
+
 require("./deployer.js");
 require("./subscription.js");
 require("./clear_consumers.js");

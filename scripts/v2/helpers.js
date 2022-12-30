@@ -81,8 +81,7 @@ async function getVrf() {
   return vrf;
 }
 
-async function clearVrfConsumers(vrf, activeNetwork) {
-  const subId = hre.config.networks[active].subscriptionId;
+async function clearVrfConsumers(vrf, subId) {
   let subData = await vrf.getSubscription(subId);
   const consumers = subData.consumers;
   for (let i=0; i<consumers.length; i++) {
@@ -107,6 +106,7 @@ function updateFrontend(wamos, arena) {
     "WamosV2ArenaABI": hre.artifacts.readArtifactSync("WamosV2Arena"),
   }
   fs.writeFileSync(path.join(CONTRACTS_DIR, "artifacts.json"), JSON.stringify(artifacts));
+  console.log(` - files saved ->`, CONTRACTS_DIR);
 } 
 
 module.exports = {
@@ -119,5 +119,6 @@ module.exports = {
   getVrf,
   getArtifacts,
   updateFrontend,
-  getLinkToken
+  getLinkToken,
+  clearVrfConsumers
 };
