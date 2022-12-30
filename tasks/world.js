@@ -11,5 +11,5 @@ task("world", "Logs information about the current wamos contract system")
     console.log('ArenaV2:', arena.address.substring(0,6))
     console.log('wamo population:', wamoCount);
     console.log(`wamos deployed @ ${new Date(wamosTime*1000)}`);
-    console.log(`arena deployed @ ${new Date(arenaTime*1000)}`);
+    console.log(`arena deployed @ ${new Date(arenaTime*1000)}\n`);
   })
