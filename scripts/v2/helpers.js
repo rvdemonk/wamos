@@ -90,6 +90,14 @@ async function clearVrfConsumers(vrf, activeNetwork) {
   }
 }
 
+async function getLinkToken() {
+  const activeChain = hre.network.name;
+  const linkAddr = config.networks[activeChain]["linkToken"];
+  console.log(`Getting Link Token on ${activeChain}`);
+  const LinkToken = await ethers.getContractAt("LinkToken", linkAddr);
+  return LinkToken;
+}
+
 function updateFrontend(wamos, arena) {
   console.log('saving files to frontend ->', CONTRACTS_DIR);
   const artifacts = {
@@ -110,5 +118,6 @@ module.exports = {
   registerLatestArena,
   getVrf,
   getArtifacts,
-  updateFrontend
+  updateFrontend,
+  getLinkToken
 };
