@@ -2,11 +2,16 @@
     {
         "id": 0,
         "header": "What is this?",
-        "body": "Wam0s"
+        "body": "This is battle monster commoditization take-off."
     }, 
     {
         "id": 1,
-        "header": "How to play",
+        "header": "What are Wam0s?",
+        "body": "Wam0s are wallet monsters. They come from the g0ds. They live in your wallet. They fight in the Arena."
+    },
+    {
+        "id": 2,
+        "header": "How do wam0s fight",
         "body": "nonyabizness"
     }
 ]
