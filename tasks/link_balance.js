@@ -7,7 +7,7 @@ task("link_balance", "Displays balance of link in deployment wallet").setAction(
     const linkTokenAddr = config.networks[activeChain]["linkToken"];
 
     // artifact not found
-    const LinkToken = await ethers.getContractFactory("LinkToken");
+    const LinkToken = await ethers.getContractFactory("lib/chainlink/contracts/src/v0.8/LinkToken");
 
     const linkTokenContract = new ethers.Contract(
       linkTokenAddr,
