@@ -69,6 +69,7 @@ contract WamosV2Arena is IERC721Receiver {
     //// GAME CONTRACT DATA
     uint256 public gameCount;
     address immutable deployer;
+    uint256 public timestamp;
 
     //// INVITE SYSTEM
     mapping(address => uint256[]) public addrToChallengesSent;
@@ -96,6 +97,7 @@ contract WamosV2Arena is IERC721Receiver {
     constructor(address _wamosAddr) {
         wamos = WamosV2(_wamosAddr);
         deployer = msg.sender;
+        timestamp = block.timestamp;
     }
 
     //// MODIFIERS ////

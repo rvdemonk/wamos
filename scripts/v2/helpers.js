@@ -16,7 +16,10 @@ async function deployWamos() {
   const network = hre.network.name;
   const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
 
-  console.log(`Deploying WamosV2 on ${network} from ${deployer.address}`);
+  console.log(
+    `Deploying WamosV2 on ${network} from ${deployer.address.substring(0,6)}`
+  );
+
 
   const chainConfig = hre.config.networks[network];
   const mintPrice = hre.config.WAMOSV1_PRICE;
@@ -37,23 +40,33 @@ async function deployArena() {
   const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
 
   const artifacts = getArtifacts();
-  console.log(`Deploying WamosV2Arena on ${network} from ${deployer.address}`);
-  const arena = await WamosV2Arena.deploy(artifacts.WamosV2Address);
+  console.log(
+    `Deploying WamosV2Arena on ${network} from ${deployer.address.substring(0,6)}`
+  );
+  const arena = await WamosV2Arena.deploy(
+    artifacts.WamosV2Address
+  )
   console.log(`WamosV2 ARENA deployed to: ${arena.address}`);
   return arena;
 }
 
 async function getWamos() {
   const addr = getArtifacts().WamosV2Address;
-  console.log(addr);
-  const wamos = hre.ethers.getContractAt("WamosV2", addr);
+  const wamos = await hre.ethers.getContractAt("WamosV2", addr);
   return wamos;
 }
 
 async function getArena() {
   const addr = getArtifacts().WamosV2ArenaAddress;
-  const arena = hre.ethers.getContractAt("WamosV2Arena", addr);
+  const arena = await hre.ethers.getContractAt("WamosV2Arena", addr);
   return arena;
+}
+
+async function getContracts() {
+  const artifacts = getArtifacts();
+  const wamos = await hre.ethers.getContractAt("WamosV2", artifacts.WamosV2Address);
+  const arena = await hre.ethers.getContractAt("WamosV2Arena", artifacts.WamosV2ArenaAddress);
+  return [wamos, arena];
 }
 
 async function registerLatestArena() {
@@ -72,27 +85,44 @@ async function getVrf() {
   return vrf;
 }
 
-function updateFrontend(wamos, arena) {
-  console.log("saving files to frontend...");
-  const artifacts = {
-    WamosV2Address: wamos.address,
-    WamosV2ABI: hre.artifacts.readArtifactSync("WamosV2"),
-    WamosV2ArenaAddress: arena.address,
-    WamosV2ArenaABI: hre.artifacts.readArtifactSync("WamosV2Arena"),
-  };
-  fs.writeFileSync(
-    path.join(CONTRACTS_DIR, "artifacts.json"),
-    JSON.stringify(artifacts)
-  );
+async function clearVrfConsumers(vrf, subId) {
+  let subData = await vrf.getSubscription(subId);
+  const consumers = subData.consumers;
+  for (let i=0; i<consumers.length; i++) {
+      await vrf.removeConsumer(subId, consumers[i]);
+  }
 }
+
+async function getLinkToken() {
+  const activeChain = hre.network.name;
+  const linkAddr = config.networks[activeChain]["linkToken"];
+  console.log(`Getting Link Token on ${activeChain}`);
+  const LinkToken = await ethers.getContractAt("LinkToken", linkAddr);
+  return LinkToken;
+}
+
+function updateFrontend(wamos, arena) {
+  console.log('saving files to frontend ->', CONTRACTS_DIR);
+  const artifacts = {
+    "WamosV2Address": wamos.address,
+    "WamosV2ABI": hre.artifacts.readArtifactSync("WamosV2"),
+    "WamosV2ArenaAddress": arena.address,
+    "WamosV2ArenaABI": hre.artifacts.readArtifactSync("WamosV2Arena"),
+  }
+  fs.writeFileSync(path.join(CONTRACTS_DIR, "artifacts.json"), JSON.stringify(artifacts));
+  console.log(` - files saved ->`, CONTRACTS_DIR);
+} 
 
 module.exports = {
   deployWamos,
   deployArena,
   getWamos,
   getArena,
+  getContracts,
   registerLatestArena,
   getVrf,
   getArtifacts,
   updateFrontend,
+  getLinkToken,
+  clearVrfConsumers
 };
