@@ -7,5 +7,5 @@ task("current_world", "Logs information about the current wamos contract system"
     console.log(`\n--- Active Wamos World ----`)
     console.log('WamosV2:', wamos.address.substring(0,6));
     console.log('ArenaV2:', arena.address.substring(0,6))
-    console.log('\n');
+    // console.log('\n');
   })

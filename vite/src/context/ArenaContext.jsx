@@ -74,7 +74,7 @@ export function ArenaProvider({ children }) {
     }
   }
 
-  console.log(arenaStakingStatus);
+  console.log('Arena Staking approved?', arenaStakingStatus);
 
   return (
     <ArenaContext.Provider
