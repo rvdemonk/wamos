@@ -12,14 +12,14 @@ export function useArena() {
 export function ArenaProvider({ children }) {
   const { address } = useEth();
   const { wamos, arena } = useWamo();
-  const [arenaAddressStatus, setArenaAddressStatus] =
-    useLocalStorage("arenaAddressStatus");
 
   const [arenaStakingStatus, setArenaStakingStatus] =
     useLocalStorage("arenaStakingStatus");
 
   const [create, setCreate] = useState(false);
   const [join, setJoin] = useState(false);
+  const [gameId, setGameId] = useState(false);
+  const [challenges, setChallenges] = useState(false);
 
   const params = {
     gasLimit: "1122744",
@@ -27,16 +27,10 @@ export function ArenaProvider({ children }) {
   };
 
   useEffect(() => {
-    // !arenaAddressStatus
-    //   ? setWamosArenaAddress()
-    //   : console.log(arenaStakingStatus);
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
-  }, []);
-
-  async function setWamosArenaAddress() {
-    await wamos.setWamosArenaAddress(arena.address);
-    setArenaAddressStatus(true);
-  }
+    getChallenges();
+    console.log(challenges);
+  }, [join]);
 
   async function fetchArenaStakingStatus() {
     try {
@@ -44,7 +38,6 @@ export function ArenaProvider({ children }) {
         address,
         arena.address
       );
-
       setArenaStakingStatus(_arenaStakingStatus);
     } catch (error) {
       console.log(error);
@@ -67,14 +60,35 @@ export function ArenaProvider({ children }) {
     }
   }
 
-  async function createGame() {
+  async function createGame(opponent, party) {
     try {
+      const _gameId = await arena.createGame(opponent, party);
+      setGameId(_gameId);
+      console.log(gameId);
     } catch (error) {
       console.log(error);
     }
   }
 
+  async function getChallenges() {
+    try {
+      const challengesReceived = await arena.getChallengers(address);
+      const challengesSent = await arena.getChallenges(address);
+      console.log(challengesSent);
+      setChallenges({ challengesReceived, challengesSent });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+<<<<<<< HEAD
   console.log('Arena Staking approved?', arenaStakingStatus);
+=======
+  function eraseArenaData() {
+    setCreate(false);
+    setJoin(false);
+  }
+>>>>>>> main
 
   return (
     <ArenaContext.Provider
@@ -87,6 +101,9 @@ export function ArenaProvider({ children }) {
         create,
         setCreate,
         createGame,
+        eraseArenaData,
+        gameId,
+        challenges,
       }}
     >
       {children}

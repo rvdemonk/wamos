@@ -13,6 +13,7 @@ cache_hardhat/
 .env
 
 # Dependencies
+lib/
 node_modules/
 wamos-venv/
 

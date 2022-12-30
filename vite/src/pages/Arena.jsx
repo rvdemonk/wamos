@@ -8,14 +8,15 @@ import Col from "react-bootstrap/Col";
 
 import { Menu } from "../components/Menu";
 import { Approve } from "../components/Approve";
+import { Create } from "../components/Create";
+import { Join } from "../components/Join";
 
 export function Arena() {
-  const { wamos, arena } = useWamo();
   const { theme } = useTheme();
 
   const [id, setId] = useState(false);
 
-  const { arenaStakingStatus, join, create } = useArena();
+  const { arenaStakingStatus, join, create, eraseArenaData } = useArena();
 
   function Render() {
     if (!arenaStakingStatus) {
@@ -23,21 +24,9 @@ export function Arena() {
     } else if (!create && !join) {
       return <Menu />;
     } else if (create && !join) {
-      return (
-        <>
-          <Card.Body>
-            <Card.Title>Create Game</Card.Title>
-          </Card.Body>
-        </>
-      );
+      return <Create />;
     } else if (!create && join) {
-      return (
-        <>
-          <Card.Body>
-            <Card.Title>Join Game</Card.Title>
-          </Card.Body>
-        </>
-      );
+      return <Join />;
     } else if (create && join) {
       return (
         <>
@@ -54,7 +43,17 @@ export function Arena() {
     <div className="container">
       <div className="py-4 vh-100 text-center">
         <Card className={theme ? "bg-dark text-light" : "bg-light"}>
-          <Card.Header>The Gates of the Arena</Card.Header>
+          <Card.Header>
+            <Button
+              onClick={() => eraseArenaData()}
+              variant={theme ? "outline-light" : "outline-dark"}
+              size="sm"
+              className="me-3"
+            >
+              <span>&#x2715;</span>
+            </Button>
+            The Gates of the Arena
+          </Card.Header>
           <Render />
         </Card>
       </div>

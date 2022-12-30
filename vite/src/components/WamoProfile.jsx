@@ -9,7 +9,7 @@ export function WamoProfile({ data }) {
 
   function WamoStatus() {
     return (
-      <Table striped size="sm">
+      <Table variant="secondary" striped size="sm">
         <tbody>
           <tr>
             <td>Wamo</td>

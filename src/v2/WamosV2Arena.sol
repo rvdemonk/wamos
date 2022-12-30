@@ -146,6 +146,8 @@ contract WamosV2Arena is IERC721Receiver {
         game.players = [player1, player2];
         game.status = GameStatus.PREGAME;
         gameIdToPlayers[gameId] = [msg.sender, player2];
+        addrToChallengesSent[player1].push(gameId);
+        addrToChallengesReceived[player2].push(gameId);
         // // encode game data
         // uint256 gameData = _encodeGameData(game);
         // gameIdToGameData[gameId] = gameData;

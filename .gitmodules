@@ -13,3 +13,6 @@
 [submodule "lib/OnChainRNG"]
 	path = lib/OnChainRNG
 	url = https://github.com/simontianx/OnChainRNG
+[submodule "lib/foundry-starter-kit"]
+	path = lib/foundry-starter-kit
+	url = https://github.com/smartcontractkit/foundry-starter-kit

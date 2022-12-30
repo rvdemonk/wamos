@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import "./styles/main.scss";
 import { EthProvider } from "./context/EthContext";
 import { WamoProvider } from "./context/WamoContext";
 import { ThemeProvider } from "./context/ThemeContext";
