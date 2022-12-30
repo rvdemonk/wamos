@@ -64,6 +64,7 @@ export function ArenaProvider({ children }) {
     try {
       const _gameId = await arena.createGame(opponent, party);
       setGameId(_gameId);
+      console.log(gameId);
     } catch (error) {
       console.log(error);
     }
@@ -73,7 +74,7 @@ export function ArenaProvider({ children }) {
     try {
       const challengesReceived = await arena.getChallengers(address);
       const challengesSent = await arena.getChallenges(address);
-      console.log(challengesSent, challengesReceived);
+      console.log(challengesSent);
       setChallenges({ challengesReceived, challengesSent });
     } catch (error) {
       console.log(error);
@@ -98,6 +99,7 @@ export function ArenaProvider({ children }) {
         createGame,
         eraseArenaData,
         gameId,
+        challenges,
       }}
     >
       {children}

@@ -8,9 +8,11 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
 import { useTheme } from "../context/ThemeContext";
 import { useArena } from "../context/ArenaContext";
+
+import { hexToInt } from "../utilities/HexToInt";
 export function Join() {
   const { theme } = useTheme();
-  const { challengesRecieved, challengesSent } = useArena();
+  const { challenges } = useArena();
 
   const [validated, setValidated] = useState(false);
 
@@ -27,34 +29,16 @@ export function Join() {
       <Card>
         <Card.Header>Challenges Sent</Card.Header>
         <Card.Body>
-          {!challengesSent ? (
+          {!challenges.challengesSent ? (
             <Loading />
           ) : (
-            challengesSent.map((item) => (
-              <Accordion defaultActiveKey={item.id}>
-                <Accordion.Item eventKey={item.id}></Accordion.Item>
+            challenges.challengesSent.map((gameId) => (
+              <Accordion defaultActiveKey={hexToInt(gameId)}>
+                <Accordion.Item eventKey={hexToInt(gameId)}></Accordion.Item>
                 <Accordion.Header variant="success">
-                  {item.header}
+                  {hexToInt(gameId)}
                 </Accordion.Header>
-                <Accordion.Body>{item.body}</Accordion.Body>
-              </Accordion>
-            ))
-          )}
-        </Card.Body>
-      </Card>
-      <Card>
-        <Card.Header>Challenges Received</Card.Header>
-        <Card.Body>
-          {!challengesSent ? (
-            <Loading />
-          ) : (
-            challengesSent.map((item) => (
-              <Accordion defaultActiveKey={item.id}>
-                <Accordion.Item eventKey={item.id}></Accordion.Item>
-                <Accordion.Header variant="success">
-                  {item.header}
-                </Accordion.Header>
-                <Accordion.Body>{item.body}</Accordion.Body>
+                <Accordion.Body>{hexToInt(gameId)}</Accordion.Body>
               </Accordion>
             ))
           )}
