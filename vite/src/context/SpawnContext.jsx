@@ -20,14 +20,14 @@ export function SpawnProvider({ children }) {
   const [spawnRequestFulfilled, setSpawnRequestFulfilled] = useState(false);
 
   useEffect(() => {
-    !spawnRefresh ? initializeSpawnData() : null;
+    address && !spawnRefresh ? initializeSpawnData() : null;
     checkCount ? requestCheck() : null;
   }, [checkCount, spawnRefresh]);
 
   async function initializeSpawnData() {
     try {
-      const tokenCount = (await wamos.nextWamoId()) - 1;
-      const mintPrice = await wamos.mintPrice();
+      const tokenCount = (await wamos?.nextWamoId()) - 1;
+      const mintPrice = await wamos?.mintPrice();
       const spawnData = { tokenCount, mintPrice };
       setSpawnData(spawnData);
       setSpawnRefresh(true);

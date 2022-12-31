@@ -93,8 +93,6 @@ export function ArenaProvider({ children }) {
       }
 
       setChallenges({ challengesReceivedData, challengesSentData });
-
-      console.log(challenges.challengesSentData[0][1]);
     } catch (error) {
       console.log(error);
     }

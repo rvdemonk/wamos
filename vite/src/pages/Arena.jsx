@@ -21,8 +21,6 @@ export function Arena() {
   function Render() {
     if (!arenaStakingStatus) {
       return <Approve />;
-    } else if (gameId) {
-      return <Game />;
     } else if (!create && !join) {
       return <Menu />;
     } else if (create && !join) {

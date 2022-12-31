@@ -5,6 +5,7 @@ import Card from "react-bootstrap/Card";
 import { Loading } from "../components/Loading";
 
 import { WamoProfile } from "../components/WamoProfile";
+import { NotConnected } from "../components/NotConnected";
 
 export function Spawn() {
   const {
@@ -15,11 +16,13 @@ export function Spawn() {
     eraseSpawnData,
     checkCount,
   } = useSpawn();
+
   const { theme } = useTheme();
 
   function Render() {
     const url = "../assets/wamos_day.png";
     const showPrice = spawnData?.mintPrice || "...";
+
     if (!spawnStatus) {
       return (
         <>
