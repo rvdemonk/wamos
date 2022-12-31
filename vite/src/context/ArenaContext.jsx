@@ -42,6 +42,7 @@ export function ArenaProvider({ children }) {
   useEffect(() => {
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
     join && address ? getChallenges() : null;
+<<<<<<< HEAD
     gameData && gameData.status > 0 ? getArenaData() : null;
   }, [arenaStakingStatus, join, gameId, gameData, turned, joinRefresh]);
 
@@ -64,6 +65,9 @@ export function ArenaProvider({ children }) {
       getGameData(gameId);
     });
   }, [stakedQuery]);
+=======
+  }, [join]);
+>>>>>>> 4247bbe (account swapping bug fixed ps forgot)
 
   async function fetchArenaStakingStatus() {
     wamos
