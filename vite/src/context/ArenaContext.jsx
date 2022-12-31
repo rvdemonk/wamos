@@ -28,7 +28,7 @@ export function ArenaProvider({ children }) {
 
   useEffect(() => {
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
-    arena && join ? getChallenges() : null;
+    join && address ? getChallenges() : null;
   }, [join]);
 
   async function fetchArenaStakingStatus() {
