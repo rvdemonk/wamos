@@ -53,7 +53,7 @@ export function Home() {
         <div className="col-lg-6 mx-auto">
           <HandleLink contract={wamos} />
           <HandleLink contract={arena} />
-          <p className="lead mb-4">A Web3 Native Battle Monster Game.</p>
+          <p className="lead mb-4">A Web3 Battle Monster Game.</p>
           <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
             <Button
               to={"/spawn"}
@@ -70,6 +70,14 @@ export function Home() {
               variant={theme ? "danger" : "outline-danger"}
             >
               Arena
+            </Button>
+            <Button
+              to={"/gallery"}
+              as={NavLink}
+              className="btn btn-sm px-4 gap-3"
+              variant={theme ? "warning" : "outline-warning"}
+            >
+              Gallery
             </Button>
             <Button
               to={"/guide"}

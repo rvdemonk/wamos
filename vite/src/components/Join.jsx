@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Accordion from "react-bootstrap/Accordion";
 import Card from "react-bootstrap/Card";
-import Form from "react-bootstrap/Form";
 
 import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
@@ -10,10 +9,11 @@ import { useTheme } from "../context/ThemeContext";
 import { useArena } from "../context/ArenaContext";
 import { hexToInt } from "../utilities/HexToInt";
 import { showAddress } from "../utilities/ShowAddress";
-import { Loading } from "../components/Loading";
+import { Loading } from "./Loading";
+import { CardHeader } from "./CardHeader";
 export function Join() {
   const { theme } = useTheme();
-  const { challenges, setGameId } = useArena();
+  const { challenges, joinGame } = useArena();
   const [player1Link, setPlayer1Link] = useState(false);
   const [player2Link, setPlayer2Link] = useState(false);
 
@@ -78,7 +78,10 @@ export function Join() {
                       </small>
                     </h6>
 
-                    <Button size="sm" onClick={() => setGameId(game[0])}>
+                    <Button
+                      size="sm"
+                      onClick={() => joinGame(direction, hexToInt(game[0]))}
+                    >
                       join
                     </Button>
                   </>
@@ -92,9 +95,12 @@ export function Join() {
   }
 
   return (
-    <Container className="py-2 d-grid gap-2 d-sm-flex justify-content-sm-center">
-      <ChallengeCards direction={"sent"} />
-      <ChallengeCards direction={"received"} />
-    </Container>
+    <>
+      <CardHeader cardHeader={"The Gates of the Arena"} eraseButton={arena} />
+      <Container className="py-2 d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <ChallengeCards direction={"sent"} />
+        <ChallengeCards direction={"received"} />
+      </Container>
+    </>
   );
 }

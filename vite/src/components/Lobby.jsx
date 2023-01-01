@@ -1,60 +1,49 @@
 import React, { useState } from "react";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
-import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
+import { hexToInt } from "../utilities/HexToInt";
+import { CardHeader } from "./CardHeader";
 import { useTheme } from "../context/ThemeContext";
 import { useArena } from "../context/ArenaContext";
-import { CardHeader } from "./CardHeader";
-
-export function Create() {
+export function Lobby() {
   const { theme } = useTheme();
-  const { createGame } = useArena();
+  const { connectWamos, gameId, gameData } = useArena();
 
   const [validated, setValidated] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const to = formData.get("to");
+
     const party = formData.get("party");
-    if (to && party) {
-      createGame(to, party);
+    if (party) {
+      connectWamos(party);
     }
   };
 
   return (
     <>
-      <CardHeader cardHeader={"The Gates of the Arena"} eraseButton={arena} />
+      <CardHeader
+        cardHeader={"The Staking Pits of the Wolf God"}
+        eraseButton={arena}
+      />
       <Card.Body className="d-grid gap-2 d-xxl-flex justify-content-center">
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formAddressl">
-            <Form.Label>Opponent Address</Form.Label>
+            <Form.Label>Game: {hexToInt(gameId)}</Form.Label>
 
             <Form.Control
               required
               type="address"
-              name="to"
-              placeholder="Enter opponent address"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3" controlId="formParty">
-            <Form.Label>Party Size</Form.Label>
-
-            <Form.Control
-              required
-              type="party-size"
               name="party"
-              placeholder="Party size"
+              placeholder="Enter Wamos => [a,b,c]"
             />
-            <Form.Text className="text-muted">
-              This will be the size of your team
-            </Form.Text>
+            <Form.Text className="text-muted">Pick your Wam0s</Form.Text>
           </Form.Group>
 
           <Button variant="primary" className="" size="sm" type="submit">
-            Create Game
+            Stake
           </Button>
         </Form>
       </Card.Body>

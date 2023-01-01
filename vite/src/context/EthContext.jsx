@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useLocalStorage, eraseLocalStorage } from "../hooks/useLocalStorage";
 
 const EthContext = createContext({});
@@ -9,10 +9,18 @@ export function useEth() {
 
 export function EthProvider({ children }) {
   const [address, setAddress] = useLocalStorage("address");
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
-    window.ethereum.on("accountsChanged", checkConnection);
-  }, []);
+    !refresh
+      ? checkConnectionOnRefresh()
+      : window.ethereum.on("accountsChanged", checkConnection);
+  }, [refresh]);
+
+  function checkConnectionOnRefresh() {
+    checkConnection();
+    setRefresh(true);
+  }
 
   async function checkConnection() {
     ethereum

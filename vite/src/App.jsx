@@ -8,6 +8,7 @@ import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
 import { Arena } from "./pages/Arena";
 import { Spawn } from "./pages/Spawn";
+import { Gallery } from "./pages/Gallery";
 import { Guide } from "./pages/Guide";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/spawn" element={<Spawn />} />
                 <Route path="/arena" element={<Arena />} />
+                <Route path="/gallery" element={<Gallery />} />
                 <Route path="/guide" element={<Guide />} />
               </Routes>
             </ArenaProvider>

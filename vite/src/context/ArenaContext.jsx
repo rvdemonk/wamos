@@ -18,6 +18,7 @@ export function ArenaProvider({ children }) {
 
   const [create, setCreate] = useState(false);
   const [join, setJoin] = useState(false);
+  const [gameData, setGameData] = useState({});
   const [gameId, setGameId] = useState(false);
   const [challenges, setChallenges] = useState(false);
 
@@ -52,11 +53,17 @@ export function ArenaProvider({ children }) {
     }
   }
 
-  async function joinGame() {
-    try {
-    } catch (error) {
-      console.log(error);
-    }
+  function joinGame(direction, index) {
+    setGameData(
+      direction === "sent"
+        ? challenges.challengesSentData[index][1]
+        : challenges.challengesReceivedData[index][1]
+    );
+    setGameId(
+      direction === "sent"
+        ? challenges.challengesSentData[index][0]
+        : challenges.challengesReceivedData[index][0]
+    );
   }
 
   async function createGame(opponent, party) {
@@ -98,15 +105,17 @@ export function ArenaProvider({ children }) {
     }
   }
 
-  async function getGameDataStruct(gameId) {
+  async function connectWamos(wamoIds) {
     try {
-      return await arena.getGameDataStruct(gameId);
+      await arena.connectWamos(gameId, wamoIds);
     } catch (error) {
       console.log(error);
     }
   }
 
   function eraseArenaData() {
+    setGameId(false);
+    setGameData(false);
     setCreate(false);
     setJoin(false);
   }
@@ -122,9 +131,12 @@ export function ArenaProvider({ children }) {
         create,
         setCreate,
         createGame,
+        connectWamos,
         eraseArenaData,
         gameId,
         setGameId,
+        gameData,
+        setGameData,
         challenges,
       }}
     >

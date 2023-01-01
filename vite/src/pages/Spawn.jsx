@@ -57,7 +57,7 @@ export function Spawn() {
                   </p>
                   {checkCount ? (
                     <p key={index + 1} className="text-muted">
-                      CheckCount: {checkCount}
+                      Victims Sacrificed: {checkCount}
                     </p>
                   ) : null}
                 </>

@@ -10,17 +10,26 @@ import { Menu } from "../components/Menu";
 import { Approve } from "../components/Approve";
 import { Create } from "../components/Create";
 import { Join } from "../components/Join";
-import { Game } from "../components/Game";
+import { Lobby } from "../components/Lobby";
+// import { Game } from "../components/Game";
+// import { End } from "../components/End";
 
 export function Arena() {
   const { theme } = useTheme();
 
-  const { arenaStakingStatus, join, create, eraseArenaData, gameId } =
-    useArena();
+  const { arenaStakingStatus, join, create, gameId, gameData } = useArena();
 
   function Render() {
     if (!arenaStakingStatus) {
       return <Approve />;
+    } else if (gameId) {
+      if (!gameData.status) {
+        return <Lobby />;
+      } else if (gameData.status < 2) {
+        return <Game />;
+      } else if (gameData.status < 2) {
+        return <End />;
+      }
     } else if (!create && !join) {
       return <Menu />;
     } else if (create && !join) {
@@ -43,17 +52,6 @@ export function Arena() {
     <div className="container">
       <div className="py-4 vh-100 text-center">
         <Card className={theme ? "bg-dark text-light" : "bg-light"}>
-          <Card.Header>
-            <Button
-              onClick={() => eraseArenaData()}
-              variant={theme ? "outline-light" : "outline-dark"}
-              size="sm"
-              className="me-3"
-            >
-              <span>&#x2715;</span>
-            </Button>
-            The Gates of the Arena
-          </Card.Header>
           <Render />
         </Card>
       </div>

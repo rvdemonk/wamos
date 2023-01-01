@@ -14,23 +14,36 @@ export function SpawnProvider({ children }) {
   const { wamos, arena } = useWamo();
 
   const [checkCount, setCheckCount] = useState(false);
+  const [checkCountHundred, setCheckCountHundred] = useState(false);
   const [spawnData, setSpawnData] = useState(false);
   const [spawnStatus, setSpawnStatus] = useLocalStorage("spawnStatus");
-  const [spawnRefresh, setSpawnRefresh] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   const [spawnRequestFulfilled, setSpawnRequestFulfilled] = useState(false);
 
   useEffect(() => {
-    address && !spawnRefresh ? initializeSpawnData() : null;
+    address && !refresh ? initializeSpawnData() : null;
     checkCount ? requestCheck() : null;
-  }, [checkCount, spawnRefresh]);
+  }, [checkCount, refresh, address]);
 
   async function initializeSpawnData() {
     try {
       const tokenCount = (await wamos?.nextWamoId()) - 1;
       const mintPrice = await wamos?.mintPrice();
-      const spawnData = { tokenCount, mintPrice };
+
+      var wamoOwnerData = [];
+      for (let i = 1; i < tokenCount + 1; ) {
+        const id = i;
+        const owner = await wamos.ownerOf(i);
+        wamoOwnerData[i] = [id, owner];
+        i++;
+      }
+
+      console.log(wamoOwnerData);
+
+      const spawnData = { tokenCount, mintPrice, wamoOwnerData };
       setSpawnData(spawnData);
-      setSpawnRefresh(true);
+
+      setRefresh(true);
     } catch (ex) {
       console.log(ex);
     }
@@ -79,7 +92,6 @@ export function SpawnProvider({ children }) {
 
       if (!spawnRequestFulfilled) {
         requestData = await wamos.getRequest(spawnData.lastRequestId);
-        await new Promise((r) => setTimeout(r, 1000));
 
         setSpawnRequestFulfilled(requestData.isFulfilled);
       } else {
@@ -134,7 +146,7 @@ export function SpawnProvider({ children }) {
     eraseLocalStorage("spawnStatus");
     setSpawnStatus(false);
     setSpawnData(false);
-    setSpawnRefresh(false);
+    setRefresh(false);
   }
   return (
     <SpawnContext.Provider
