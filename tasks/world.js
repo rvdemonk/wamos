@@ -4,7 +4,7 @@ task("world", "Logs information about the current wamos contract system")
     const wamos = await helpers.getWamos();
     const arena = await helpers.getArena();
     const wamosOwner = await wamos.contractOwner();
-    const arenaOwner = await arena.deployer();
+    const arenaOwner = await arena.contractOwner();
     const wamoCount = (await wamos.nextWamoId()) - 1;
     const wamosTime = await wamos.timestamp();
     const arenaTime = await arena.timestamp();
