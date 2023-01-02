@@ -6,16 +6,11 @@ const ARTIFACTS_DIR = "vite/src/";
 
 
 async function deployWamos() {
-  const deployer = await hre.ethers.getSigner();
   const network = hre.network.name;
   const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
 
-  console.log(
-    `Deploying WamosV2 on ${network} from ${deployer.address.substring(0,6)}`
-  );
-
   const chainConfig = hre.config.networks[network];
-  const mintPrice = hre.config.WAMOSV1_PRICE;
+  const mintPrice = hre.config.wamosMintPrice;
 
   const wamos = await WamosV2.deploy(
     chainConfig.vrfCoordinator,
@@ -23,23 +18,21 @@ async function deployWamos() {
     chainConfig.subscriptionId,
     mintPrice
   );
-  console.log("WamosV2 deployed to: ", wamos.address);
+  console.log(`WamosV2 deployed to ${network}\n${wamos.address}\n`)
   return wamos;
 }
 
-async function deployArena() {
-  const deployer = await hre.ethers.getSigner();
+async function deployArena(wamosAddr = null) {
   const network = hre.network.name;
   const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
+  
+  if (wamosAddr === null) wamosAddr = getWamosArtifact().address;
 
-  // const artifacts = getArtifacts();
-  console.log(
-    `Deploying WamosV2Arena on ${network} from ${deployer.address.substring(0,6)}`
-  );
   const arena = await WamosV2Arena.deploy(
-    artifacts.WamosV2Address
+    wamosAddr
   )
-  console.log(`WamosV2 ARENA deployed to: ${arena.address}`);
+
+  console.log(`WamosV2Arena deployed to ${network}\n${wamos.address}`)
   return arena;
 }
 

@@ -67,6 +67,7 @@ module.exports = {
       polygonMumbai: "91IE9SEC9VWW3I8I3YH27H6JFSUISRZ87K",
     },
   },
+  wamosMintPrice: "1000000000000000",
   devChains: ["hardhat", "anvil"],
   preprocess: {
     eachLine: (hre) => ({
