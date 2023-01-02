@@ -6,7 +6,7 @@ const ARTIFACTS_DIR = "vite/src/artifacts";
 
 async function deployWamos() {
   const network = hre.network.name;
-  const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
+  const WamosV2 = await hre.ethers.getContractFactory("src/WamosV2");
 
   const chainConfig = hre.config.networks[network];
   const mintPrice = hre.config.wamosMintPrice;
