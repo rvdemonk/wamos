@@ -8,4 +8,6 @@ task("subscription", "Logs the balance enjoyed by the vrf subscription")
     const subData = await vrf.getSubscription(subId);
     const balance = (subData.balance / 10**18).toString().substring(0,5);
     console.log(`Sub ID ${subId} |`, balance, "LINK");
+    
+    console.log(subData);
   })
