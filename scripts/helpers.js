@@ -2,12 +2,22 @@ const hre = require("hardhat");
 const fs = require("fs");
 const path = require("path");
 
-const CONTRACTS_DIR = "vite/src/";
+const ARTIFACTS_DIR = "vite/src/";
 
 function getArtifacts() {
   const rawData = fs.readFileSync(path.join(CONTRACTS_DIR, "artifacts.json"));
   const artifacts = JSON.parse(rawData);
   return artifacts;
+}
+
+function getWamosArtifact() {
+  const rawData = fs.readFileSync(path.join(CONTRACTS_DIR, "WamosV2.json"));
+  return JSON.parse(rawData);
+}
+
+function getArenaArtifact() {
+  const rawData = fs.readFileSync(path.join(CONTRACTS_DIR, "WamosV2Arena.json"));
+  return JSON.parse(rawData);
 }
 
 // returns contract object
@@ -51,7 +61,7 @@ async function deployArena() {
 }
 
 async function getWamos() {
-  const addr = getArtifacts().WamosV2Address;
+  const addr = getWamosArtifact().WamosV2Address;
   const wamos = await hre.ethers.getContractAt("WamosV2", addr);
   return wamos;
 }
@@ -141,12 +151,13 @@ function displayWamoTraits(id, traits) {
 module.exports = {
   deployWamos,
   deployArena,
+  getWamosArtifact,
+  getArenaArtifact,
   getWamos,
   getArena,
   getContracts,
   registerLatestArena,
   getVrf,
-  getArtifacts,
   updateFrontend,
   exportWamosArtifact,
   exportArenaArtifact,
