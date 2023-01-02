@@ -26,7 +26,7 @@ struct Request {
     bool exists;
     bool isFulfilled;
     bool isCompleted;
-    address sender;
+    address owner;
     uint256 requestId;
     uint256 firstWamoId;
     uint256 numWamos;
@@ -179,7 +179,35 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
             exists: true,
             isFulfilled: false,
             isCompleted: false,
-            sender: msg.sender,
+            owner: msg.sender,
+            requestId: requestId,
+            firstWamoId: startWamoId,
+            numWamos: number,
+            seeds: new uint256[](number)
+        });
+        emit SpawnRequested(msg.sender, requestId, startWamoId, number);
+        return requestId;
+    }
+
+    function requestSpawn(
+        uint32 number,
+        address recipient
+    ) external payable returns (uint256 requestId) {
+        require(msg.value >= mintPrice, "Insufficient msg.value to mint!");
+        requestId = vrfCoordinator.requestRandomWords(
+            vrfKeyHash,
+            vrfSubscriptionId,
+            vrfRequestConfirmations,
+            vrfCallbackGasLimit,
+            number
+        );
+        uint256 startWamoId = nextWamoId;
+        nextWamoId += number;
+        requestIdToRequest[requestId] = Request({
+            exists: true,
+            isFulfilled: false,
+            isCompleted: false,
+            owner: recipient,
             requestId: requestId,
             firstWamoId: startWamoId,
             numWamos: number,
@@ -197,7 +225,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         requestIdToRequest[_requestId].isFulfilled = true;
         requestIdToRequest[_requestId].seeds = _randomWords;
         // mint erc721 tokens
-        address owner = requestIdToRequest[_requestId].sender;
+        address owner = requestIdToRequest[_requestId].owner;
         uint256 startingId = requestIdToRequest[_requestId].firstWamoId;
         uint256 numToMint = requestIdToRequest[_requestId].numWamos;
 
@@ -226,7 +254,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         }
         requestIdToRequest[requestId].isCompleted = true;
         emit SpawnCompleted(
-            request.sender,
+            request.owner,
             requestId,
             firstWamoId,
             firstWamoId + numWamos - 1
@@ -368,7 +396,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         view
         returns (address sender, uint256 firstWamoId, uint256 numWamos)
     {
-        sender = requestIdToRequest[requestId].sender;
+        sender = requestIdToRequest[requestId].owner;
         firstWamoId = requestIdToRequest[requestId].firstWamoId;
         numWamos = requestIdToRequest[requestId].numWamos;
     }
@@ -392,7 +420,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         exists = requestIdToRequest[requestId].exists;
         isFulfilled = requestIdToRequest[requestId].isFulfilled;
         isCompleted = requestIdToRequest[requestId].isCompleted;
-        sender = requestIdToRequest[requestId].sender;
+        sender = requestIdToRequest[requestId].owner;
         firstWamoId = requestIdToRequest[requestId].firstWamoId;
         numWamos = requestIdToRequest[requestId].numWamos;
         seeds = requestIdToRequest[requestId].seeds;
