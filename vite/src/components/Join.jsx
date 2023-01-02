@@ -54,8 +54,8 @@ export function Join() {
           {!challengeList.length ? (
             <Loading />
           ) : (
-            challengeList.map((game) => (
-              <Accordion defaultActiveKey={hexToInt(game[0])}>
+            challengeList.map((game, i) => (
+              <Accordion key={i} defaultActiveKey={hexToInt(game[0])}>
                 <Accordion.Item eventKey={hexToInt(game[0])}></Accordion.Item>
                 <Accordion.Header>Game: {hexToInt(game[0])}</Accordion.Header>
                 <Accordion.Body>
@@ -96,7 +96,7 @@ export function Join() {
 
   return (
     <>
-      <CardHeader cardHeader={"The Gates of the Arena"} eraseButton={arena} />
+      <CardHeader cardHeader={"The Gates of the Arena"} eraseButton={"arena"} />
       <Container className="py-2 d-grid gap-2 d-sm-flex justify-content-sm-center">
         <ChallengeCards direction={"sent"} />
         <ChallengeCards direction={"received"} />

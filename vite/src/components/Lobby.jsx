@@ -16,9 +16,12 @@ export function Lobby() {
     event.preventDefault();
     const formData = new FormData(event.target);
 
-    const party = formData.get("party");
-    if (party) {
-      connectWamos(party);
+    const a = parseInt(formData.get("a"));
+    const b = parseInt(formData.get("b"));
+    const c = parseInt(formData.get("c"));
+
+    if (a && b && c) {
+      connectWamos([a, b, c]);
     }
   };
 
@@ -26,19 +29,20 @@ export function Lobby() {
     <>
       <CardHeader
         cardHeader={"The Staking Pits of the Wolf God"}
-        eraseButton={arena}
+        eraseButton={"arena"}
       />
       <Card.Body className="d-grid gap-2 d-xxl-flex justify-content-center">
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formAddressl">
             <Form.Label>Game: {hexToInt(gameId)}</Form.Label>
 
-            <Form.Control
-              required
-              type="address"
-              name="party"
-              placeholder="Enter Wamos => [a,b,c]"
-            />
+            <Form.Control required name="a" placeholder="Enter Wam0 A" />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formAddressl">
+            <Form.Control required name="b" placeholder="Enter Wam0 B" />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formAddressl">
+            <Form.Control required name="c" placeholder="Enter Wam0 C" />
             <Form.Text className="text-muted">Pick your Wam0s</Form.Text>
           </Form.Group>
 

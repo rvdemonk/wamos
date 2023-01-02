@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useEth } from "./EthContext";
 import { useWamo } from "./WamoContext";
+import { useSpawn } from "./SpawnContext";
 import { useLocalStorage, eraseLocalStorage } from "../hooks/useLocalStorage";
 
 const ArenaContext = createContext({});
@@ -12,9 +13,9 @@ export function useArena() {
 export function ArenaProvider({ children }) {
   const { address } = useEth();
   const { wamos, arena } = useWamo();
+  const { spawnData } = useSpawn();
 
-  const [arenaStakingStatus, setArenaStakingStatus] =
-    useLocalStorage("arenaStakingStatus");
+  const [arenaStakingStatus, setArenaStakingStatus] = useState(false);
 
   const [create, setCreate] = useState(false);
   const [join, setJoin] = useState(false);
@@ -107,7 +108,8 @@ export function ArenaProvider({ children }) {
 
   async function connectWamos(wamoIds) {
     try {
-      await arena.connectWamos(gameId, wamoIds);
+      console.log(wamoIds);
+      await arena.connectWamos(gameId, wamoIds, params);
     } catch (error) {
       console.log(error);
     }
