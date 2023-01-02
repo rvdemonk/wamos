@@ -38,7 +38,7 @@ async function deployArena(wamosAddr = null) {
 function exportWamosArtifact(wamos) {
   const artifact = {
     address: wamos.address,
-    abi: hre.artifacts.readArtifactSync("WamosV2.sol:WamosV2")
+    abi: hre.artifacts.readArtifactSync("WamosV2")
   };
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
 }
@@ -46,7 +46,7 @@ function exportWamosArtifact(wamos) {
 function exportArenaArtifact(arena) {
   const artifact = {
     address: arena.address,
-    abi: hre.artifacts.readArtifactSync("WamosV2Arena.sol:WamosV2Arena")
+    abi: hre.artifacts.readArtifactSync("WamosV2Arena")
   };
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"), JSON.stringify(artifact))
 }
