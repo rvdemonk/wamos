@@ -10,3 +10,4 @@ require("./subscription");
 require("./clear_consumers");
 require("./fund_subscription")
 require("./wamo")
+require("./mint")

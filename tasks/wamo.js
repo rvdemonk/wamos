@@ -5,7 +5,7 @@ task("wamo", "Displays the data and traits of the wamo with the given id")
     console.log(`Wamo ID: ${taskArgs.id}`);
     
     const helpers = require('../scripts/helpers');
-    const wamos = helpers.getWamos();
+    const wamos = await helpers.getWamos();
     const tokenCount = (await wamos.nextWamoId()) - 1;
     if (id > tokenCount) {
         throw new Error(`Wamo #${id} has not been minted yet! Token count is ${tokenCount}`)

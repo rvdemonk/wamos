@@ -13,7 +13,7 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
 
     console.log('** exporting artifacts');
     helpers.exportWamosArtifact(wamos);
-    helpers.exportArenaArtifact(wamos);
+    helpers.exportArenaArtifact(arena);
 
     const subId = hre.config.networks[active].subscriptionId;
     
@@ -22,7 +22,7 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
     const subData = await vrf.getSubscription(subId);
     console.log('** checking number of consumers')
     if (subData.consumers.length > 3) {
-      console.log(`Consumer limit reached - clearing`);
+      console.log(`  *consumer limit reached - clearing`);
       await helpers.clearVrfConsumers(vrf, subId);
     }
 
