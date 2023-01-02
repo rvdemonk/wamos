@@ -36,22 +36,18 @@ async function deployArena(wamosAddr = null) {
 }
 
 function exportWamosArtifact(wamos) {
-  // const artifact = {
-  //   address: wamos.address,
-  //   abi: hre.artifacts.readArtifactSync("WamosV2").abi
-  // };
-  const artifact = hre.artifacts.readArtifactSync("WamosV2");
-  artifact.address = wamos.address;
+  const artifact = {
+    address: wamos.address,
+    abi: hre.artifacts.readArtifactSync("WamosV2").abi
+  };
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
 }
 
 function exportArenaArtifact(arena) {
-  // const artifact = {
-  //   address: arena.address,
-  //   abi: hre.artifacts.readArtifactSync("WamosV2Arena").abi
-  // };
-  const artifact = hre.artifacts.readArtifactSync("WamosV2Arena");
-  artifact.address = arena.address;
+  const artifact = {
+    address: arena.address,
+    abi: hre.artifacts.readArtifactSync("WamosV2Arena").abi
+  };
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"), JSON.stringify(artifact))
 }
 

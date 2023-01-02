@@ -29,7 +29,6 @@ export function WamoProvider({ children }) {
       WamosV2.abi,
       provider.getSigner(0)
     );
-
     setWamos(wamos);
 
     // init arena contract
