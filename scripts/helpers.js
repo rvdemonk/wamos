@@ -2,27 +2,14 @@ const hre = require("hardhat");
 const fs = require("fs");
 const path = require("path");
 
-const CONTRACTS_DIR = "vite/src/";
+const ARTIFACTS_DIR = "vite/src/artifacts";
 
-function getArtifacts() {
-  const rawData = fs.readFileSync(path.join(CONTRACTS_DIR, "artifacts.json"));
-  const artifacts = JSON.parse(rawData);
-  return artifacts;
-}
-
-// returns contract object
 async function deployWamos() {
-  const deployer = await hre.ethers.getSigner();
   const network = hre.network.name;
   const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
 
-  console.log(
-    `Deploying WamosV2 on ${network} from ${deployer.address.substring(0,6)}`
-  );
-
-
   const chainConfig = hre.config.networks[network];
-  const mintPrice = hre.config.WAMOSV1_PRICE;
+  const mintPrice = hre.config.wamosMintPrice;
 
   const wamos = await WamosV2.deploy(
     chainConfig.vrfCoordinator,
@@ -30,43 +17,60 @@ async function deployWamos() {
     chainConfig.subscriptionId,
     mintPrice
   );
-  console.log("WamosV2 deployed to: ", wamos.address);
+  console.log(`WamosV2 deployed to ${network}\n${wamos.address}\n`)
   return wamos;
 }
 
-async function deployArena() {
-  const deployer = await hre.ethers.getSigner();
+async function deployArena(wamosAddr = null) {
   const network = hre.network.name;
   const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
+  
+  if (wamosAddr === null) wamosAddr = getWamosArtifact().address;
 
-  const artifacts = getArtifacts();
-  console.log(
-    `Deploying WamosV2Arena on ${network} from ${deployer.address.substring(0,6)}`
-  );
   const arena = await WamosV2Arena.deploy(
-    artifacts.WamosV2Address
+    wamosAddr
   )
-  console.log(`WamosV2 ARENA deployed to: ${arena.address}`);
+
+  console.log(`WamosV2Arena deployed to ${network}\n${wamosAddr}`)
   return arena;
 }
 
+function exportWamosArtifact(wamos) {
+  const artifact = {
+    address: wamos.address,
+    abi: hre.artifacts.readArtifactSync("WamosV2").abi
+  };
+  fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
+}
+
+function exportArenaArtifact(arena) {
+  const artifact = {
+    address: arena.address,
+    abi: hre.artifacts.readArtifactSync("WamosV2Arena").abi
+  };
+  fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"), JSON.stringify(artifact))
+}
+
+function getWamosArtifact() {
+  const rawData = fs.readFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"));
+  return JSON.parse(rawData);
+}
+
+function getArenaArtifact() {
+  const rawData = fs.readFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"));
+  return JSON.parse(rawData);
+}
+
 async function getWamos() {
-  const addr = getArtifacts().WamosV2Address;
+  const addr = getWamosArtifact().address;
   const wamos = await hre.ethers.getContractAt("WamosV2", addr);
   return wamos;
 }
 
 async function getArena() {
-  const addr = getArtifacts().WamosV2ArenaAddress;
+  const addr = getArenaArtifact().address;
   const arena = await hre.ethers.getContractAt("WamosV2Arena", addr);
   return arena;
-}
-
-async function getContracts() {
-  const artifacts = getArtifacts();
-  const wamos = await hre.ethers.getContractAt("WamosV2", artifacts.WamosV2Address);
-  const arena = await hre.ethers.getContractAt("WamosV2Arena", artifacts.WamosV2ArenaAddress);
-  return [wamos, arena];
 }
 
 async function registerLatestArena() {
@@ -101,28 +105,27 @@ async function getLinkToken() {
   return LinkToken;
 }
 
-function updateFrontend(wamos, arena) {
-  console.log('saving files to frontend ->', CONTRACTS_DIR);
-  const artifacts = {
-    "WamosV2Address": wamos.address,
-    "WamosV2ABI": hre.artifacts.readArtifactSync("WamosV2"),
-    "WamosV2ArenaAddress": arena.address,
-    "WamosV2ArenaABI": hre.artifacts.readArtifactSync("WamosV2Arena"),
+function displayWamoTraits(id, traits) {
+  console.log(`\n---- Wamo #${id} Traits ----\n`);
+  for (const property in traits) {
+    if (isNaN(Number(property))) {
+      console.log(`${traits[property].toString()} | ${property}`);
+    }
   }
-  fs.writeFileSync(path.join(CONTRACTS_DIR, "artifacts.json"), JSON.stringify(artifacts));
-  console.log(` - files saved ->`, CONTRACTS_DIR);
-} 
+}
 
 module.exports = {
   deployWamos,
   deployArena,
+  exportWamosArtifact,
+  exportArenaArtifact,
+  getWamosArtifact,
+  getArenaArtifact,
   getWamos,
   getArena,
-  getContracts,
   registerLatestArena,
   getVrf,
-  getArtifacts,
-  updateFrontend,
   getLinkToken,
-  clearVrfConsumers
+  clearVrfConsumers,
+  displayWamoTraits
 };

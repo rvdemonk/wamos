@@ -17,10 +17,6 @@ function getRemappings() {
 }
 
 module.exports = {
-  WAMOS_DEPLOY_ADDR: "0x20c446Ea4bfF241a0388B987351103c56683ED1F",
-  WAMOS_BATTLE_ADDR: "0xeC61b2B437Db3ccf1a96a1a9011ED12f13Cc9d98",
-  VERIFICATION_BLOCK_CONFIRMATIONS: 6,
-  WAMOSV1_PRICE: "1000000000000000",
   defaultNetwork: "mumbai",
   networks: {
     hardhat: {
@@ -32,6 +28,7 @@ module.exports = {
     },
     mainnet: {
       chainId: 1,
+      accounts: [process.env.PRIVATE_KEY],
       linkToken: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
       url: "",
     },
@@ -46,6 +43,7 @@ module.exports = {
     },
     polygon: {
       chainId: 137,
+      accounts: [process.env.PRIVATE_KEY],
       linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
       url: "https://polygon-mainnet.g.alchemy.com/v2/NAD4cA_1X57AN5ad43yLzSaVOamH2LSt",
       vrfCoordinator: "0xAE975071Be8F8eE67addBC1A82488F1C24858067",
@@ -69,9 +67,8 @@ module.exports = {
       polygonMumbai: "91IE9SEC9VWW3I8I3YH27H6JFSUISRZ87K",
     },
   },
+  wamosMintPrice: "1000000000000000",
   devChains: ["hardhat", "anvil"],
-  VERIFICATION_BLOCK_CONFIRMATIONS: 6,
-  WAMOSV1_PRICE: "1000000000000000",
   preprocess: {
     eachLine: (hre) => ({
       transform: (line) => {

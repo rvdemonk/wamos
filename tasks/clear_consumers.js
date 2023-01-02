@@ -1,7 +1,7 @@
 task("clear_consumers", "Removes all consuming contracts from VRF subscription")
   .setAction(async (taskArgs, hre) => {
     const active = await hre.network.name;
-    const vrf = await require("../scripts/v2/helpers").getVrf();
+    const vrf = await require("../scripts/helpers").getVrf();
     const subId = hre.config.networks[active].subscriptionId;
     let subData = await vrf.getSubscription(subId);
     const consumers = subData.consumers;
