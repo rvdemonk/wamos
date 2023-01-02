@@ -10,6 +10,7 @@
     - update task and script imports to require(helpers/deployers) etc
  - test wamo traits task
  - mint wamo task with receipient arg
+ - change contract getters so that they use the abi of the deployed function, instead of potentially using the compiled abi of a newer, updated contract that was not deployed
 
 ## WAMOS CONTRACT
  - add address argument to spawn function to allow for gifting
