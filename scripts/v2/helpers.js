@@ -111,7 +111,16 @@ function updateFrontend(wamos, arena) {
   }
   fs.writeFileSync(path.join(CONTRACTS_DIR, "artifacts.json"), JSON.stringify(artifacts));
   console.log(` - files saved ->`, CONTRACTS_DIR);
-} 
+}
+
+function displayWamoTraits(id, traits) {
+  console.log(`\n---- Wamo #${id} Traits ----\n`);
+  for (const property in traits) {
+    if (isNaN(Number(property))) {
+      console.log(`${traits[property].toString()} | ${property}`);
+    }
+  }
+}
 
 module.exports = {
   deployWamos,
@@ -124,5 +133,6 @@ module.exports = {
   getArtifacts,
   updateFrontend,
   getLinkToken,
-  clearVrfConsumers
+  clearVrfConsumers,
+  displayWamoTraits
 };

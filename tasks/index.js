@@ -2,10 +2,11 @@
 ///////////// TASKS INDEX /////////////
 ///////////////////////////////////////
 
+require("./network");
 require("./wallet")
 require("./world");
 require("./new_world");
-require("./clear_consumers");
 require("./subscription");
+require("./clear_consumers");
 require("./fund_subscription")
-require("./network");
+require("./wamo")
