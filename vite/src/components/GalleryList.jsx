@@ -20,20 +20,14 @@ export function GalleryList({ lobby, filter }) {
             {!spawnData ? (
               <Loading />
             ) : (
-              spawnData.wamoOwnerData.map((wamo) => (
-                <Accordion defaultActiveKey={hexToInt(wamo[0])}>
+              spawnData.wamoOwnerData.map((wamo, i) => (
+                <Accordion key={i} defaultActiveKey={hexToInt(wamo[0])}>
                   <Accordion.Item eventKey={hexToInt(wamo[0])}></Accordion.Item>
                   <Accordion.Header>Wamo: {hexToInt(wamo[0])}</Accordion.Header>
-                  <Accordion.Body>
-                    <>
-                      <div>Owner: {showAddress(wamo[1])}</div>
-                    </>
-                    {lobby ? <Button>hello</Button> : null}
-                  </Accordion.Body>
+                  <Accordion.Body>Owner: {showAddress(wamo[1])}</Accordion.Body>
                 </Accordion>
               ))
             )}
-            ;
           </Card.Body>
         </Card>
       </div>

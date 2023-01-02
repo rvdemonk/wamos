@@ -10,20 +10,20 @@ export function useSpawn() {
 }
 
 export function SpawnProvider({ children }) {
-  const { address } = useEth();
+  const { address, refresh, setRefresh } = useEth();
   const { wamos, arena } = useWamo();
 
   const [checkCount, setCheckCount] = useState(false);
   const [checkCountHundred, setCheckCountHundred] = useState(false);
   const [spawnData, setSpawnData] = useState(false);
   const [spawnStatus, setSpawnStatus] = useLocalStorage("spawnStatus");
-  const [refresh, setRefresh] = useState(false);
+
   const [spawnRequestFulfilled, setSpawnRequestFulfilled] = useState(false);
 
   useEffect(() => {
     address && !refresh ? initializeSpawnData() : null;
     checkCount ? requestCheck() : null;
-  }, [checkCount, refresh, address]);
+  }, [checkCount, refresh, address, spawnData]);
 
   async function initializeSpawnData() {
     try {

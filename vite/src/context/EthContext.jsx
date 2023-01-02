@@ -11,16 +11,13 @@ export function EthProvider({ children }) {
   const [address, setAddress] = useLocalStorage("address");
   const [refresh, setRefresh] = useState(false);
 
-  useEffect(() => {
-    !refresh
-      ? checkConnectionOnRefresh()
-      : window.ethereum.on("accountsChanged", checkConnection);
-  }, [refresh]);
-
-  function checkConnectionOnRefresh() {
+  window.onload = () => {
     checkConnection();
-    setRefresh(true);
-  }
+  };
+
+  useEffect(() => {
+    window.ethereum.on("accountsChanged", checkConnection);
+  }, []);
 
   async function checkConnection() {
     ethereum
@@ -30,6 +27,7 @@ export function EthProvider({ children }) {
   }
 
   function handleAccountsChanged(accounts) {
+    console.log(accounts);
     !accounts.length
       ? setAddress(false)
       : setAddress(accounts[accounts.length - 1]);
@@ -53,7 +51,14 @@ export function EthProvider({ children }) {
 
   return (
     <EthContext.Provider
-      value={{ address, connectWallet, disconnectWallet, checkConnection }}
+      value={{
+        address,
+        connectWallet,
+        disconnectWallet,
+        checkConnection,
+        refresh,
+        setRefresh,
+      }}
     >
       {children}
     </EthContext.Provider>
