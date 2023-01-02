@@ -13,7 +13,7 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
 
     console.log('** exporting artifacts');
     helpers.exportWamosArtifact(wamos);
-    helpers.exportArenaArtifact(wamos);
+    helpers.exportArenaArtifact(arena);
 
     const subId = hre.config.networks[active].subscriptionId;
     
