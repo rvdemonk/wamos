@@ -117,6 +117,8 @@ function displayWamoTraits(id, traits) {
   }
 }
 
+function mint() {}
+
 module.exports = {
   deployWamos,
   deployArena,
@@ -130,5 +132,6 @@ module.exports = {
   getVrf,
   getLinkToken,
   clearVrfConsumers,
-  displayWamoTraits
+  displayWamoTraits,
+  mint
 };

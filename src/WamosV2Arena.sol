@@ -125,7 +125,7 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     modifier onlyDeployer() {
-        require(msg.sender == deployer, "Function only callable by Arena Deployer");
+        require(msg.sender == contractOwner, "Function only callable by Arena Deployer");
         _;
     }
 
