@@ -36,18 +36,22 @@ async function deployArena(wamosAddr = null) {
 }
 
 function exportWamosArtifact(wamos) {
-  const artifact = {
-    address: wamos.address,
-    abi: hre.artifacts.readArtifactSync("WamosV2")
-  };
+  // const artifact = {
+  //   address: wamos.address,
+  //   abi: hre.artifacts.readArtifactSync("WamosV2").abi
+  // };
+  const artifact = hre.artifacts.readArtifactSync("WamosV2");
+  artifact.address = wamos.address;
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
 }
 
 function exportArenaArtifact(arena) {
-  const artifact = {
-    address: arena.address,
-    abi: hre.artifacts.readArtifactSync("WamosV2Arena")
-  };
+  // const artifact = {
+  //   address: arena.address,
+  //   abi: hre.artifacts.readArtifactSync("WamosV2Arena").abi
+  // };
+  const artifact = hre.artifacts.readArtifactSync("WamosV2Arena");
+  artifact.address = arena.address;
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"), JSON.stringify(artifact))
 }
 
@@ -63,13 +67,13 @@ function getArenaArtifact() {
 
 async function getWamos() {
   const addr = getWamosArtifact().address;
-  const wamos = await hre.ethers.getContractAt("WamosV2.sol:WamosV2", addr);
+  const wamos = await hre.ethers.getContractAt("WamosV2", addr);
   return wamos;
 }
 
 async function getArena() {
   const addr = getArenaArtifact().address;
-  const arena = await hre.ethers.getContractAt("WamosV2Arena.sol:WamosV2Arena", addr);
+  const arena = await hre.ethers.getContractAt("WamosV2Arena", addr);
   return arena;
 }
 
