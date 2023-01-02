@@ -31,7 +31,7 @@ async function deployArena(wamosAddr = null) {
     wamosAddr
   )
 
-  console.log(`WamosV2Arena deployed to ${network}\n${wamosAddr}`)
+  console.log(`WamosV2Arena deployed to ${network}\n${arena.address}`)
   return arena;
 }
 
