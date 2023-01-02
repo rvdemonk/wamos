@@ -8,6 +8,7 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
     
     const wamos = await helpers.deployWamos();
     const arena = await helpers.deployArena();
+    
     await wamos.setWamosArenaAddress(arena.address);
 
     helpers.updateFrontend(wamos, arena);

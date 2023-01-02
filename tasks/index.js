@@ -11,3 +11,4 @@ require("./network.js");
 require("./balance.js");
 require("./new_world.js");
 require("./world.js");
+require("./wallet.js")

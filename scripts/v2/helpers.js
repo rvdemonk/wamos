@@ -39,7 +39,7 @@ async function deployArena() {
   const network = hre.network.name;
   const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
 
-  const artifacts = getArtifacts();
+  // const artifacts = getArtifacts();
   console.log(
     `Deploying WamosV2Arena on ${network} from ${deployer.address.substring(0,6)}`
   );
