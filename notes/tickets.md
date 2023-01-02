@@ -1,10 +1,6 @@
 # TICKETS
 
 ## TASKS + SCRIPTS
- - get artifacts -> getWamoArtifact, getArenaArtifact
-    - update getWamos, getArena
-    - fix new world task to export artifacts into separate jsons
-    - update front end import statements
  - split helper functions into smaller utilities modules: deployers, artifacters, getters,
     vrfers, etc
     - update task and script imports to require(helpers/deployers) etc
@@ -29,3 +25,9 @@
  - tourney contract design
  - colour palette and vibes
  - lore expansion
+
+## FINISHED
+ - get artifacts -> getWamoArtifact, getArenaArtifact
+    - update getWamos, getArena
+    - fix new world task to export artifacts into separate jsons
+    - update front end import statements
