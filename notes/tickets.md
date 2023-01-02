@@ -20,6 +20,8 @@
 ## ARENA CONTRACT
  - encoding of game data
  - variable party size
+ - require statements in connect wamos
+ - require statements everywhere actually
 
 ## OTHER
  - breeding contract design
