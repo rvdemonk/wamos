@@ -2,13 +2,10 @@
 ///////////// TASKS INDEX /////////////
 ///////////////////////////////////////
 
-require("./deployer.js");
-require("./subscription.js");
-require("./clear_consumers.js");
-require("./subscription.js");
-require("./clear_consumers.js");
-require("./network.js");
-require("./balance.js");
-require("./new_world.js");
-require("./world.js");
-require("./wallet.js")
+require("./wallet")
+require("./world");
+require("./new_world");
+require("./clear_consumers");
+require("./subscription");
+require("./fund_subscription")
+require("./network");

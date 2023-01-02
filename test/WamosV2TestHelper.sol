@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity <0.9.0;
 
-import "../../src/test/VRFCoordinatorV2Mock.sol";
+import "../src/test/VRFCoordinatorV2Mock.sol";
 
 abstract contract WamosV2TestHelper {
     // COORDINATOR CONFIG

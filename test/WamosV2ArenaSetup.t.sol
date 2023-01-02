@@ -3,8 +3,8 @@ pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
 import "~/test/VRFCoordinatorV2Mock.sol";
-import "~/v2/WamosV2.sol";
-import "~/v2/WamosV2Arena.sol";
+import "~/WamosV2.sol";
+import "~/WamosV2Arena.sol";
 import "./WamosV2TestHelper.sol";
 
 contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
