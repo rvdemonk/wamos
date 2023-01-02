@@ -31,18 +31,18 @@ async function deployArena(wamosAddr = null) {
     wamosAddr
   )
 
-  console.log(`WamosV2Arena deployed to ${network}\n${wamosAddr}`)
+  console.log(`WamosV2Arena deployed to ${network}\n${arena.address}`)
   return arena;
 }
 
 function exportWamosArtifact(wamos) {
-  if (!fs.existsSync(ARTIFACTS_DIR)){
-    fs.mkdirSync(ARTIFACTS_DIR);
-  }
   const artifact = {
     address: wamos.address,
     abi: hre.artifacts.readArtifactSync("WamosV2").abi
   };
+  if (!fs.existsSync(ARTIFACTS_DIR)){
+    fs.mkdirSync(ARTIFACTS_DIR);
+  }
   fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
 }
 
