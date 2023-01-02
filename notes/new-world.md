@@ -12,3 +12,7 @@ New world task geared for game testing:
  5. create game and stake wamos
 
 At this point, the game id could be entered in the browser and the game played immediately, with under a 10 second turn around between updates.
+
+Obstacle:
+ - devs must sync their new world artifacts
+ - task must mint wamos in bulk for all devs
