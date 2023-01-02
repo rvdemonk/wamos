@@ -1,6 +1,6 @@
 task("world", "Logs information about the current wamos contract system")
   .setAction(async (taskArgs, hre) => {
-    const helpers = require('../scripts/v2/helpers');
+    const helpers = require('../scripts/helpers');
     const [ wamos, arena ] = await helpers.getContracts();
     const wamoCount = (await wamos.nextWamoId()) - 1;
     const wamosTime = await wamos.timestamp();

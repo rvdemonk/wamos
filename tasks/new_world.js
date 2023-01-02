@@ -1,6 +1,6 @@
 task("new_world", "Deploys a new Wamos contract system and updates the front end")
   .setAction(async (taskArgs, hre) => {
-    const helpers = require('../scripts/v2/helpers');
+    const helpers = require('../scripts/helpers');
     const active = hre.network.name;
     const deployer = await hre.ethers.getSigner();
 

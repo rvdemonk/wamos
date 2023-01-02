@@ -113,6 +113,22 @@ function updateFrontend(wamos, arena) {
   console.log(` - files saved ->`, CONTRACTS_DIR);
 }
 
+function exportWamosArtifact(wamos) {
+  const artifact = {
+    WamosV2Address: wamos.address,
+    WamosV2ABI: hre.artifacts.readArtifactSync("WamosV2")
+  };
+  fs.writeFileSync(path.join(CONTRACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
+}
+
+function exportArenaArtifact(arena) {
+  const artifact = {
+    WamosV2ArenaAddress: arena.address,
+    WamosV2ArenaABI: hre.artifacts.readArtifactSync("WamosV2")
+  };
+  fs.writeFileSync(path.join(CONTRACTS_DIR, "WamosV2Arena.json"), JSON.stringify(artifact))
+}
+
 function displayWamoTraits(id, traits) {
   console.log(`\n---- Wamo #${id} Traits ----\n`);
   for (const property in traits) {
@@ -132,6 +148,8 @@ module.exports = {
   getVrf,
   getArtifacts,
   updateFrontend,
+  exportWamosArtifact,
+  exportArenaArtifact,
   getLinkToken,
   clearVrfConsumers,
   displayWamoTraits

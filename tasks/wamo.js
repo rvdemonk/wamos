@@ -4,7 +4,7 @@ task("wamo", "Displays the data and traits of the wamo with the given id")
     const id = taskArgs.id;
     console.log(`Wamo ID: ${taskArgs.id}`);
     
-    const helpers = require('../scripts/v2/helpers');
+    const helpers = require('../scripts/helpers');
     const wamos = helpers.getWamos();
     const tokenCount = (await wamos.nextWamoId()) - 1;
     if (id > tokenCount) {
