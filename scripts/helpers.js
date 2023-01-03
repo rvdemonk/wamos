@@ -117,6 +117,51 @@ function displayWamoTraits(id, traits) {
   }
 }
 
+async function mint(amount) {
+  const wamos = await getWamos();
+  const owner = (await hre.ethers.getSigner()).address.toString();
+  const params = { value: amount*hre.config.wamosMintPrice}
+  console.log(`Requesting spawn...`)
+  const requestTx = await wamos.requestSpawn(amount, params);
+  const receipt = await requestTx.wait();
+  const requestEvent = receipt.events.find(
+    (event) => event.event === "SpawnRequested"
+  );
+  const [sender, requestId, startWamoId, number] = requestEvent.args;
+  // console.log(typeof startWamoId, typeof amount,)
+  const endId = Number(startWamoId) + Number(amount) - 1;
+  console.log(`Request ID ${requestId}`);
+
+  let isFulfilled = await wamos.getRequestStatus(requestId);
+  let time = 0;
+  const period = 3000;
+  console.log(`\n* Entering wait loop`)
+  while (!isFulfilled) {
+    console.log(` waited ${time/1000} seconds`)
+    time = time + period;
+    sleep(period);
+    isFulfilled = await wamos.getRequestStatus(requestId);
+  }
+  console.log(`* Request fulfilled. Completing spawn...`);
+  const completeTx = await wamos.completeSpawn(requestId);
+  console.log(`\n--- Spawn complete`);
+  if (endId>startWamoId) {
+    console.log(`${owner.substring(0,6)} spawned Wamos #${startWamoId} to #${endId}`);
+  } else {
+    console.log(`${owner.substring(0,6)} spawned Wamo #${startWamoId}`);
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getDeployerBalance() {
+  const signer = await hre.ethers.getSigner();
+  const balanceRaw = await hre.ethers.provider.getBalance(signer.address);
+  return balanceRaw;
+}
+
 module.exports = {
   deployWamos,
   deployArena,
@@ -130,5 +175,7 @@ module.exports = {
   getVrf,
   getLinkToken,
   clearVrfConsumers,
-  displayWamoTraits
+  displayWamoTraits,
+  mint,
+  getDeployerBalance
 };
