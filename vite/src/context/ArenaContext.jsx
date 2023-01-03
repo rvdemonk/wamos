@@ -101,6 +101,7 @@ export function ArenaProvider({ children }) {
       }
 
       setChallenges({ challengesReceivedData, challengesSentData });
+      console.log(challenges.challengesSentData[0][1]);
     } catch (error) {
       console.log(error);
     }
@@ -108,6 +109,7 @@ export function ArenaProvider({ children }) {
 
   async function connectWamos(wamoIds) {
     try {
+      console.log(gameId);
       console.log(wamoIds);
       await arena.connectWamos(gameId, wamoIds, params);
     } catch (error) {

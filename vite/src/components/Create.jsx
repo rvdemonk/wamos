@@ -25,7 +25,7 @@ export function Create() {
 
   return (
     <>
-      <CardHeader cardHeader={"The Gates of the Arena"} eraseButton={arena} />
+      <CardHeader cardHeader={"The Gates of the Arena"} eraseButton={"arena"} />
       <Card.Body className="d-grid gap-2 d-xxl-flex justify-content-center">
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formAddressl">

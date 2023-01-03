@@ -31,11 +31,10 @@ export function SpawnProvider({ children }) {
       const mintPrice = await wamos?.mintPrice();
 
       var wamoOwnerData = [];
-      for (let i = 1; i < tokenCount + 1; ) {
+      for (let i = 1; i < tokenCount + 1; i++) {
         const id = i;
         const owner = await wamos.ownerOf(i);
-        wamoOwnerData[i] = [id, owner];
-        i++;
+        wamoOwnerData[id] = [id, owner];
       }
 
       console.log(wamoOwnerData);

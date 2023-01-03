@@ -16,6 +16,7 @@ export function EthProvider({ children }) {
   };
 
   useEffect(() => {
+    console.log("hello");
     window.ethereum.on("accountsChanged", checkConnection);
   }, []);
 
