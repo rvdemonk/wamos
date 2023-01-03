@@ -37,8 +37,6 @@ export function SpawnProvider({ children }) {
         wamoOwnerData[id] = [id, owner];
       }
 
-      console.log(wamoOwnerData);
-
       const spawnData = { tokenCount, mintPrice, wamoOwnerData };
       setSpawnData(spawnData);
 

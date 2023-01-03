@@ -1,0 +1,131 @@
+.boujee-text {
+    /* cursor: pointer; */
+    --bg-size: 400%;
+    --color-one: hsl(15 90% 55%);
+    --color-two: hsl(40 95% 55%);
+    --color-three: var(--text-color-default);
+    font-size: var(--nav-text-size);
+    background: linear-gradient(
+        90deg,
+        var(--color-three),
+        var(--color-three),
+        var(--color-three),
+        var(--color-three),
+        var(--color-three),
+        var(--color-three),
+        var(--color-two),
+        var(--color-one),
+        var(--color-two),
+        var(--color-three),
+        var(--color-three),
+        var(--color-three),
+        var(--color-three),
+        var(--color-three)
+      )
+      0 0 / var(--bg-size) 100%;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: move-bg 12s infinite linear;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    .boujee-text {
+      animation: move-bg 12s linear infinite;
+    }
+    @keyframes move-bg {
+      to {
+        background-position: var(--bg-size) 0;
+      }
+    }
+  }
+  
+  
+  #health {
+    color: red;
+  }
+  
+  #mana {
+    color: violet;
+  }
+  
+  #stamina {
+    color: green;
+  }
+  
+  .commit-p1 {
+    border: orange 0.25rem solid;
+  }
+  
+  .commit-p2 {
+    border: blue 0.25rem solid;
+  }
+  
+  
+  
+  .box {
+    
+    background: grey;
+    margin: 0.5px;
+    aspect-ratio: 1/1;
+    height: 2vmax;
+  }
+  
+  .box-b {
+    background: grey;
+    margin: 0.5px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  .player1 {
+    background-color: #007bff;
+    margin: 0.5px;
+    aspect-ratio: 1/1;
+    height: 2vmax;
+  }
+  
+  .player1:hover {
+    cursor: grab;
+    background-color: #17a2b8;
+    margin: 0.5px;
+    
+  }
+  .player2 {
+    background-color: #fd7e14;
+    margin: 0.5px;
+    aspect-ratio: 1/1;
+    height: 2vmax;
+  }
+  
+  .player2:hover {
+    cursor: grab;
+    background-color: #ffc107;
+    margin: 0.5px;
+    
+  }
+  
+  .showMove {
+    background-color: green;
+    margin: 0.5px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  .showMove:hover {
+    background-color: pink;
+    cursor: grab;
+    margin: 0.5px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  .stageMove {
+    background-color: white;
+    cursor: grab;
+    margin: 0.5px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  

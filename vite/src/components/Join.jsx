@@ -44,8 +44,8 @@ export function Join() {
   function ChallengeCards({ direction }) {
     const challengeList =
       direction === "sent"
-        ? challenges?.challengesSentData || []
-        : challenges?.challengesReceivedData || [];
+        ? challenges.challengesSentData || []
+        : challenges.challengesReceivedData || [];
 
     return (
       <Card>

@@ -12,13 +12,17 @@ export function EthProvider({ children }) {
   const [refresh, setRefresh] = useState(false);
 
   window.onload = () => {
-    checkConnection();
+    checkConnectionRefresh();
   };
 
   useEffect(() => {
-    console.log("hello");
     window.ethereum.on("accountsChanged", checkConnection);
-  }, []);
+  }, [refresh]);
+
+  function checkConnectionRefresh() {
+    checkConnection();
+    setRefresh(true);
+  }
 
   async function checkConnection() {
     ethereum
