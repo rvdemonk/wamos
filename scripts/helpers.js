@@ -1,12 +1,34 @@
 const hre = require("hardhat");
 const fs = require("fs");
 const path = require("path");
+const rl = require('readline');
 
 const ARTIFACTS_DIR = "vite/src/artifacts";
 
+const WORLD_SETTINGS_DIR = "world.settings.json";
+const PRIVATE_DIR = "world/private/";
+const SHARED_DIR = "world/shared/";
+
+function checkPrivate() {
+  const settings = getWorldSettings();
+  if (!settings.privateMode) {
+    rl.question(`You are in the shared Wam0s world env -- redeploy anwyay? [y/N] `, (answer) => {
+      const ans = answer.toString().toLowerCase();
+      const isConfirmed = (ans === 'y' || ans === 'yes') ? true : false;
+      if (!isConfirmed) {
+        throw new Error("Shared world redeployment aborted! Phew...");
+      } 
+    })
+  } else {
+    console.log('[ Deploying in private mode ]')
+  }
+}
+
 async function deployWamos() {
   const network = hre.network.name;
-  const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
+  const WamosV2 = await hre.ethers.getContractFactory("src/WamosV2.sol:WamosV2");
+
+  checkPrivate();
 
   const chainConfig = hre.config.networks[network];
   const mintPrice = hre.config.wamosMintPrice;
@@ -23,7 +45,7 @@ async function deployWamos() {
 
 async function deployArena(wamosAddr = null) {
   const network = hre.network.name;
-  const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
+  const WamosV2Arena = await hre.ethers.getContractFactory("src/WamosV2Arena.sol:WamosV2Arena");
   
   if (wamosAddr === null) wamosAddr = getWamosArtifact().address;
 
@@ -40,10 +62,26 @@ function exportWamosArtifact(wamos) {
     address: wamos.address,
     abi: hre.artifacts.readArtifactSync("WamosV2").abi
   };
-  if (!fs.existsSync(ARTIFACTS_DIR)){
-    fs.mkdirSync(ARTIFACTS_DIR);
+
+  const isPrivateMode = Boolean(getWorldSettings().privateMode);
+  let exportPath;
+
+  if (!fs.existsSync('world/')) {
+    fs.mkdirSync('world/');
   }
-  fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
+
+  if (isPrivateMode) {
+    if (!fs.existsSync(PRIVATE_DIR)){
+      fs.mkdirSync(PRIVATE_DIR);
+    }
+    exportPath = PRIVATE_DIR;
+  } else {
+    if (!fs.existsSync(PUBLIC_DIR)){
+      fs.mkdirSync(PUBLIC_DIR);
+    }
+    exportPath = PUBLIC_DIR;
+  }
+  fs.writeFileSync(path.join(exportPath, "WamosV2.json"), JSON.stringify(artifact))
 }
 
 function exportArenaArtifact(arena) {
@@ -55,6 +93,9 @@ function exportArenaArtifact(arena) {
 }
 
 function getWamosArtifact() {
+  // check if world env is private or public
+  const settings = getWorldSettings();
+
   const rawData = fs.readFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"));
   return JSON.parse(rawData);
 }
@@ -163,6 +204,11 @@ async function getDeployerBalance() {
   return balanceRaw;
 }
 
+function getWorldSettings() {
+  const raw = fs.readFileSync(WORLD_SETTINGS_DIR);
+  return JSON.parse(raw);
+}
+
 module.exports = {
   deployWamos,
   deployArena,
@@ -178,5 +224,6 @@ module.exports = {
   clearVrfConsumers,
   displayWamoTraits,
   mint,
-  getDeployerBalance
+  getDeployerBalance,
+  getWorldSettings
 };

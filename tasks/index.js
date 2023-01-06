@@ -11,3 +11,4 @@ require("./clear_consumers");
 require("./fund_subscription")
 require("./wamo")
 require("./mint")
+require("./settings")
