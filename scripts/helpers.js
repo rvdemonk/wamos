@@ -72,7 +72,7 @@ async function getWamos() {
 
 async function getArena() {
   const addr = getArenaArtifact().address;
-  const arena = await hre.ethers.getContractAt("WamosV2Arena", addr);
+  const arena = await hre.ethers.getContractAt("src/WamosV2Arena.sol:WamosV2Arena", addr);
   return arena;
 }
 
