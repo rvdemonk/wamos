@@ -1,9 +1,11 @@
+const { HARDHAT_MEMPOOL_SUPPORTED_ORDERS } = require("hardhat/internal/constants");
+
 task("new_world", "Deploys a new Wamos contract system and updates the front end")
   .setAction(async (taskArgs, hre) => {
     const helpers = require('../scripts/helpers');
     const active = hre.network.name;
     const deployer = await hre.ethers.getSigner();
-
+    const balStart = await helpers.getDeployerBalance();
     console.log(`\n--- creating a new world on ${active} ---`)
     console.log('** deploying contracts')
     const wamos = await helpers.deployWamos();
@@ -29,5 +31,12 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
     console.log(`** adding new contract as consumer`);
     await vrf.addConsumer(subId, wamos.address);
 
-    console.log("--- the g0ds have awoken ---\n");
+    console.log("\n--- the g0ds have awoken ---");
+    const balEnd = await helpers.getDeployerBalance();
+    console.log(`Total cost: ${(balEnd-balStart)/10**18} MATIC`);
+
+    // now mint 5 wamos each for devs
+    // const devConfig = JSON.parse(require("fs").readFileSync("./dev-config.json"));
+    // console.log(devConfig); 
+    
   })

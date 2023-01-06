@@ -66,7 +66,7 @@ function getArenaArtifact() {
 
 async function getWamos() {
   const addr = getWamosArtifact().address;
-  const wamos = await hre.ethers.getContractAt("WamosV2", addr);
+  const wamos = await hre.ethers.getContractAt("src/WamosV2.sol:WamosV2", addr);
   return wamos;
 }
 
@@ -117,7 +117,7 @@ function displayWamoTraits(id, traits) {
   }
 }
 
-async function mint(amount) {
+async function mint(amount, receipient) {
   const wamos = await getWamos();
   const owner = (await hre.ethers.getSigner()).address.toString();
   const params = { value: amount*hre.config.wamosMintPrice}
@@ -150,6 +150,7 @@ async function mint(amount) {
   } else {
     console.log(`${owner.substring(0,6)} spawned Wamo #${startWamoId}`);
   }
+  return startWamoId;
 }
 
 function sleep(ms) {
