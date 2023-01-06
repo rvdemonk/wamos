@@ -57,6 +57,42 @@ async function deployArena(wamosAddr = null) {
   return arena;
 }
 
+function exportArtifact(contractName, contract) {
+  try {
+    const abi = hre.artifacts.readArtifactSync(contractName).abi;
+  } catch(err) {
+    console.log(`# Error exporting artifact of ${contractName}: \n${err}`);
+  }
+
+  const artifact = {
+    address: contract.address,
+    abi: hre.artifacts
+  }
+
+  const isPrivateMode = Boolean(getWorldSettings().privateMode);
+  let exportPath;
+
+  if (isPrivateMode) {
+    if (!fs.existsSync(PRIVATE_DIR)){
+      if (!fs.existsSync('world/')) {
+        fs.mkdirSync('world/');
+      }
+      fs.mkdirSync(PRIVATE_DIR);
+    }
+    // set path
+    exportPath = PRIVATE_DIR;
+  } else {
+    if (!fs.existsSync(PUBLIC_DIR)){
+      if (!fs.existsSync('world/')) {
+        fs.mkdirSync('world/');
+      }
+      fs.mkdirSync(PUBLIC_DIR);
+    }   
+  }
+  exportPath = PRIVATE_DIR;
+  fs.writeFileSync(path.join(exportPath, `${contractName}.json`), JSON.stringify(artifact))
+}
+
 function exportWamosArtifact(wamos) {
   const artifact = {
     address: wamos.address,
