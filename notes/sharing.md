@@ -12,3 +12,10 @@ each dev wants a personal world and
 
 git ignore private artifacts but not shared
 in world creation tasks check if world is public that dev is sure
+
+
+JUST made new geenral export artifact function
+now:
+add network to artifact
+task to toggle private mode
+confirmation prompt for certain crud tasks on shared
