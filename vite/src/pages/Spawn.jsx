@@ -15,21 +15,21 @@ export function Spawn() {
     completeSpawn,
     eraseSpawnData,
     checkCount,
+    checkMod,
+    mintPrice,
+    tokenCount,
   } = useSpawn();
 
   const { theme } = useTheme();
 
   function Render() {
-    const url = "../assets/wamos_day.png";
-    const showPrice = spawnData?.mintPrice || "...";
+    const showPrice = mintPrice || "...";
 
     if (!spawnStatus) {
       return (
         <>
           <div className="card-body">
-            <h5 className="card-title">
-              {spawnData?.tokenCount || "..."} Wam0s spawned
-            </h5>
+            <h5 className="card-title">{tokenCount || "..."} Wam0s spawned</h5>
             <p className="card-text">
               With a mint price of: {showPrice.toString()}
             </p>
@@ -57,7 +57,7 @@ export function Spawn() {
                   </p>
                   {checkCount ? (
                     <p key={index + 1} className="text-muted">
-                      Victims Sacrificed: {checkCount}
+                      Innocent Victims Sacrificed: {checkCount}
                     </p>
                   ) : null}
                 </>
@@ -71,14 +71,7 @@ export function Spawn() {
         <>
           <div className="card-body">
             <h5 className="card-title">Communicating with the G0ds...</h5>
-            {spawnData.console.map((item, index) => (
-              <>
-                <p key={index} className="text-muted">
-                  {item}
-                </p>
-                <Loading />
-              </>
-            ))}
+            <Loading />
           </div>
         </>
       );

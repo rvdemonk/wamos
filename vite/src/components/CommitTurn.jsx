@@ -7,7 +7,7 @@ import { CardHeader } from "./CardHeader";
 import { useTheme } from "../context/ThemeContext";
 import { useArena } from "../context/ArenaContext";
 export function CommitTurn() {
-  const { connectWamos, gameId, gameData, commitTurn } = useArena();
+  const { gameData, commitTurn } = useArena();
 
   const [validated, setValidated] = useState(false);
 

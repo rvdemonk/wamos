@@ -9,20 +9,14 @@ export function useEth() {
 
 export function EthProvider({ children }) {
   const [address, setAddress] = useLocalStorage("address");
-  const [refresh, setRefresh] = useState(false);
 
   window.onload = () => {
-    checkConnectionRefresh();
+    checkConnection();
   };
 
   useEffect(() => {
     window.ethereum.on("accountsChanged", checkConnection);
-  }, [refresh]);
-
-  function checkConnectionRefresh() {
-    checkConnection();
-    setRefresh(true);
-  }
+  }, []);
 
   async function checkConnection() {
     ethereum
@@ -32,7 +26,6 @@ export function EthProvider({ children }) {
   }
 
   function handleAccountsChanged(accounts) {
-    console.log(accounts);
     !accounts.length
       ? setAddress(false)
       : setAddress(accounts[accounts.length - 1]);
@@ -61,8 +54,6 @@ export function EthProvider({ children }) {
         connectWallet,
         disconnectWallet,
         checkConnection,
-        refresh,
-        setRefresh,
       }}
     >
       {children}

@@ -3,6 +3,7 @@ import { useEth } from "./EthContext";
 import { useWamo } from "./WamoContext";
 import { useSpawn } from "./SpawnContext";
 import { useLocalStorage, eraseLocalStorage } from "../hooks/useLocalStorage";
+import { hexToInt } from "../utilities/HexToInt";
 
 const ArenaContext = createContext({});
 
@@ -11,32 +12,62 @@ export function useArena() {
 }
 
 export function ArenaProvider({ children }) {
-  const { address, refresh, setRefresh } = useEth();
+  const { address } = useEth();
   const { wamos, arena } = useWamo();
 
   const [arenaStakingStatus, setArenaStakingStatus] = useState(false);
+  const [arenaStakingQuery, setArenaStakingQuery] = useState(false);
+  const [approving, setApproving] = useState(false);
   const [create, setCreate] = useState(false);
   const [join, setJoin] = useState(false);
+  const [gameQuery, setGameQuery] = useState(false);
   const [gameData, setGameData] = useState({});
   const [gameId, setGameId] = useState(false);
   const [isPlayer1, setIsPlayer1] = useState(false);
   const [challenges, setChallenges] = useState(false);
-  const [staked, setStaked] = useState(false);
+  const [stakedQuery, setStakedQuery] = useState(false);
   const [turned, setTurned] = useState(false);
   const [joinRefresh, setJoinRefresh] = useState(false);
   const [wamoPositions, setWamoPositions] = useState({});
   const [wamoStatus, setWamoStatus] = useState({});
+  const [wamoTraits, setWamoTraits] = useState({});
+  const [wamoAbilities, setWamoAbilities] = useState({});
+  const [wamoMoves, setWamoMoves] = useState({});
 
   const params = {
     gasLimit: "1122744",
     gasPrice: "8000000000",
   };
-
+  // General UseEffect
   useEffect(() => {
     !arenaStakingStatus ? fetchArenaStakingStatus() : null;
     join && address ? getChallenges() : null;
-    gameData && gameData.status < 2 ? getArenaData() : null;
-  }, [refresh, join, gameId, gameData, staked, turned, joinRefresh]);
+    gameData && gameData.status > 0 ? getArenaData() : null;
+  }, [arenaStakingStatus, join, gameId, gameData, turned, joinRefresh]);
+
+  // Arena Staking Approved UseEffect
+  useEffect(() => {
+    wamos.on("ArenaStakingApproved", (arenaStakeStatus) => {
+      setArenaStakingStatus(arenaStakeStatus);
+    });
+  }, [arenaStakingQuery]);
+
+  // Create Game UseEffect
+  useEffect(() => {
+    arena.on("GameCreated", (gameId) => {
+      getGame(gameId);
+    });
+  }, [gameQuery]);
+
+  useEffect(() => {
+    console.log(stakedQuery);
+  }, [stakedQuery]);
+
+  // useEffect(() => {
+  //   arena.on("WamosConnected", (gameId) => {
+  //     getGameData(gameId);
+  //   });
+  // }, [stakedQuery]);
 
   async function fetchArenaStakingStatus() {
     wamos
@@ -47,8 +78,8 @@ export function ArenaProvider({ children }) {
 
   async function approveArenaStaking() {
     wamos
-      .approveArenaStaking(params)
-      .then(fetchArenaStakingStatus)
+      .approveArenaStaking(true, params)
+      .then(setArenaStakingQuery(true))
       .catch(console.error);
   }
 
@@ -65,7 +96,6 @@ export function ArenaProvider({ children }) {
     );
 
     setIsPlayer1(direction === "sent" ? true : false);
-    setJoinRefresh(true);
   }
 
   async function getGame(gameId) {
@@ -83,7 +113,7 @@ export function ArenaProvider({ children }) {
   async function createGame(opponent, party) {
     arena
       .createGame(opponent, party)
-      .then((value) => getGame(value))
+      .then(setGameQuery(true))
       .catch(console.error);
   }
 
@@ -121,18 +151,37 @@ export function ArenaProvider({ children }) {
 
   function getArenaData() {
     for (let i = 0; i < gameData.party1.length; ) {
-      getWamoPosition(gameData.party1[i]),
-        getWamoStatus(gameData.party1[i]),
+      getWamoPosition(gameData.party1[i]);
+      getWamoStatus(gameData.party1[i]);
+      !Object.keys(wamoTraits).length
+        ? getWamoTraits(gameData.party1[i])
+        : wamoTraits,
+        !Object.keys(wamoAbilities).length
+          ? getWamoAbilities(gameData.party1[i])
+          : wamoAbilities,
+        !Object.keys(wamoMoves).length
+          ? getWamoMoves(gameData.party1[i])
+          : wamoMoves,
         i++;
     }
     for (let i = 0; i < gameData.party2.length; ) {
-      getWamoPosition(gameData.party2[i]),
-        getWamoStatus(gameData.party2[i]),
+      getWamoPosition(gameData.party2[i]);
+      getWamoStatus(gameData.party2[i]);
+      !Object.keys(wamoTraits).length
+        ? getWamoTraits(gameData.party2[i])
+        : wamoTraits,
+        !Object.keys(wamoAbilities).length
+          ? getWamoAbilities(gameData.party2[i])
+          : wamoAbilities,
+        !Object.keys(wamoMoves).length
+          ? getWamoMoves(gameData.party2[i])
+          : wamoMoves,
         i++;
     }
   }
 
   async function getWamoPosition(wamoId) {
+    // called constantly
     arena
       .getWamoPosition(wamoId)
       .then((value) => addWamoPositions(wamoId, value))
@@ -158,17 +207,57 @@ export function ArenaProvider({ children }) {
     setWamoStatus(_wamoStatus);
   }
 
+  async function getWamoTraits(wamoId) {
+    // called once
+    wamos
+      .getTraits(wamoId)
+      .then((value) => addWamoTraits(wamoId, value))
+      .catch(console.error);
+  }
+
+  function addWamoTraits(wamoId, value) {
+    var _wamoTraits = wamoTraits;
+    _wamoTraits[wamoId] = value;
+    setWamoTraits(_wamoTraits);
+  }
+
+  async function getWamoAbilities(wamoId) {
+    wamos
+      .getAbilities(wamoId)
+      .then((value) => addWamoAbilities(wamoId, value))
+      .catch(console.error);
+  }
+
+  function addWamoAbilities(wamoId, value) {
+    var _wamoAbilities = wamoAbilities;
+    _wamoAbilities[wamoId] = value;
+    setWamoAbilities(_wamoAbilities);
+  }
+
+  async function getWamoMoves(wamoId) {
+    wamos
+      .getMovements(wamoId)
+      .then((value) => addWamoMoves(wamoId, value))
+      .catch(console.error);
+  }
+
+  function addWamoMoves(wamoId, value) {
+    var _wamoMoves = wamoMoves;
+    _wamoMoves[wamoId] = value;
+    setWamoMoves(_wamoMoves);
+  }
+
   async function connectWamos(wamoIds) {
     arena
       .connectWamos(gameId, wamoIds, params)
-      .then(() => setStaked(true))
+      .then(setStakedQuery(true))
       .catch(console.error);
   }
 
   async function commitTurn(turnData) {
     arena
-      .commitTurn(gameId, turnData, params)
-      .then(() => setTurned(true))
+      .commitTurn(gameId, ...turnData, params)
+      .then(setTurned(true))
       .catch(console.error);
   }
 
@@ -176,9 +265,8 @@ export function ArenaProvider({ children }) {
     setGameId(false);
     setGameData(false);
     setCreate(false);
-    setChallenges(false);
     setJoin(false);
-    setRefresh(false);
+    setChallenges(false);
     setWamoPositions({});
     setWamoStatus({});
   }
@@ -188,6 +276,7 @@ export function ArenaProvider({ children }) {
       value={{
         arenaStakingStatus,
         approveArenaStaking,
+        approving,
         challenges,
         create,
         createGame,

@@ -62,8 +62,7 @@ contract WamosV2Arena is IERC721Receiver {
     int16 public constant GRID_SIZE = 16;
     uint256 public constant MAX_PLAYERS = 2;
     uint256 public constant PARTY_SIZE = 2;
-
-    //// WAMOS
+    // Wamos
     WamosV2 wamos;
 
     //// GAME CONTRACT DATA
@@ -93,6 +92,12 @@ contract WamosV2Arena is IERC721Receiver {
     mapping(uint256 => uint256) wamoIdToWamoStatus;
 
     //// EVENTS todo
+
+    event WamoPositionChanged(uint256 wamoId, int16 newIden);
+    event WamoStatusChanged(uint256 targetWamoId, WamoStatus status);
+    event GameCreated(uint256 gameId);
+    event WamosConnected(uint256 gameId);
+    
 
     constructor(address _wamosAddr) {
         wamos = WamosV2(_wamosAddr);
@@ -154,6 +159,7 @@ contract WamosV2Arena is IERC721Receiver {
 
         // todo temporary
         gameIdToGameDataStruct[gameId] = game;
+        emit GameCreated(gameId);
     }
 
     // @dev atm only build for party size of three
@@ -178,6 +184,7 @@ contract WamosV2Arena is IERC721Receiver {
         
         _loadWamos(gameId, msg.sender, wamoIds);
         _assessGameStatus(gameId);
+        
     }
 
     // @dev load wamos together or one at a time? loadwamo or loadwamos??
@@ -232,6 +239,7 @@ contract WamosV2Arena is IERC721Receiver {
         if (game.party1IsStaked && game.party2IsStaked) {
             gameIdToGameDataStruct[gameId].status = GameStatus.ONFOOT;
         }
+        emit WamosConnected(gameId);
     }
 
     function onERC721Received(
@@ -366,6 +374,7 @@ contract WamosV2Arena is IERC721Receiver {
         if (newIden >= 0 && newIden < 256) {
             // valid move
             _setWamoPosition(wamoId, newIden);
+            emit WamoPositionChanged(wamoId, newIden);
         } else {
             // invalid move
             revert MoveOutOfBounds(wamoId, idenMutation);
@@ -425,6 +434,7 @@ contract WamosV2Arena is IERC721Receiver {
             // dead
             wamoIdToWamoStatusStruct[targetWamoId].health = 0;
         }
+        emit WamoStatusChanged(targetWamoId, wamoIdToWamoStatusStruct[targetWamoId]);
         // todo emit event: wamo, damage, new hp
     }
 

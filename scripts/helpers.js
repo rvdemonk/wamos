@@ -17,41 +17,45 @@ async function deployWamos() {
     chainConfig.subscriptionId,
     mintPrice
   );
-  console.log(`WamosV2 deployed to ${network}\n${wamos.address}\n`)
+  console.log(`WamosV2 deployed to ${network}\n${wamos.address}\n`);
   return wamos;
 }
 
 async function deployArena(wamosAddr = null) {
   const network = hre.network.name;
   const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
-  
+
   if (wamosAddr === null) wamosAddr = getWamosArtifact().address;
 
-  const arena = await WamosV2Arena.deploy(
-    wamosAddr
-  )
+  const arena = await WamosV2Arena.deploy(wamosAddr);
 
-  console.log(`WamosV2Arena deployed to ${network}\n${arena.address}`)
+  console.log(`WamosV2Arena deployed to ${network}\n${arena.address}`);
   return arena;
 }
 
 function exportWamosArtifact(wamos) {
   const artifact = {
     address: wamos.address,
-    abi: hre.artifacts.readArtifactSync("WamosV2").abi
+    abi: hre.artifacts.readArtifactSync("WamosV2").abi,
   };
-  if (!fs.existsSync(ARTIFACTS_DIR)){
+  if (!fs.existsSync(ARTIFACTS_DIR)) {
     fs.mkdirSync(ARTIFACTS_DIR);
   }
-  fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"), JSON.stringify(artifact))
+  fs.writeFileSync(
+    path.join(ARTIFACTS_DIR, "WamosV2.json"),
+    JSON.stringify(artifact)
+  );
 }
 
 function exportArenaArtifact(arena) {
   const artifact = {
     address: arena.address,
-    abi: hre.artifacts.readArtifactSync("WamosV2Arena").abi
+    abi: hre.artifacts.readArtifactSync("WamosV2Arena").abi,
   };
-  fs.writeFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"), JSON.stringify(artifact))
+  fs.writeFileSync(
+    path.join(ARTIFACTS_DIR, "WamosV2Arena.json"),
+    JSON.stringify(artifact)
+  );
 }
 
 function getWamosArtifact() {
@@ -60,7 +64,9 @@ function getWamosArtifact() {
 }
 
 function getArenaArtifact() {
-  const rawData = fs.readFileSync(path.join(ARTIFACTS_DIR, "WamosV2Arena.json"));
+  const rawData = fs.readFileSync(
+    path.join(ARTIFACTS_DIR, "WamosV2Arena.json")
+  );
   return JSON.parse(rawData);
 }
 
@@ -95,8 +101,8 @@ async function getVrf() {
 async function clearVrfConsumers(vrf, subId) {
   let subData = await vrf.getSubscription(subId);
   const consumers = subData.consumers;
-  for (let i=0; i<consumers.length; i++) {
-      await vrf.removeConsumer(subId, consumers[i]);
+  for (let i = 0; i < consumers.length; i++) {
+    await vrf.removeConsumer(subId, consumers[i]);
   }
 }
 
@@ -120,8 +126,8 @@ function displayWamoTraits(id, traits) {
 async function mint(amount) {
   const wamos = await getWamos();
   const owner = (await hre.ethers.getSigner()).address.toString();
-  const params = { value: amount*hre.config.wamosMintPrice}
-  console.log(`Requesting spawn...`)
+  const params = { value: amount * hre.config.wamosMintPrice };
+  console.log(`Requesting spawn...`);
   const requestTx = await wamos.requestSpawn(amount, params);
   const receipt = await requestTx.wait();
   const requestEvent = receipt.events.find(
@@ -135,9 +141,9 @@ async function mint(amount) {
   let isFulfilled = await wamos.getRequestStatus(requestId);
   let time = 0;
   const period = 3000;
-  console.log(`\n* Entering wait loop`)
+  console.log(`\n* Entering wait loop`);
   while (!isFulfilled) {
-    console.log(` waited ${time/1000} seconds`)
+    console.log(` waited ${time / 1000} seconds`);
     time = time + period;
     sleep(period);
     isFulfilled = await wamos.getRequestStatus(requestId);
@@ -145,11 +151,23 @@ async function mint(amount) {
   console.log(`* Request fulfilled. Completing spawn...`);
   const completeTx = await wamos.completeSpawn(requestId);
   console.log(`\n--- Spawn complete`);
-  if (endId>startWamoId) {
-    console.log(`${owner.substring(0,6)} spawned Wamos #${startWamoId} to #${endId}`);
+  if (endId > startWamoId) {
+    console.log(
+      `${owner.substring(0, 6)} spawned Wamos #${startWamoId} to #${endId}`
+    );
   } else {
-    console.log(`${owner.substring(0,6)} spawned Wamo #${startWamoId}`);
+    console.log(`${owner.substring(0, 6)} spawned Wamo #${startWamoId}`);
   }
+}
+
+async function stake() {
+  const arena = await getArena();
+  const requestTx = await arena.connectWamos(0, [1, 2, 3]);
+  const receipt = await requestTx.wait();
+  const requestEvent = receipt.events.find(
+    (event) => event.event === "WamosConnected"
+  );
+  console.log(requestEvent);
 }
 
 function sleep(ms) {
@@ -177,5 +195,6 @@ module.exports = {
   clearVrfConsumers,
   displayWamoTraits,
   mint,
-  getDeployerBalance
+  stake,
+  getDeployerBalance,
 };

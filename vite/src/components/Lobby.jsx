@@ -10,15 +10,12 @@ export function Lobby() {
   const { theme } = useTheme();
   const { connectWamos, gameId, gameData } = useArena();
 
-  const [validated, setValidated] = useState(false);
-
   const handleSubmit = (event) => {
-    event.preventDefault();
     const formData = new FormData(event.target);
-
-    const a = parseInt(formData.get("a"));
-    const b = parseInt(formData.get("b"));
-    const c = parseInt(formData.get("c"));
+    event.preventDefault();
+    const a = formData.get("a");
+    const b = formData.get("b");
+    const c = formData.get("c");
 
     if (a && b && c) {
       connectWamos([a, b, c]);
@@ -32,7 +29,7 @@ export function Lobby() {
         eraseButton={"arena"}
       />
       <Card.Body className="d-grid gap-2 d-xxl-flex justify-content-center">
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formAddressl">
             <Form.Label>Game: {hexToInt(gameId)}</Form.Label>
 

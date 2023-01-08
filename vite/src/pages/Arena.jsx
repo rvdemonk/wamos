@@ -39,7 +39,7 @@ export function Arena() {
         }
       } else if (gameData.status < 2) {
         return <Game />;
-      } else if (gameData.status < 2) {
+      } else if (gameData.status > 1) {
         return <End />;
       }
     } else if (!create && !join) {
