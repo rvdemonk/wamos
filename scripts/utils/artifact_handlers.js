@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const fs = require("fs");
+const cnts = require("./constants");
 
 function exportArtifact(contractName, contract) {
   const abi = hre.artifacts.readArtifactSync(contractName).abi;
@@ -38,14 +39,42 @@ function exportArtifact(contractName, contract) {
 function getWamosArtifact() {
   //   // todo check if world env is private or public
   //   const settings = getWorldSettings();
-
-  const rawData = fs.readFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"));
+  console.log(`!! getting wamos`);
+  const filepath = path.join(cnts.PRIVATE_ARTI_DIR, "WamosV2.json");
+  console.log("-->", filepath);
+  const rawData = fs.readFileSync(filepath);
   return JSON.parse(rawData);
 }
 
 function getArenaArtifact() {
   const rawData = fs.readFileSync(
-    path.join(ARTIFACTS_DIR, "WamosV2Arena.json")
+    path.join(cnts.PRIVATE_ARTI_DIR, "WamosV2Arena.json")
   );
   return JSON.parse(rawData);
 }
+
+function check_directories_exist() {
+  const isPrivateMode = Boolean(getWorldSettings().privateMode);
+
+  if (isPrivateMode) {
+    if (!fs.existsSync(PRIVATE_DIR)) {
+      if (!fs.existsSync("world/")) {
+        fs.mkdirSync("world/");
+      }
+      fs.mkdirSync(PRIVATE_DIR);
+    }
+  } else {
+    if (!fs.existsSync(PUBLIC_DIR)) {
+      if (!fs.existsSync("world/")) {
+        fs.mkdirSync("world/");
+      }
+      fs.mkdirSync(PUBLIC_DIR);
+    }
+  }
+}
+
+module.exports = {
+  exportArtifact,
+  getWamosArtifact,
+  getArenaArtifact,
+};

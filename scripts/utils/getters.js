@@ -1,15 +1,17 @@
 const hre = require("hardhat");
 const fs = require("fs");
 const ct = require("./constants");
+const ah = require("./artifact_handlers");
 
 async function getWamos() {
-  const addr = getWamosArtifact().address;
+  console.log(`!! getting wamos`);
+  const addr = ah.getWamosArtifact().address;
   const wamos = await hre.ethers.getContractAt("src/WamosV2.sol:WamosV2", addr);
   return wamos;
 }
 
 async function getArena() {
-  const addr = getArenaArtifact().address;
+  const addr = ah.getArenaArtifact().address;
   const arena = await hre.ethers.getContractAt(
     "src/WamosV2Arena.sol:WamosV2Arena",
     addr

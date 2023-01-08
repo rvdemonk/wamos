@@ -2,13 +2,14 @@ task(
   "world",
   "Logs information about the current wamos contract system"
 ).setAction(async (taskArgs, hre) => {
-  const helpers = require("../scripts/helpers");
-  // const getters = require("../scripts/utils/getters");
-  const wamos = await helpers.getWamos();
-  const arena = await helpers.getArena();
+  // const helpers = require("../scripts/helpers");
+  const getters = require("../scripts/utils/getters");
+  const wamos = await getters.getWamos();
+  const arena = await getters.getArena();
 
   const wamosOwner = await wamos.contractOwner();
   const arenaOwner = await arena.contractOwner();
+
   const wamoCount = (await wamos.nextWamoId()) - 1;
   const wamosTime = await wamos.timestamp();
   const arenaTime = await arena.timestamp();

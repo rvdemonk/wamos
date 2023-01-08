@@ -32,7 +32,7 @@ async function deployArena(wamosAddr = null) {
   return arena;
 }
 
-// module.exports = {
-//   deployWamos,
-//   deployArena,
-// };
+module.exports = {
+  deployWamos,
+  deployArena,
+};
