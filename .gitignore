@@ -20,3 +20,5 @@ wamos-venv/
 #misc
 .DS_Store
 
+# private world artifacts
+world/private

@@ -19,3 +19,5 @@ now:
 add network to artifact
 task to toggle private mode
 confirmation prompt for certain crud tasks on shared
+update getWamosArtifact to check env
+swap artifacts in frontend dir

@@ -7,15 +7,16 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
     const deployer = await hre.ethers.getSigner();
     const balStart = await helpers.getDeployerBalance();
     console.log(`\n--- creating a new world on ${active} ---`)
-    console.log('** deploying contracts')
     const wamos = await helpers.deployWamos();
     const arena = await helpers.deployArena(wamos.address);
     console.log('** setting arena address')
     await wamos.setWamosArenaAddress(arena.address);
 
     console.log('** exporting artifacts');
-    helpers.exportWamosArtifact(wamos);
-    helpers.exportArenaArtifact(arena);
+    // helpers.exportWamosArtifact(wamos);
+    // helpers.exportArenaArtifact(arena);
+    helpers.exportArtifact("WamosV2", wamos);
+    helpers.exportArtifact("WamosV2Arena", arena);
 
     const subId = hre.config.networks[active].subscriptionId;
     
@@ -33,7 +34,7 @@ task("new_world", "Deploys a new Wamos contract system and updates the front end
 
     console.log("\n--- the g0ds have awoken ---");
     const balEnd = await helpers.getDeployerBalance();
-    console.log(`Total cost: ${(balEnd-balStart)/10**18} MATIC`);
+    console.log(`Total cost: ${((balStart-balEnd)/10**18).toString().substring(0,6)} MATIC`);
 
     // now mint 5 wamos each for devs
     // const devConfig = JSON.parse(require("fs").readFileSync("./dev-config.json"));

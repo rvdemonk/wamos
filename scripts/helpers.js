@@ -1,54 +1,72 @@
 const hre = require("hardhat");
 const fs = require("fs");
 const path = require("path");
-const rl = require('readline');
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
 
 const ARTIFACTS_DIR = "vite/src/artifacts";
 
 const WORLD_SETTINGS_DIR = "world.settings.json";
 const PRIVATE_DIR = "world/private/";
-const SHARED_DIR = "world/shared/";
+const PUBLIC_DIR = "world/shared/";
 
-function checkPrivate() {
-  const settings = getWorldSettings();
-  if (!settings.privateMode) {
-    rl.question(`You are in the shared Wam0s world env -- redeploy anwyay? [y/N] `, (answer) => {
-      const ans = answer.toString().toLowerCase();
-      const isConfirmed = (ans === 'y' || ans === 'yes') ? true : false;
-      if (!isConfirmed) {
-        throw new Error("Shared world redeployment aborted! Phew...");
-      } 
-    })
-  } else {
-    console.log('[ Deploying in private mode ]')
-  }
+function _writeWorldSettings(settings) {
+  fs.writeFileSync(WORLD_SETTINGS_DIR, JSON.stringify(settings));
 }
+
+function setPrivateMode(isPrivate) {
+  const settings = getWorldSettings();
+  settings.privateMode = Boolean(isPrivate);
+  _writeWorldSettings(settings);
+}
+
+// function checkPrivate() {
+//   const settings = getWorldSettings();
+//   if (!settings.privateMode) {
+//     rl.question(`You are in the shared Wam0s world env -- redeploy anwyay? [y/N] `, (answer) => {
+//       const ans = answer.toString().toLowerCase();
+//       const isConfirmed = (ans === 'y' || ans === 'yes') ? true : false;
+//       if (!isConfirmed) {
+//         console.log("Shared world redeployment aborted! Phew...");
+//       } else {
+//         console.log(`Proceeding with shared world redeployment`);
+//       }
+//     })
+//   } else {
+//     console.log('[ Deploying in private mode ]')
+//   }
+// }
 
 async function deployWamos() {
   const network = hre.network.name;
-  const WamosV2 = await hre.ethers.getContractFactory("src/WamosV2.sol:WamosV2");
-
-  checkPrivate();
+  const WamosV2 = await hre.ethers.getContractFactory("WamosV2");
 
   const chainConfig = hre.config.networks[network];
   const mintPrice = hre.config.wamosMintPrice;
-
+  console.log(` -- deploying wamos`)
   const wamos = await WamosV2.deploy(
     chainConfig.vrfCoordinator,
     chainConfig.gasLane,
     chainConfig.subscriptionId,
     mintPrice
   );
-  console.log(`WamosV2 deployed to ${network}\n${wamos.address}\n`)
+  console.log(`WamosV2 deployed to ${network}\n${wamos.address}`)
   return wamos;
 }
 
 async function deployArena(wamosAddr = null) {
   const network = hre.network.name;
-  const WamosV2Arena = await hre.ethers.getContractFactory("src/WamosV2Arena.sol:WamosV2Arena");
+  const WamosV2Arena = await hre.ethers.getContractFactory("WamosV2Arena");
   
+  // by default connects to most recent deployment of wamos, unless other address
+  // specified
   if (wamosAddr === null) wamosAddr = getWamosArtifact().address;
-
+  console.log(` -- deploying arena`)
   const arena = await WamosV2Arena.deploy(
     wamosAddr
   )
@@ -58,15 +76,10 @@ async function deployArena(wamosAddr = null) {
 }
 
 function exportArtifact(contractName, contract) {
-  try {
-    const abi = hre.artifacts.readArtifactSync(contractName).abi;
-  } catch(err) {
-    console.log(`# Error exporting artifact of ${contractName}: \n${err}`);
-  }
-
+  const abi = hre.artifacts.readArtifactSync(contractName).abi;
   const artifact = {
     address: contract.address,
-    abi: hre.artifacts
+    abi: abi
   }
 
   const isPrivateMode = Boolean(getWorldSettings().privateMode);
@@ -129,7 +142,7 @@ function exportArenaArtifact(arena) {
 }
 
 function getWamosArtifact() {
-  // check if world env is private or public
+  // todo check if world env is private or public
   const settings = getWorldSettings();
 
   const rawData = fs.readFileSync(path.join(ARTIFACTS_DIR, "WamosV2.json"));
@@ -248,8 +261,7 @@ function getWorldSettings() {
 module.exports = {
   deployWamos,
   deployArena,
-  exportWamosArtifact,
-  exportArenaArtifact,
+  exportArtifact,
   getWamosArtifact,
   getArenaArtifact,
   getWamos,
@@ -261,5 +273,6 @@ module.exports = {
   displayWamoTraits,
   mint,
   getDeployerBalance,
-  getWorldSettings
+  getWorldSettings,
+  setPrivateMode
 };
