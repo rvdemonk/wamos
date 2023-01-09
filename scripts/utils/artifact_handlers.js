@@ -2,34 +2,26 @@ const hre = require("hardhat");
 const fs = require("fs");
 const cnts = require("./constants");
 
+function getWorldSettings() {
+  const raw = fs.readFileSync(WORLD_SETTINGS_DIR);
+  return JSON.parse(raw);
+}
+
+// gets path depending on world settings: priv/shared
+function getArtifactDir() {
+  const isPrivateMode = Boolean(getWorldSettings().privateMode);
+  const dir = isPrivateMode ? cnts.PRIVATE_WORLD_DIR : cnts.SHARED_WORLD_DIR;
+  return dir;
+}
+
 function exportArtifact(contractName, contract) {
+  checkArtifactDirectory();
+  const exportPath = getArtifactDir();
   const abi = hre.artifacts.readArtifactSync(contractName).abi;
   const artifact = {
     address: contract.address,
     abi: abi,
   };
-
-  const isPrivateMode = Boolean(getWorldSettings().privateMode);
-  let exportPath;
-
-  if (isPrivateMode) {
-    if (!fs.existsSync(PRIVATE_DIR)) {
-      if (!fs.existsSync("world/")) {
-        fs.mkdirSync("world/");
-      }
-      fs.mkdirSync(PRIVATE_DIR);
-    }
-    // set path
-    exportPath = PRIVATE_DIR;
-  } else {
-    if (!fs.existsSync(PUBLIC_DIR)) {
-      if (!fs.existsSync("world/")) {
-        fs.mkdirSync("world/");
-      }
-      fs.mkdirSync(PUBLIC_DIR);
-    }
-  }
-  exportPath = PRIVATE_DIR;
   fs.writeFileSync(
     path.join(exportPath, `${contractName}.json`),
     JSON.stringify(artifact)
@@ -37,38 +29,37 @@ function exportArtifact(contractName, contract) {
 }
 
 function getWamosArtifact() {
-  //   // todo check if world env is private or public
-  //   const settings = getWorldSettings();
-  console.log(`!! getting wamos`);
-  const filepath = path.join(cnts.PRIVATE_ARTI_DIR, "WamosV2.json");
+  const dir = getArtifactDir();
+  console.log(`!! getting wamos artifact`);
+  const filepath = path.join(dir, "WamosV2.json");
   console.log("-->", filepath);
   const rawData = fs.readFileSync(filepath);
   return JSON.parse(rawData);
 }
 
 function getArenaArtifact() {
-  const rawData = fs.readFileSync(
-    path.join(cnts.PRIVATE_ARTI_DIR, "WamosV2Arena.json")
-  );
+  const dir = getArtifactDir();
+  console.log(`!! getting arena artifact`);
+  const rawData = fs.readFileSync(path.join(dir, "WamosV2Arena.json"));
   return JSON.parse(rawData);
 }
 
-function check_directories_exist() {
+function checkArtifactDirectory() {
   const isPrivateMode = Boolean(getWorldSettings().privateMode);
 
   if (isPrivateMode) {
-    if (!fs.existsSync(PRIVATE_DIR)) {
+    if (!fs.existsSync(cnts.PRIVATE_WORLD_DIR)) {
       if (!fs.existsSync("world/")) {
         fs.mkdirSync("world/");
       }
-      fs.mkdirSync(PRIVATE_DIR);
+      fs.mkdirSync(cnts.PRIVATE_WORLD_DIR);
     }
   } else {
-    if (!fs.existsSync(PUBLIC_DIR)) {
+    if (!fs.existsSync(cnts.SHARED_WORLD_DIR)) {
       if (!fs.existsSync("world/")) {
         fs.mkdirSync("world/");
       }
-      fs.mkdirSync(PUBLIC_DIR);
+      fs.mkdirSync(cnts.SHARED_WORLD_DIR);
     }
   }
 }

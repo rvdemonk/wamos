@@ -1,4 +1,4 @@
 module.exports = Object.freeze({
-  PRIVATE_ARTI_DIR: "world/private",
-  PUBLIC_ARTI_DIR: "world/public",
+  PRIVATE_WORLD_DIR: "world/private",
+  SHARED_WORLD_DIR: "world/public",
 });
