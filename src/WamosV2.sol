@@ -113,7 +113,7 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         uint256 firstWamoId,
         uint256 lastWamoId
     );
-    event ArenaStakingApproved(bool arenaStakingStatus);
+    event ArenaStakingApproved();
 
     //// TEST EVENTS
     event GaussianRNGOutput(int256[] results);
@@ -433,11 +433,11 @@ contract WamosV2 is ERC721, VRFConsumerBaseV2 {
         arenaAddress = _arenaAddress;
     }
 
-    function approveArenaStaking(bool arenaStakingStatus) public {
+    function approveArenaStaking() public {
         require(arenaAddress != address(0), "Wamos Arena Address is not set!");
         // sets approval for msg.sender
-        super.setApprovalForAll(arenaAddress, arenaStakingStatus);
-        emit ArenaStakingApproved(arenaStakingStatus);
+        super.setApprovalForAll(arenaAddress);
+        emit ArenaStakingApproved();
     }
 
     /////////////////////////////////////////////////////////////////
