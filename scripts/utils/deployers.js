@@ -7,7 +7,7 @@ async function deployWamos() {
 
   const chainConfig = hre.config.networks[network];
   const mintPrice = hre.config.wamosMintPrice;
-  console.log(` -- deploying wamos`);
+  console.log(`    deploying wamos`);
   const wamos = await WamosV2.deploy(
     chainConfig.vrfCoordinator,
     chainConfig.gasLane,

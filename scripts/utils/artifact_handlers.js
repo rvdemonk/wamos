@@ -3,7 +3,7 @@ const fs = require("fs");
 const cnts = require("./constants");
 
 function getWorldSettings() {
-  const raw = fs.readFileSync(WORLD_SETTINGS_DIR);
+  const raw = fs.readFileSync(cnts.WORLD_SETTINGS);
   return JSON.parse(raw);
 }
 
@@ -65,6 +65,8 @@ function checkArtifactDirectory() {
 }
 
 module.exports = {
+  getWorldSettings,
+  getArtifactDir,
   exportArtifact,
   getWamosArtifact,
   getArenaArtifact,
