@@ -15,7 +15,6 @@ export function Spawn() {
     completeSpawn,
     eraseSpawnData,
     checkCount,
-    checkMod,
     mintPrice,
     tokenCount,
   } = useSpawn();

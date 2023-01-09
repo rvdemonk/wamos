@@ -47,12 +47,12 @@ export function ArenaProvider({ children }) {
 
   // Arena Staking Approved UseEffect
   useEffect(() => {
-    wamos.on("ArenaStakingApproved", (arenaStakeStatus) => {
-      setArenaStakingStatus(arenaStakeStatus);
+    wamos.on("ArenaStakingApproved", () => {
+      setArenaStakingStatus(true);
     });
   }, [arenaStakingQuery]);
 
-  // Create Game UseEffect
+  // // Create Game UseEffect
   useEffect(() => {
     arena.on("GameCreated", (gameId) => {
       getGame(gameId);
@@ -63,11 +63,11 @@ export function ArenaProvider({ children }) {
     console.log(stakedQuery);
   }, [stakedQuery]);
 
-  // useEffect(() => {
-  //   arena.on("WamosConnected", (gameId) => {
-  //     getGameData(gameId);
-  //   });
-  // }, [stakedQuery]);
+  useEffect(() => {
+    arena.on("WamosConnected", (gameId) => {
+      getGameData(gameId);
+    });
+  }, [stakedQuery]);
 
   async function fetchArenaStakingStatus() {
     wamos
@@ -78,7 +78,7 @@ export function ArenaProvider({ children }) {
 
   async function approveArenaStaking() {
     wamos
-      .approveArenaStaking(true, params)
+      .approveArenaStaking(params)
       .then(setArenaStakingQuery(true))
       .catch(console.error);
   }

@@ -20,9 +20,10 @@ export function SpawnProvider({ children }) {
   const { wamos, arena } = useWamo();
 
   const [checkCount, setCheckCount] = useState(0);
-  const [checkMod, setCheckMod] = useState(0);
+
   const [checkCountHundred, setCheckCountHundred] = useState(false);
   const [spawnData, setSpawnData] = useState({});
+  const [spawnDataQuery, setSpawnDataQuery] = useState(false);
   const [tokenCount, setTokenCount] = useState(false);
   const [mintPrice, setMintPrice] = useState(false);
   const [requestQuery, setRequestQuery] = useState(false);
@@ -39,8 +40,16 @@ export function SpawnProvider({ children }) {
   };
 
   useEffect(() => {
-    address ? initializeSpawnData() : null;
+    if (address) {
+      initialize();
+    }
   }, [spawnStatus]);
+
+  useEffect(() => {
+    if (spawnData.firstWamoData) {
+      setSpawnStatus("completed");
+    }
+  }, [spawnDataQuery]);
 
   useEffect(() => {
     wamos.on(
@@ -64,12 +73,15 @@ export function SpawnProvider({ children }) {
     wamos.on(
       "SpawnCompleted",
       (buyerAddress, requestId, firstWamoId, number) => {
-        getSpawnWamoData(firstWamoId);
-        setSpawnStatus("completed");
+        setSpawnWamoData(firstWamoId);
       }
     );
-  }, [spawnStatus]);
+  }, [completeQuery]);
 
+  async function initialize() {
+    initializeSpawnData();
+    // initializeWamoOwnerData();
+  }
   async function initializeSpawnData() {
     wamos
       .nextWamoId()
@@ -80,16 +92,23 @@ export function SpawnProvider({ children }) {
       .mintPrice()
       .then((value) => setMintPrice(value))
       .catch(console.error);
+  }
+
+  async function initializeWamoOwnerData() {
     try {
       var wamoOwnerData = [];
       for (let i = 1; i < tokenCount + 1; i++) {
         const id = i;
         const owner = await wamos.ownerOf(i);
-        wamoOwnerData[id] = [id, owner];
+        const abilities = await wamos.getAbilities(i);
+        const traits = await wamos.getTraits(i);
+        console.log([id, owner]);
+        wamoOwnerData[id] = [id, owner, traits, abilities];
       }
-
-      const spawnData = { wamoOwnerData };
-      setSpawnData(spawnData);
+      var _spawnData = spawnData;
+      _spawnData.wamoOwnerData = wamoOwnerData;
+      console.log(_spawnData);
+      setSpawnData(_spawnData);
     } catch (ex) {
       console.log(ex);
     }
@@ -123,17 +142,31 @@ export function SpawnProvider({ children }) {
   async function completeSpawn() {
     wamos
       .completeSpawn(spawnData.lastRequestId)
-      .then(setSpawnStatus("completing"))
+      .then(() => {
+        setSpawnStatus("completing");
+        setCompleteQuery(true);
+      })
       .catch(console.error);
   }
 
-  async function getSpawnWamoData(id) {
+  async function setSpawnWamoData(id) {
     try {
       const abilities = await wamos.getAbilities(id);
       const traits = await wamos.getTraits(id);
       var _spawnData = spawnData;
       _spawnData.firstWamoData = { id, abilities, traits };
       setSpawnData(_spawnData);
+      setSpawnDataQuery(true);
+    } catch {
+      console.error;
+    }
+  }
+
+  async function getSpawnWamoData(id) {
+    try {
+      const abilities = await wamos.getAbilities(id);
+      const traits = await wamos.getTraits(id);
+      return { id, abilities, traits };
     } catch {
       console.error;
     }
@@ -142,7 +175,6 @@ export function SpawnProvider({ children }) {
   function eraseSpawnData() {
     eraseLocalStorage("spawnStatus");
     setSpawnStatus(false);
-    setSpawnData({});
   }
   return (
     <SpawnContext.Provider
@@ -152,8 +184,8 @@ export function SpawnProvider({ children }) {
         requestSpawn,
         completeSpawn,
         eraseSpawnData,
+        getSpawnWamoData,
         checkCount,
-        checkMod,
         mintPrice,
         tokenCount,
       }}
