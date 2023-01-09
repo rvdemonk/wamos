@@ -125,6 +125,7 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
     function testArenaOwnsWamosAfterConnecting() public {
         (uint256 gameId, uint256[3] memory party1, uint256[3] memory party2) 
             = init3WGameAsP1();
+            
         for (uint256 i=0; i<3; i++) {
             assertTrue(wamos.ownerOf(party1[i]) == address(arena));
             assertTrue(wamos.ownerOf(party2[i]) == address(arena));
@@ -194,6 +195,12 @@ contract WamosV2ArenaSetupTest is Test, WamosV2TestHelper {
 
     function testControlFlowGasOpen() public {
         controlFlow(true);
+    }
+
+    function testLoop() public {
+        for (uint256 i=0; i<5; i++) {
+            console.log(i);
+        }
     }
 
 }
