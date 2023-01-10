@@ -13,7 +13,7 @@ export function SpawnProvider({ children }) {
   const { address } = useEth();
   const { wamos, arena } = useWamo();
 
-  const [spawnData, setSpawnData] = useState(false);
+  const [spawnData, setSpawnData] = useState({});
   const [spawnStatus, setSpawnStatus] = useLocalStorage("spawnStatus");
   const [spawnRefresh, setSpawnRefresh] = useState(false);
 
