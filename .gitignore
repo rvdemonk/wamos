@@ -21,4 +21,4 @@ wamos-venv/
 .DS_Store
 
 # private world artifacts
-world/private
+vite/src/artifacts/private

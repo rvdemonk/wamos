@@ -1,9 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import { ethers } from "ethers";
-
-
-import WamosV2 from "../artifacts/WamosV2.json";
-import WamosV2Arena from "../artifacts/WamosV2Arena.json";
+import { isPrivateMode } from "../utilities/isPrivateMode";
+// private world
+import WamosV2_private from "../artifacts/private/WamosV2.json";
+import WamosV2Arena_private from "../artifacts/private/WamosV2Arena.json";
+// public world
+import WamosV2_shared from "../artifacts/shared/WamosV2.json";
+import WamosV2Arena_shared from "../artifacts/shared/WamosV2Arena.json";
 
 const WamoContext = createContext({});
 
@@ -22,8 +25,17 @@ export function WamoProvider({ children }) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     setProvider(provider);
 
+    let WamosV2;
+    let WamosV2Arena;
+    if (isPrivateMode()) {
+      WamosV2 = WamosV2_private;
+      WamosV2Arena = WamosV2Arena_private;
+    } else {
+      WamosV2 = WamosV2_shared;
+      WamosV2Arena = WamosV2Arena_shared;     
+    }
+    
     // init wamos contract
-
     const wamos = new ethers.Contract(
       WamosV2.address,
       WamosV2.abi,
