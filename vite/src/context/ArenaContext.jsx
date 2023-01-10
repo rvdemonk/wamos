@@ -60,10 +60,6 @@ export function ArenaProvider({ children }) {
   }, [gameQuery]);
 
   useEffect(() => {
-    console.log(stakedQuery);
-  }, [stakedQuery]);
-
-  useEffect(() => {
     arena.on("WamosConnected", (gameId) => {
       getGameData(gameId);
     });
@@ -145,7 +141,7 @@ export function ArenaProvider({ children }) {
 
       setChallenges({ challengesReceivedData, challengesSentData });
     } catch (error) {
-      console.log(error);
+      console.error;
     }
   }
 

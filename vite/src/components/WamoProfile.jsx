@@ -1,9 +1,11 @@
 import React from "react";
 import Table from "react-bootstrap/Table";
 import { hexToInt } from "../utilities/HexToInt";
+import { showAddress } from "../utilities/ShowAddress";
 
 export function WamoProfile({ data }) {
   const id = data?.id || false;
+  const owner = data?.owner || false;
   const traits = data?.traits || false;
   const abilities = data?.abilities || false;
 
@@ -14,6 +16,10 @@ export function WamoProfile({ data }) {
           <tr>
             <td>Wamo</td>
             <td> {hexToInt(id)}</td>
+          </tr>
+          <tr>
+            <td>Owner</td>
+            <td> {showAddress(owner)}</td>
           </tr>
           <tr>
             <td>Health</td>
@@ -137,7 +143,7 @@ export function WamoProfile({ data }) {
     );
   }
 
-  if (traits && abilities) {
+  if (owner && traits && abilities) {
     return (
       <div>
         <WamoTraitsAndAbilities />

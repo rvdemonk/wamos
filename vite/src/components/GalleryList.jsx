@@ -17,7 +17,6 @@ export function GalleryList({ header }) {
     <Container animation="border" role="status">
       <Card className={theme ? "bg-dark text-light" : "bg-light"}>
         <CardHeader cardHeader={"All Wam0s"} eraseButton={"wamos"} />
-
         <Card.Body>
           <Loading />
         </Card.Body>

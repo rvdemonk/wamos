@@ -23,6 +23,8 @@ export function SpawnProvider({ children }) {
 
   const [checkCountHundred, setCheckCountHundred] = useState(false);
   const [spawnData, setSpawnData] = useState({});
+  const [galData, setGalData] = useState({});
+  const [galQuery, setGalQuery] = useState(false);
   const [spawnDataQuery, setSpawnDataQuery] = useState(false);
   const [tokenCount, setTokenCount] = useState(false);
   const [mintPrice, setMintPrice] = useState(false);
@@ -43,7 +45,11 @@ export function SpawnProvider({ children }) {
     if (address) {
       initialize();
     }
-  }, [spawnStatus]);
+  }, []);
+
+  useEffect(() => {
+    console.log(galData);
+  }, [galQuery]);
 
   useEffect(() => {
     if (spawnData.firstWamoData) {
@@ -80,7 +86,7 @@ export function SpawnProvider({ children }) {
 
   async function initialize() {
     initializeSpawnData();
-    // initializeWamoOwnerData();
+    initializeWamoOwnerData();
   }
   async function initializeSpawnData() {
     wamos
@@ -96,19 +102,13 @@ export function SpawnProvider({ children }) {
 
   async function initializeWamoOwnerData() {
     try {
-      var wamoOwnerData = [];
-      for (let i = 1; i < tokenCount + 1; i++) {
-        const id = i;
-        const owner = await wamos.ownerOf(i);
-        const abilities = await wamos.getAbilities(i);
-        const traits = await wamos.getTraits(i);
-        console.log([id, owner]);
-        wamoOwnerData[id] = [id, owner, traits, abilities];
+      for (let i = 3; i < tokenCount + 1; i++) {
+        var _galData = galData;
+        _galData[i] = await getSpawnWamoData(i);
+        console.log(_galData);
+        setGalData(_galData);
       }
-      var _spawnData = spawnData;
-      _spawnData.wamoOwnerData = wamoOwnerData;
-      console.log(_spawnData);
-      setSpawnData(_spawnData);
+      setGalQuery(true);
     } catch (ex) {
       console.log(ex);
     }
@@ -121,7 +121,7 @@ export function SpawnProvider({ children }) {
   }
 
   async function requestCheck() {
-    setTimeout(1000, setCheckCount(checkCount + 1));
+    setInterval(setCheckCount(checkCount + 1), 500);
     try {
       let requestData = await wamos.getRequest(spawnData.lastRequestId);
       setSpawnRequestFulfilled(requestData.isFulfilled);
@@ -151,10 +151,11 @@ export function SpawnProvider({ children }) {
 
   async function setSpawnWamoData(id) {
     try {
+      const owner = await wamos.ownerOf(id);
       const abilities = await wamos.getAbilities(id);
       const traits = await wamos.getTraits(id);
       var _spawnData = spawnData;
-      _spawnData.firstWamoData = { id, abilities, traits };
+      _spawnData.firstWamoData = { id, owner, abilities, traits };
       setSpawnData(_spawnData);
       setSpawnDataQuery(true);
     } catch {
@@ -164,9 +165,10 @@ export function SpawnProvider({ children }) {
 
   async function getSpawnWamoData(id) {
     try {
+      const owner = await wamos.ownerOf(id);
       const abilities = await wamos.getAbilities(id);
       const traits = await wamos.getTraits(id);
-      return { id, abilities, traits };
+      return { id, owner, abilities, traits };
     } catch {
       console.error;
     }

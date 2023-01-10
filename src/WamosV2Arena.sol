@@ -62,8 +62,13 @@ contract WamosV2Arena is IERC721Receiver {
     int16 public constant GRID_SIZE = 16;
     uint256 public constant MAX_PLAYERS = 2;
     uint256 public constant PARTY_SIZE = 2;
+<<<<<<< HEAD
 
     //// WAMOS
+=======
+    
+    // Wamos
+>>>>>>> adfe078 (events latest)
     WamosV2 wamos;
 
     //// GAME CONTRACT DATA
@@ -161,7 +166,7 @@ contract WamosV2Arena is IERC721Receiver {
     function connectWamos(
         uint256 gameId, 
         uint256[3] memory wamoIds
-    ) external onlyPlayer(gameId) {
+    ) external {
         // todo requirements
         // prompt transfers and flag wamo as staked
         for (uint i = 0; i < wamoIds.length; i++) {
@@ -234,6 +239,7 @@ contract WamosV2Arena is IERC721Receiver {
             gameIdToGameDataStruct[gameId].status = GameStatus.ONFOOT;
         }
     }
+
 
     function onERC721Received(
         address operator, // should be wamos contract
