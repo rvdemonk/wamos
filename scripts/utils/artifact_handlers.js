@@ -10,14 +10,15 @@ function getWorldSettings() {
 
 // gets path depending on world settings: priv/shared
 function getArtifactDir() {
+  const parentDir = cnts.ARTIFACTS_DIR;
   const isPrivateMode = Boolean(getWorldSettings().privateMode);
-  const dir = isPrivateMode ? cnts.PRIVATE_WORLD_DIR : cnts.SHARED_WORLD_DIR;
+  const dir = isPrivateMode ? `${parentDir}private` : `${parentDir}shared`;
   return dir;
 }
 
 function exportArtifact(contractName, contract) {
   checkArtifactDirectory();
-  const exportPath = path.join(getArtifactDir(), `/${contractName}.json`);
+  const exportPath = path.join(getArtifactDir(), `${contractName}.json`);
   console.log(`\n    exporting ${contractName} arti to ${exportPath}`);
   const abi = hre.artifacts.readArtifactSync(contractName).abi;
   const artifact = {
@@ -42,21 +43,17 @@ function getArenaArtifact() {
 }
 
 function checkArtifactDirectory() {
-  const isPrivateMode = Boolean(getWorldSettings().privateMode);
+  const artifactsDir = cnts.ARTIFACTS_DIR;
+  const privateDir = `${artifactsDir}private/`;
+  const sharedDir = `${artifactsDir}shared/`;
 
-  if (isPrivateMode) {
-    if (!fs.existsSync(cnts.PRIVATE_WORLD_DIR)) {
-      if (!fs.existsSync("world/")) {
-        fs.mkdirSync("world/");
-      }
-      fs.mkdirSync(cnts.PRIVATE_WORLD_DIR);
+  if (!fs.existsSync(artifactsDir)) {
+    fs.mkdirSync(artifactsDir);
+    if (!fs.existsSync(privateDir)) {
+      fs.mkdirSync(privateDir);
     }
-  } else {
-    if (!fs.existsSync(cnts.SHARED_WORLD_DIR)) {
-      if (!fs.existsSync("world/")) {
-        fs.mkdirSync("world/");
-      }
-      fs.mkdirSync(cnts.SHARED_WORLD_DIR);
+    if (!fs.existsSync(sharedDir)) {
+      fs.mkdirSync(sharedDir);
     }
   }
 }

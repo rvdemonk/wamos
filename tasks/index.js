@@ -3,7 +3,7 @@
 ///////////////////////////////////////
 
 require("./network");
-require("./wallet")
+require("./wallet");
 require("./world");
 require("./new_world");
 require("./subscription");
@@ -14,3 +14,4 @@ require("./mint");
 require("./settings");
 require("./goprivate");
 require("./gopublic");
+require("./whichworld");
