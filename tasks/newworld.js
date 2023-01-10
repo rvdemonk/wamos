@@ -29,7 +29,7 @@ task(
   const subData = await vrf.getSubscription(subId);
   if (subData.consumers.length > 3) {
     console.log(`  *consumer limit reached - clearing`);
-    await helpers.clearVrfConsumers(vrf, subId);
+    await utils.callers.clearVrfConsumers(vrf, subId);
   }
 
   console.log(`adding new contract as consumer`);
