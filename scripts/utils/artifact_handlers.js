@@ -10,6 +10,7 @@ function togglePrivateMode(isPrivateMode) {
 }
 
 function getWorldSettings() {
+  checkArtifactDirectory();
   const raw = fs.readFileSync(cnts.WORLD_SETTINGS);
   return JSON.parse(raw);
 }
@@ -66,6 +67,11 @@ function checkArtifactDirectory() {
 
   if (!fs.existsSync(artifactsDir)) {
     fs.mkdirSync(artifactsDir);
+    const settings = { privateMode: true };
+    fs.writeFileSync(
+      path.join(artifactsDir, "world.settings.json"),
+      JSON.stringify(settings)
+    );
   }
   if (!fs.existsSync(privateDir)) {
     fs.mkdirSync(privateDir);
