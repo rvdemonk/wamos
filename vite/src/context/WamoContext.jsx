@@ -1,6 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import { ethers } from "ethers";
 import { isPrivateMode } from "../utilities/isPrivateMode";
+
+import settings from '../artifacts/world.settings.json';
 // private world
 import WamosV2_private from "../artifacts/private/WamosV2.json";
 import WamosV2Arena_private from "../artifacts/private/WamosV2Arena.json";
@@ -25,9 +27,11 @@ export function WamoProvider({ children }) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     setProvider(provider);
 
+    const isPrivateMode = settings.privateMode;
     let WamosV2;
     let WamosV2Arena;
-    if (isPrivateMode()) {
+
+    if (isPrivateMode) {
       WamosV2 = WamosV2_private;
       WamosV2Arena = WamosV2Arena_private;
     } else {
