@@ -12,5 +12,6 @@ task("mint", "Mints Wamos")
     }
     console.log(`-- Starting mint`);
     const signer = await hre.ethers.getSigner();
+
     await utils.callers.mint(taskArgs.amount, signer.address);
   });
