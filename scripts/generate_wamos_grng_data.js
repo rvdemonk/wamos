@@ -1,21 +1,20 @@
 const hre = require("hardhat");
-const fs = require('fs');
-const { deployWamos } = require("./helpers");
+const fs = require("fs");
+const { deployWamos } = require("./utils/").deployers;
 
 const TEST_SEED = 123456789;
 
 const writeData = (data, mu, sigma) => {
-  const filename = `./data/wamos_grng_${Date.now()
-  }.txt`
+  const filename = `./data/wamos_grng_${Date.now()}.txt`;
   const file = fs.createWriteStream(filename);
-  file.write(`WamosV2 Gaussian RNG, mu=${mu}, sigma=${sigma}\n`)
-  file.on('error', (err) => console.log("# Error writing data to file\n", err));
-  data.forEach(datum => {
-    file.write(datum.toString() + ', ');
+  file.write(`WamosV2 Gaussian RNG, mu=${mu}, sigma=${sigma}\n`);
+  file.on("error", (err) => console.log("# Error writing data to file\n", err));
+  data.forEach((datum) => {
+    file.write(datum.toString() + ", ");
   });
   file.end();
   console.log(`* Dataset saved to ${filename}`);
-}
+};
 
 async function main() {
   if (hre.network.name !== "hardhat") {
@@ -23,7 +22,7 @@ async function main() {
   }
 
   console.log("Testing WamosV2 Gaussian RNG!");
-  const wamos = await deployWamos(saveDeploy=false);
+  const wamos = await deployWamos((saveDeploy = false));
 
   // rng config
   const mu = 128;
