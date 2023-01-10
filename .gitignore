@@ -22,3 +22,4 @@ wamos-venv/
 
 # private world artifacts
 vite/src/artifacts/private
+vite/src/artifacts/world.settings.json
