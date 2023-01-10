@@ -13,5 +13,5 @@ require("./wamo");
 require("./mint");
 require("./settings");
 require("./goprivate");
-require("./gopublic");
+require("./goshared");
 require("./whichworld");

@@ -1,4 +1,5 @@
 const hre = require("hardhat");
+const getters = require("./getters");
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,7 +29,7 @@ function displayWamoTraits(id, traits) {
 }
 
 async function mint(amount, receipient) {
-  const wamos = await getWamos();
+  const wamos = await getters.getWamos();
   const owner = (await hre.ethers.getSigner()).address.toString();
   const params = { value: amount * hre.config.wamosMintPrice };
   console.log(`Requesting spawn...`);

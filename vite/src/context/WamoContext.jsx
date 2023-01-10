@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { ethers } from "ethers";
 
-// import artifacts from "../artifacts.json";
+
 import WamosV2 from "../artifacts/WamosV2.json";
 import WamosV2Arena from "../artifacts/WamosV2Arena.json";
 

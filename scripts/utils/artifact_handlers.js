@@ -3,9 +3,26 @@ const fs = require("fs");
 const path = require("path");
 const cnts = require("./constants");
 
+function togglePrivateMode(isPrivateMode) {
+  const settings = getWorldSettings();
+  settings.privateMode = isPrivateMode;
+  fs.writeFileSync(cnts.WORLD_SETTINGS, JSON.stringify(settings));
+}
+
 function getWorldSettings() {
   const raw = fs.readFileSync(cnts.WORLD_SETTINGS);
   return JSON.parse(raw);
+}
+
+function isPrivateModeActive() {
+  const settings = getWorldSettings();
+  return settings.privateMode;
+}
+
+function getActiveWorld() {
+  const settings = getWorldSettings();
+  const world = settings.privateMode ? "private" : "shared";
+  return world;
 }
 
 // gets path depending on world settings: priv/shared
@@ -49,19 +66,21 @@ function checkArtifactDirectory() {
 
   if (!fs.existsSync(artifactsDir)) {
     fs.mkdirSync(artifactsDir);
-    if (!fs.existsSync(privateDir)) {
-      fs.mkdirSync(privateDir);
-    }
-    if (!fs.existsSync(sharedDir)) {
-      fs.mkdirSync(sharedDir);
-    }
+  }
+  if (!fs.existsSync(privateDir)) {
+    fs.mkdirSync(privateDir);
+  }
+  if (!fs.existsSync(sharedDir)) {
+    fs.mkdirSync(sharedDir);
   }
 }
 
 module.exports = {
   getWorldSettings,
+  getActiveWorld,
   getArtifactDir,
   exportArtifact,
   getWamosArtifact,
   getArenaArtifact,
+  togglePrivateMode,
 };
