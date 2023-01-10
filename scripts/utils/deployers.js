@@ -7,7 +7,7 @@ async function deployWamos() {
 
   const chainConfig = hre.config.networks[network];
   const mintPrice = hre.config.wamosMintPrice;
-  console.log(`    deploying wamos`);
+  console.log(`\n    deploying wamos`);
   const wamos = await WamosV2.deploy(
     chainConfig.vrfCoordinator,
     chainConfig.gasLane,
@@ -25,7 +25,7 @@ async function deployArena(wamosAddr = null) {
   // by default connects to most recent deployment of wamos, unless other address
   // specified
   if (wamosAddr === null) wamosAddr = getWamosArtifact().address;
-  console.log(` -- deploying arena`);
+  console.log(`\n    deploying arena`);
   const arena = await WamosV2Arena.deploy(wamosAddr);
 
   console.log(`WamosV2Arena deployed to ${network}\n${arena.address}`);

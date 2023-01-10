@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const fs = require("fs");
+const path = require("path");
 const cnts = require("./constants");
 
 function getWorldSettings() {
@@ -16,31 +17,27 @@ function getArtifactDir() {
 
 function exportArtifact(contractName, contract) {
   checkArtifactDirectory();
-  const exportPath = getArtifactDir();
+  const exportPath = path.join(getArtifactDir(), `/${contractName}.json`);
+  console.log(`\n    exporting ${contractName} arti to ${exportPath}`);
   const abi = hre.artifacts.readArtifactSync(contractName).abi;
   const artifact = {
     address: contract.address,
     abi: abi,
   };
-  fs.writeFileSync(
-    path.join(exportPath, `${contractName}.json`),
-    JSON.stringify(artifact)
-  );
+  fs.writeFileSync(exportPath, JSON.stringify(artifact));
 }
 
 function getWamosArtifact() {
   const dir = getArtifactDir();
-  console.log(`!! getting wamos artifact`);
   const filepath = path.join(dir, "WamosV2.json");
-  console.log("-->", filepath);
   const rawData = fs.readFileSync(filepath);
   return JSON.parse(rawData);
 }
 
 function getArenaArtifact() {
   const dir = getArtifactDir();
-  console.log(`!! getting arena artifact`);
-  const rawData = fs.readFileSync(path.join(dir, "WamosV2Arena.json"));
+  const filepath = path.join(dir, "WamosV2Arena.json");
+  const rawData = fs.readFileSync(filepath);
   return JSON.parse(rawData);
 }
 

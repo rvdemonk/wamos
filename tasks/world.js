@@ -17,7 +17,7 @@ task(
   // get timestamps
   console.log(`\n--- Active Wamos World ----`);
   console.log("WamosV2:", wamos.address.substring(0, 10));
-  console.log("ArenaV2:", arena.address.substring(010));
+  console.log("ArenaV2:", arena.address.substring(0, 10));
   console.log(
     `Owner of contracts: [${wamosOwner.substring(0, 6)}, ${arenaOwner.substring(
       0,

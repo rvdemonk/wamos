@@ -8,11 +8,11 @@ task(
 
   const balStart = await utils.callers.getDeployerBalance();
 
-  console.log(`\n--- creating a new world on ${active} ---\n`);
+  console.log(`\n--- creating a new world on ${active} ---`);
   const wamos = await utils.deployers.deployWamos();
   const arena = await utils.deployers.deployArena(wamos.address);
 
-  console.log("** setting arena address");
+  console.log("\n** setting arena address");
   await wamos.setWamosArenaAddress(arena.address);
 
   console.log("exporting artifacts");
