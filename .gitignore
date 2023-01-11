@@ -1,7 +1,7 @@
 # Compiler files
 cache/
 out/
-artifacts/
+# artifacts/
 cache_hardhat/
 
 # Ignores development broadcast logs
@@ -19,3 +19,7 @@ wamos-venv/
 
 #misc
 .DS_Store
+
+# private world artifacts
+vite/src/artifacts/private
+vite/src/artifacts/world.settings.json

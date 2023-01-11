@@ -93,6 +93,10 @@ contract WamosV2Arena is IERC721Receiver {
     mapping(uint256 => uint256) wamoIdToWamoStatus;
 
     //// EVENTS todo
+    event GameCreated();
+    event PartyLoaded();
+    event TurnCommited();
+    event GameFinished();
 
     constructor(address _wamosAddr) {
         wamos = WamosV2(_wamosAddr);
@@ -120,7 +124,7 @@ contract WamosV2Arena is IERC721Receiver {
     }
 
     // todo
-    modifier onlyOnFoot() {
+    modifier onlyOnFoot(uint256 gameId) {
         _;
     }
 

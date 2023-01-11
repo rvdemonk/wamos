@@ -21,7 +21,6 @@ export function SpawnProvider({ children }) {
 
   const [checkCount, setCheckCount] = useState(0);
 
-  const [checkCountHundred, setCheckCountHundred] = useState(false);
   const [spawnData, setSpawnData] = useState({});
   const [galData, setGalData] = useState({});
   const [galQuery, setGalQuery] = useState(false);
