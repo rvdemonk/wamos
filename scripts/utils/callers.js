@@ -33,12 +33,14 @@ async function mint(amount, receipient) {
   const owner = (await hre.ethers.getSigner()).address.toString();
   const params = { value: amount * hre.config.wamosMintPrice };
   console.log(`Requesting spawn...`);
+
   const requestTx = await wamos.requestSpawn(amount, params);
   const receipt = await requestTx.wait();
   const requestEvent = receipt.events.find(
     (event) => event.event === "SpawnRequested"
   );
   const [sender, requestId, startWamoId, number] = requestEvent.args;
+
   // console.log(typeof startWamoId, typeof amount,)
   const endId = Number(startWamoId) + Number(amount) - 1;
   console.log(`Request ID ${requestId}`);

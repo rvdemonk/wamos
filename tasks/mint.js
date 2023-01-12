@@ -3,7 +3,7 @@ task("mint", "Mints Wamos")
   .setAction(async (taskArgs, hre) => {
     const utils = require("../scripts/utils/");
 
-    if (taskArgs.amount > 10) {
+    if (taskArgs.amount > 6) {
       console.log(`You cannot mint that many Wamos at once!`);
     }
     const price = hre.config.wamosMintPrice;
